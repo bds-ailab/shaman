@@ -7,7 +7,7 @@
     <div class="mx-auto text-center text-2xl font-semibold">
       UI for Smart HPC Application MANager
     </div>
-    <div class="flex flex-row mt-8 justify-center">
+    <div class="flex flex-wrap mt-8 -mx-2 justify-center">
       <HomeButtons
         v-for="button in buttons"
         :key="button.title"
