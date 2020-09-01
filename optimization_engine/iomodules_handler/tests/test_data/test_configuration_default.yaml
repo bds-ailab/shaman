@@ -1,0 +1,11 @@
+# Configuration file for testing the accelerator class when all parameters are specified by default.
+# In order to check that the accelerator class can be run without any parameter.
+
+ABSTRACT_ACCELERATOR:
+  TOTO:
+    description: This is fake and has a default
+    value: 4
+
+  TITI:
+    description: This is fake and it does not have a default
+    value: 2

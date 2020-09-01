@@ -1,0 +1,10 @@
+# Do not send git to build context
+.git
+# Do not send __pycache__ directory to build context
+**/__pycache__/
+# Do not send tests to build context
+**/tests/
+# Do not send venv do build context
+venv/
+# Do not send vscode settings to build context
+.vscode/

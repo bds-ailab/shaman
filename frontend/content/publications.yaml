@@ -1,0 +1,18 @@
+publications:
+  - authors:
+      - Sophie Robert
+      - Soraya Zertal
+      - Gaël Goret
+    title: 'SHAMan: an intelligent framework for auto-tuning of I/O accelerators'
+    conference: "Accepted to the 2020 conference on Intelligent Systems: Theories and applications (SITA'20)"
+    date: 2020
+
+  - authors:
+      - Sophie Robert
+      - Soraya Zertal
+      - Gaël Goret
+    title: Auto-tuning of I/O accelerators using black-box optimization
+    conference: Presented at the 2019 International Conference on High Performance Computing \& Simulation (HPCS'19)
+    track: Poster Paper Track
+    award: Outstanding Poster Paper
+    date: 2019

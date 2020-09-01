@@ -1,0 +1,18 @@
+---
+version: "3.7"
+
+services:
+  mongo_ioi:
+    ports:
+      - 27017:27017
+
+  mongo_shaman:
+    ports:
+      - 27018:27017
+
+  mongo_ui:
+    image: huggingface/mongoku:1.3.0
+    environment:
+      MONGOKU_DEFAULT_HOST: mongodb://mongo_shaman:27017
+    ports:
+      - 3101:3100

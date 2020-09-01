@@ -1,0 +1,17 @@
+---
+version: "3.7"
+
+services:
+  shaman_api:
+    image: shaman_api:latest
+    command:
+      - --workers
+      - "2"
+    environment:
+      SHAMAN_MONGODB_HOST: mongo_shaman
+      SHAMAN_MONGODB_PORT: 27017
+      IOI_MONGODB_HOST: mongo_ioi
+      IOI_MONGODB_PORT: 27018
+      LOG_LEVEL: DEBUG
+    ports:
+      - 8080:8080

@@ -1,0 +1,203 @@
+form_options:
+  with_ioi:
+    section: experiment
+    varname: with_ioi
+    vmodel: false
+    type: checkbox
+    label: 'Use with IOI ?'
+
+  kill_too_long:
+    section: experiment
+    varname: kill_too_long
+    vmodel: false
+    type: checkbox
+    label: 'Stop unpromising trials ?'
+    derived_options:
+      max_step_duration:
+        varname: 'max_step_duration'
+        label: 'Pruning strategy'
+        type: 'radio'
+        options:
+          default:
+            varname: default
+            label: 'Default parametrization'
+          median:
+            varname: median
+            label: 'Current median'
+
+  noise_reduction:
+    section: noise_reduction
+    type: checkbox
+    label: 'Use noise reduction ?'
+    derived_options:
+      fitness_aggregation:
+        type: 'radio'
+        varname: 'fitness_aggregation'
+        label: 'Fitness aggregation'
+        options:
+          none:
+            varname: None
+            label: 'No aggregation'
+          simple_fitness_aggregation:
+            varname: simple_fitness_aggregation
+            label: 'Simple fitness aggregation'
+            options:
+              estimator:
+                label: "Estimator"
+                type: radio
+                varname: estimator
+                options:
+                  mean:
+                    varname: numpy.mean
+                    label: "Mean"
+                  median:
+                    varname: numpy.median
+                    label: "Median"
+
+      resampling_policy:
+        label: 'Resampling policy'
+        type: 'radio'
+        varname: 'resampling_policy'
+        options:
+          static_resampling:
+            type: 'static'
+            label: 'Static resampling'
+            varname: simple_resampling
+            options:
+              nbr_resamples:
+                label: 'Number of repetitions'
+                type: number
+                options:
+                  nbr_resamples:
+                    min: 0
+                    varname: nbr_resamples
+                    min: 0
+                    max: 100
+                    step: 1
+          dynamic_resampling:
+            type: 'radio'
+            varname: 'dynamic_resampling'
+            label: 'Dynamic resampling'
+            options:
+              percentage:
+                label: 'Percentage'
+                type: number
+                options:
+                  percentage:
+                    min: 0
+                    varname: percentage
+                    min: 0
+                    max: 10
+                    step: 1
+
+  initial_sample_size:
+    section: bbo
+    varname: initial_sample_size
+    vmodel: false
+    type: number
+    label: 'initialization steps'
+
+  heuristic:
+    section: bbo
+    type: static
+    vmodel: true
+    label: 'Select heuristic'
+    derived_options:
+      heuristic:
+        varname: heuristic
+        type: radio
+        vmodel: true
+        options:
+          genetic_algorithm:
+            varname: genetic_algorithm
+            label: 'Genetic algorithm'
+            vmodel: false
+            options:
+              selection_method:
+                label: 'Selection method'
+                type: radio
+                options:
+                  tournament_pick:
+                    varname: tournament_pick
+                    label: 'Tournament pick'
+                  probabilistic_pick:
+                    varname: probabilistic_pick
+                    label: 'Probabilistic pick'
+              crossover_method:
+                label: 'Combination method'
+                type: radio
+                options:
+                  one_point_crossover:
+                    varname: one_point_crossover
+                    label: 'One point crossover'
+                  two_point_crossover:
+                    varname: two_point_crossovers
+                    label: 'Two point crossovers'
+              mutation_method:
+                label: 'Mutation method'
+                type: radio
+                options:
+                  mutate_neighbor:
+                    varname: mutate_neighbor
+                    label: 'Mutate into neighbor'
+              mutation_rate:
+                label: 'Mutation rate'
+                type: number
+                options:
+                  mutation_rate:
+                    varname: mutation_rate
+                    min: 0
+                    max: 1
+                    step: 0.1
+
+          surrogate_models:
+            varname: 'surrogate_model'
+            label: 'Surrogate model'
+            vmodel: false
+            options:
+              regression_model:
+                label: 'Regression model'
+                type: radio
+                options:
+                  regression_model:
+                    varname: sklearn.gaussian_process.GaussianProcessRegressor # fill up using sklearn
+                    label: 'Gaussian Process regression'
+              next_parameter_strategy:
+                label: 'Next parameter strategy'
+                type: radio
+                options:
+                  expected_improvement:
+                    label: 'Expected improvement'
+                    varname: 'bbo.heuristics.surrogate_models.next_parameter_strategies.expected_improvement'
+                  maximum_probability_improvement:
+                    label: 'Maximum probability improvement'
+                    varname: 'bbo.heuristics.surrogate_models.next_parameter_strategies.maximum_probability_improvement'
+
+          simulated_annealing:
+            varname: 'simulated_annealing'
+            label: 'Simulated annealing'
+            vmodel: false
+            options:
+              cooling_schedule:
+                label: 'Cooling schedule'
+                type: 'radio'
+                options:
+                  logarithmic:
+                    label: 'Logarithmic'
+                    varname: 'logarithmic'
+                  exponential:
+                    label: 'Exponential'
+                    varname: 'exponential'
+                  multiplicative:
+                    label: 'Multiplicative'
+                    varname: 'multiplicative'
+              restart:
+                label: 'Restart strategy'
+                type: 'radio'
+                options:
+                  threshold:
+                    label: 'Threshold'
+                    varname: 'threshold'
+                  random:
+                    label: 'Random'
+                    varname: 'random'

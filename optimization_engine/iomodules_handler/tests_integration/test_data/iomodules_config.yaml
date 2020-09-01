@@ -1,0 +1,71 @@
+FIOL_ACCELERATOR:
+  SLURM_CONF:
+    type: str
+    ask_user: True
+    env_var: True
+    default: /slurm/slurm.conf
+    description: Path to the Slurm configuration of the cluster
+    value: /slurm/slurm.conf
+  SRO_CLUSTER_THRESHOLD:
+    default: 2
+    description: null
+    env_var: true
+    type: int
+    value: 2
+  SRO_DSC_BINSIZE:
+    default: 1048576
+    description: null
+    env_var: true
+    type: int
+    value: 1048576
+  SRO_PREFETCH_SIZE:
+    default: 20971520
+    description: null
+    env_var: true
+    type: int
+    value: 20971520
+  SRO_SEQUENCE_LENGTH:
+    default: 100
+    description: null
+    env_var: true
+    type: int
+    value: 100
+SBB_SLURM_ACCELERATOR:
+  SLURM_CONF:
+    type: str
+    ask_user: True
+    env_var: True
+    default: /slurm/slurm.conf
+    description: Path to the Slurm configuration of the cluster
+    value: /slurm/slurm.conf
+  FLASH-CACHE-THRESHOLD:
+    default: 10
+    optional: true
+    type: int
+    value: 10
+  FLASH-DESTAGERS:
+    default: 10
+    optional: true
+    type: int
+    value: 10
+  FLAVOR:
+    ask_user: true
+    description: Enter one existing flavor for the SBB accelerator that will be used
+      as default. The flavors can be found at /etc/flash-accelerators/datanodes.conf.
+    type: str
+    value: small
+  MAX-FLASH-DESTAGE-OPS:
+    default: 10
+    optional: true
+    type: int
+    value: 10
+  MAX-FLASH-DESTAGE-SIZE:
+    default: 10
+    optional: true
+    type: int
+    value: 10
+  TARGETS:
+    type: str
+    default: /fs1/
+    value: /fs1/roberts
+

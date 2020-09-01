@@ -1,0 +1,14 @@
+# Configuration file for testing the accelerator class
+
+ABSTRACT_ACCELERATOR:
+  TATA:
+    optional: True
+    flag: k
+
+  TUTU:
+    flag: dede
+    value: 3 
+
+  TITI: 
+    flag: d
+    value: 3

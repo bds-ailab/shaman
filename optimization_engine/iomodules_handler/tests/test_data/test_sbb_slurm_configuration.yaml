@@ -1,0 +1,13 @@
+# Configuration file for testing the sbb_slurm class
+
+SBB_SLURM_ACCELERATOR:
+  TOTO:
+    description: This is fake and has a default
+    value: 4
+    env_var: True
+
+  TITI:
+    description: This is fake and it does not have a default
+
+  TATA:
+    optional: True
