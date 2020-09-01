@@ -1,6 +1,6 @@
 <template>
   <div
-    class="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/6 px-2"
+    class="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/6 px-2 mt-2"
     data-aos="fade-in"
     data-aos-duration="1500"
     data-aos-anchor-placement="top-bottom"
