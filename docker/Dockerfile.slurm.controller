@@ -1,0 +1,27 @@
+# Image for slurm controller
+FROM slurm-base
+
+# Install openssh server
+RUN yum install -y openssh-server
+
+# Launch sshd server
+RUN mkdir /var/run/sshd &&\
+    ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key -N ''
+RUN /usr/sbin/sshd
+
+# Configure the compute nodes to be accessed without ssh
+RUN mkdir -p /compute && \
+    chown -R compute:compute /compute
+
+COPY scripts/setup_ssh.sh /compute/setup-compute-ssh.sh
+RUN chmod +x /compute/setup-compute-ssh.sh &&\
+    /compute/setup-compute-ssh.sh
+
+# Generate munge key
+RUN /sbin/create-munge-key -f
+
+# Copy and give proper execution rights to script launching munge and slurmctld
+COPY scripts/start_controller.sh /start_controller
+RUN chmod +x /start_controller
+
+ENTRYPOINT ["tini", "--", "/start_controller"]

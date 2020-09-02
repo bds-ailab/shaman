@@ -1,0 +1,22 @@
+# Image for compute node
+FROM slurm-base
+
+# TODO: move to base image
+# Install openssh server
+RUN yum install -y openssh-server
+
+# Launch sshd server
+RUN mkdir /var/run/sshd &&\
+    ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key -N ''
+RUN /usr/sbin/sshd
+
+
+# Setup proper configuration for slurm
+RUN  touch /var/log/slurmd.log &&\
+    chown slurm: /var/log/slurmd.log
+
+# Copy and give proper execution rights to script launching munge and slurmctld
+COPY scripts/start_compute.sh /start_compute
+RUN chmod +x /start_compute
+
+ENTRYPOINT ["tini", "--", "/start_compute"]

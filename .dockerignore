@@ -6,5 +6,7 @@
 **/tests/
 # Do not send venv do build context
 venv/
+# Do not send node_modules
+**/node_modules/**
 # Do not send vscode settings to build context
 .vscode/
