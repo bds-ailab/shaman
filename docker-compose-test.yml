@@ -1,0 +1,129 @@
+version: "3.1"
+
+services:
+  controller:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.slurm.controller
+    image: slurm-controller
+    container_name: controller
+    privileged: true
+    # restart: always
+    hostname: controller
+    command: tail -f /dev/null
+    networks:
+      - slurm
+    volumes:
+      - secrets:/secrets
+
+  compute1:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.slurm.compute
+    image: slurm-compute
+    depends_on:
+      - controller
+    container_name: compute1
+    privileged: true
+    # restart: always
+    hostname: compute1
+    command: tail -f /dev/null
+    networks:
+      - slurm
+    volumes:
+      - secrets:/secrets
+
+  compute2:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.slurm.compute
+    image: slurm-compute
+    depends_on:
+      - controller
+    container_name: compute2
+    privileged: true
+    # restart: always
+    hostname: compute2
+    command: tail -f /dev/null
+    networks:
+      - slurm
+    volumes:
+      - secrets:/secrets
+
+  mongo:
+    image: mongo:4.0
+    container_name: mongo
+    hostname: mongo
+    # volumes:
+    # tochange
+    # - /home_nfs/roberts/shaman_data/dockercompose_data:/data/db
+    restart: on-failure
+    ports:
+      - "27017:27017"
+    expose:
+      - 27017
+    command: mongod --bind_ip 0.0.0.0 --replSet rs0
+    networks:
+      - mongo
+
+  mongo_init:
+    image: mongo:4.0
+    container_name: mongo_init
+    # volumes:
+    # tochange
+    # - /home_nfs/roberts/shaman_data/dockercompose_data:/data/db
+    restart: on-failure
+    depends_on:
+      - mongo
+    command: >
+      mongo
+      --host mongo
+      --eval 'rs.initiate({_id: "rs0", members: [{_id: 0, host : "mongo:27017"}]})'
+    networks:
+      - mongo
+
+  ui:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.ui
+    image: ui
+    container_name: ui
+    privileged: true
+    hostname: ui
+    command: npm run start
+    ports:
+      - "3000:3000"
+
+  shaman_engine:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.engine
+    image: engine
+    container_name: engine
+    privileged: true
+    hostname: engine
+    command: tail -f /dev/null
+
+  api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    image: api
+    container_name: api
+    privileged: true
+    hostname: api
+    command: shaman-api prod
+    ports:
+      - "5000:8080"
+    networks:
+      - mongo
+
+
+  # redis:
+
+networks:
+  slurm:
+  mongo:
+
+volumes:
+  secrets:

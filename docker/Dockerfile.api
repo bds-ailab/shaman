@@ -1,0 +1,27 @@
+#TODO: multistage docker
+# Dockerfile containing the FastAPI library
+FROM centos/python-36-centos7
+
+# Upgrade pip and whell
+RUN pip install --upgrade pip &&\
+    pip install --upgrade wheel
+
+# Copy API files
+COPY api/ /api
+
+# TODO: very ugly workaround (temporary until redis network is enabled)
+COPY optimization_engine /optimization_engine
+WORKDIR /optimization_engine/little_shaman
+RUN pip install ../bbo/ && \
+    pip install ../iomodules_handler && \
+    pip install .	
+
+# Build package using setup
+WORKDIR /api
+
+RUN pip install .
+
+# Create run directory for SHAMan
+WORKDIR /shaman_rundir
+
+CMD ["shaman-api", "prod"]

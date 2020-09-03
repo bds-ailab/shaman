@@ -1,7 +1,7 @@
 FROM slurm-dependencies
 
 # Copy the configuration file
-COPY config/slurm.conf /etc/slurm/
+COPY docker/config/slurm.conf /etc/slurm/
 
 # Create correct directories to run slurm
 RUN mkdir -p /var/spool/slurm/ctld \

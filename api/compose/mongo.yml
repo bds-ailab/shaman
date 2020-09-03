@@ -1,9 +1,0 @@
----
-version: "3.7"
-
-services:
-  mongo_ioi:
-    image: mongo:3.4
-
-  mongo_shaman:
-    image: mongo:3.4

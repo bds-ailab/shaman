@@ -13,8 +13,10 @@ Please contact Bull S. A. S. for details about its license.
 
 import logging
 
-from iomodules_handler.io_modules import __DEFAULT_CONFIGURATION__
+# from iomodules_handler.io_modules import __DEFAULT_CONFIGURATION__
 from .accelerator import Accelerator
+# TODO: deal with iomodules configuration
+__DEFAULT_CONFIGURATION__ = ""
 
 
 class SBBSlurmAccelerator(Accelerator):

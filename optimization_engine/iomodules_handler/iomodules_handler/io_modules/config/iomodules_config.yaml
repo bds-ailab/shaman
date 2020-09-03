@@ -1,0 +1,58 @@
+FIOL_ACCELERATOR:
+  IOLIB_DISABLE_SIGNALS_BLOCKING:
+    default: 0
+    description: allows to disable signal blocking
+    env_var: true
+    type: int
+    value: 0
+  SLURM_CONF:
+    ask_user: true
+    default: /etc/slurm/slurm.conf
+    description: Path to the Slurm configuration of the cluster
+    env_var: true
+    type: str
+    value: /etc/slurm/slurm.conf
+  SRO_ALLOW_SEQ_PREFETCH:
+    default: 0
+    description: allow SRO to prefetch when sequential pattern are detected
+    env_var: true
+    type: int
+    value: 0
+  SRO_CLUSTER_THRESHOLD:
+    default: 2
+    description: null
+    env_var: true
+    type: int
+    value: 2
+  SRO_DISABLE_WRITE_PREFETCH:
+    default: 0
+    description: allow to disable SRO write prefetching
+    env_var: true
+    type: int
+    value: 0
+  SRO_DSC_BINSIZE:
+    default: 1048576
+    description: null
+    env_var: true
+    type: int
+    value: 1048576
+  SRO_PREFETCH_SIZE:
+    default: 20971520
+    description: null
+    env_var: true
+    type: int
+    value: 20971520
+  SRO_PREFETCH_TECHNIQUE:
+    default: 0
+    description:
+      allow to do readahead operations (ie asynchronous read) instead of
+      synchronous read
+    env_var: true
+    type: int
+    value: 0
+  SRO_SEQUENCE_LENGTH:
+    default: 100
+    description: null
+    env_var: true
+    type: int
+    value: 100

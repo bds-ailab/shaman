@@ -5,8 +5,13 @@
 # Do not send tests to build context
 **/tests/
 # Do not send venv do build context
-venv/
+**/venv/
+# Do not send build and dist
+**/build/
+**/dist/
 # Do not send node_modules
 **/node_modules/**
+# Do not send .nuxt
+**/.nuxt/**
 # Do not send vscode settings to build context
 .vscode/

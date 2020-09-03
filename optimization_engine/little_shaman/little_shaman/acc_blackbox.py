@@ -15,9 +15,10 @@ import re
 from shutil import copyfile
 import subprocess
 from shlex import split
-from iomodules_handler.io_modules import SBBSlurmAccelerator, SROAccelerator,\
-    __DEFAULT_CONFIGURATION__ as IOMODULES_CONFIGURATION
-
+# TODO: deal with problem of configuration
+from iomodules_handler.io_modules import SBBSlurmAccelerator, SROAccelerator
+# __DEFAULT_CONFIGURATION__ as IOMODULES_CONFIGURATION
+IOMODULES_CONFIGURATION = ""
 
 # TODO: add manual SBB support
 __ACCELERATORS__ = {"fiol": SROAccelerator,

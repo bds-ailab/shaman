@@ -16,7 +16,7 @@ RUN  touch /var/log/slurmd.log &&\
     chown slurm: /var/log/slurmd.log
 
 # Copy and give proper execution rights to script launching munge and slurmctld
-COPY scripts/start_compute.sh /start_compute
+COPY docker/scripts/start_compute.sh /start_compute
 RUN chmod +x /start_compute
 
 ENTRYPOINT ["tini", "--", "/start_compute"]

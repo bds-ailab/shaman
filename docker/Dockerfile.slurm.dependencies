@@ -42,7 +42,7 @@ RUN yum -y install \
 # Select proper slurm version to use
 ENV SLURM_VERSION=19.05.1
 # Copy script to download packages
-COPY scripts/downloads.sh /tmp
+COPY docker/scripts/downloads.sh /tmp
 # Run download scripts
 RUN chmod +x /tmp/downloads.sh \
     && /tmp/downloads.sh
