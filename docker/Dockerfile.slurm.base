@@ -1,0 +1,25 @@
+FROM slurm-dependencies
+
+# Copy the configuration file
+COPY docker/config/slurm.conf /etc/slurm/
+
+# Create correct directories to run slurm
+RUN mkdir -p /var/spool/slurm/ctld \
+    /var/spool/slurm/d \
+    /var/log/slurm && \
+    chown -R slurm: /var/spool/slurm/ctld \
+    /var/spool/slurm/d \
+    /var/log/slurm && \
+    touch /var/log/slurmctld.log && \
+    chown slurm: /var/log/slurmctld.log
+
+# Set correct permissions on munge folders
+RUN chown -R munge: /etc/munge /var/lib/munge /var/log/munge /var/run/munge &&\
+    chmod 0700 /etc/munge &&\
+    chmod 0711 /var/lib/munge &&\
+    chmod 0700 /var/log/munge &&\
+    chmod 0755 /var/run/munge
+
+WORKDIR /
+
+VOLUME ["/home", "/.secret"]

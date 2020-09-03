@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from .routers import experiment_router, ioi_router
+from .routers import experiment_router
 
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -17,7 +17,6 @@ app = FastAPI(
 )
 
 
-app.include_router(ioi_router, prefix="/io_durations", tags=["IO durations"])
 app.include_router(experiment_router, prefix="/experiments",
                    tags=["Experiments"])
 

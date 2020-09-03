@@ -21,6 +21,12 @@ install-little-shaman:
 	.venv/bin/python -m pip install ../iomodules_handler && \
 	.venv/bin/python -m pip install .
 
+install-little-shaman-prod:
+	cd little_shaman && \
+	pip install ../bbo/ && \
+	pip install ../iomodules_handler && \
+	pip install .	
+
 test-unit: test-bbo test-iomodules test-little-shaman generate-coverage
 
 test-int: test-iomodules-integration

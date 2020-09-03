@@ -16,7 +16,9 @@ Please contact Bull S. A. S. for details about its license.
 from collections import OrderedDict
 import logging
 from iomodules_handler.io_modules.iomodule import IOModule
-from iomodules_handler import __DEFAULT_CONFIGURATION__
+# from iomodules_handler import __DEFAULT_CONFIGURATION__
+# TODO: deal with iomodules configuration
+__DEFAULT_CONFIGURATION__ = ""
 
 
 class Accelerator(IOModule):
@@ -105,7 +107,8 @@ class Accelerator(IOModule):
                     # If the parameter is not in the parameters, there is no value,
                     # and the parameter is not optional
                     # raise a ValueError
-                    logging.info("No value for parameter %s. Aborting process.", param)
+                    logging.info(
+                        "No value for parameter %s. Aborting process.", param)
                     raise ValueError(f"No value for parameter {param}")
         return parameters
 

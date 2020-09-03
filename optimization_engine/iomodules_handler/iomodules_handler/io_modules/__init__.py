@@ -9,8 +9,5 @@ Please contact Bull S. A. S. for details about its license.
 
 import os
 
-__PACKAGE_PATH__ = os.path.dirname(os.path.realpath(__file__))
-__DEFAULT_CONFIGURATION__ = os.path.join(__PACKAGE_PATH__, "config/iomodules_config.yaml")
-
 from .accelerators import SROAccelerator
 from .accelerators import SBBSlurmAccelerator

@@ -24,12 +24,9 @@ class AppConfig(BaseSettings):
         - Using environment variables
     """
 
-    shaman_mongodb_host: str = "pic12"
-    shaman_mongodb_port: int = 27021
+    shaman_mongodb_host: str = "mongo"
+    shaman_mongodb_port: int = 27017
     shaman_mongodb_database: str = "shaman_db"
-    ioi_mongodb_host: str = "pic17"
-    ioi_mongodb_port: int = 27017
-    ioi_mongodb_database: str = "cmdb_database"
     log_level: LoggingLevel = "DEBUG"
     running_directory: Path = Path("/shaman_rundir")
 

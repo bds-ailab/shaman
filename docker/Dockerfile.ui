@@ -1,0 +1,24 @@
+# Dockerfile for SHAMan UI
+FROM node as build
+
+# copy the content of the frontend into the docker container
+COPY frontend/ /frontend
+
+# Change the permission to the files to the user node
+RUN chown -R node: /frontend && \
+    chmod 744 /frontend
+
+# Set user as node
+USER node
+
+# make the 'frontend' folder the current working directory
+WORKDIR /frontend
+
+# Install dependencies
+RUN npm install
+
+# build app for production with minification
+RUN npm run build
+
+# Bind to correct host
+ENV HOST 0.0.0.0

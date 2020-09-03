@@ -1,0 +1,72 @@
+# Base image for all slurm nodes: install Slurm and MPI packages
+# gcharbon/centos7-openmpi:latest
+FROM centos:7
+
+# Clean cache and update yum
+RUN yum clean all && rm -rf /var/cache/yum && yum update -y 
+
+# Dependencies for building Slurm
+# Install EPEL repo
+RUN yum -y install \
+    epel-release
+
+# Install slurm dependencies
+RUN yum -y install \
+    which \
+    wget \
+    munge \
+    munge-devel \
+    munge-libs \
+    rpm-build \
+    gcc \
+    openssl \
+    openssl-devel \
+    libssh2-devel \
+    pam-devel \
+    numactl \
+    numactl-devel \
+    hwloc \
+    lua \
+    readline-devel \
+    ncurses-devel \
+    gtk2-devel \
+    man2html \
+    libibmad \
+    libibumad \
+    mariadb-server \
+    mariadb-devel \
+    perl \
+    perl-ExtUtils-MakeMaker \
+    && yum -y group install "Development Tools"
+
+# Select proper slurm version to use
+ENV SLURM_VERSION=19.05.1
+# Copy script to download packages
+COPY docker/scripts/downloads.sh /tmp
+# Run download scripts
+RUN chmod +x /tmp/downloads.sh \
+    && /tmp/downloads.sh
+
+# Select proper slurm version to use
+ENV SLURM_VERSION=19.05.1
+# Create the /packages directory
+WORKDIR /packages
+
+# Set fixed uids to munge, slurm and compute users
+ENV MUNGE_UID=981 \
+    SLURM_UID=982 \
+    COMPUTE_UID=1000
+# Create munge, slurm and compute primary groups and users
+# RUN groupadd -g $MUNGE_UID munge \
+#     && useradd  -m -c "Munge" -d /var/lib/munge -u $MUNGE_UID -g munge  -s /sbin/nologin munge
+RUN groupadd -g $SLURM_UID slurm \
+    && useradd  -m -c "Slurm workload manager" -d /var/lib/slurm -u $SLURM_UID -g slurm  -s /bin/bash slurm \
+    && groupadd -g $COMPUTE_UID compute \
+    && useradd  -m -c "Compute nodes" -d /compute -u $COMPUTE_UID -g compute  -s /bin/bash compute
+
+RUN yum -y localinstall $(ls | grep -v -e 'torque' -e 'openmpi')
+
+# Add tini script to ensure container runs forever
+ENV TINI_VERSION v0.19.0
+ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /bin/tini
+RUN chmod +x /bin/tini
