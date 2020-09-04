@@ -1,36 +1,24 @@
 <template>
-  <!-- Page content is a single row -->
-  <div class="flex flex-row w-full min-h-screen">
-    <!-- First column holding experiment table
-      The column fits in whole page by default
-      When an experiment is selected, it takes 1/4 of the page.
-      All child div will be positioned vertically.
-
-      NOTE: wrap all bootsrap components into div to make sure items will be positioned correctly
-     -->
-    <b-col
-      :class="{
-        'col-md-2': viewExperiment,
-        'col-md-12': !viewExperiment,
-        container: !viewExperiment
-      }"
-    >
-      <!-- Start of pagination
-      -->
-      <b-row>
-        <b-pagination
-          v-model="currentPage"
-          :total-rows="Object.keys(experiments).length"
-          :per-page="perPage"
-          aria-controls="experimentTable"
-          class="overflow-auto"
-          @input="showExperiment(false)"
-        ></b-pagination>
-      </b-row>
-      <!-- End of pagination -->
-
-      <!-- Start of table -->
-      <b-row>
+  <div class="container-fluid">
+    <!-- Page content is a single row -->
+    <div class="flex flex-col w-2/3 mx-auto" v-if="!viewExperiment"></div>
+    <div v-if="viewExperiment">
+      <b-sidebar
+        id="experimentSidebar"
+        title="Browse experiments"
+        backdrop="true,"
+        width="500px"
+      >
+        <div>
+          <b-pagination
+            v-model="currentPage"
+            :total-rows="Object.keys(experiments).length"
+            :per-page="perPage"
+            aria-controls="experimentTable"
+            class="overflow-auto"
+            @input="showExperiment(false)"
+          ></b-pagination>
+        </div>
         <div class="table-responsive">
           <b-table
             id="experimentTable"
@@ -66,32 +54,36 @@
             </template>
           </b-table>
         </div>
-      </b-row>
-      <!-- End of table -->
-    </b-col>
-    <!-- End of first column -->
-    <!-- Start of second column. Rendered only when viewExperiment is true.
-      This column takes all remaining width.
-      As long as table content takes 1/4 of width it will take 3/4 of width
-    -->
-    <b-col v-if="viewExperiment" md="9">
-      <!-- Include ExperimentDisplay wth name and objectID properties -->
-      <ExperimentDisplay
-        :key="objectId"
-        :name="experimentName"
-        :objectid="objectId"
-      ></ExperimentDisplay>
-    </b-col>
-    <!-- Position a 'Back to full view' button on the rop right corner of the experiment display -->
-    <b-col md="1">
-      <div
-        class="inline-block h-6 w-6 bg-pink-600 shaman-button"
-        @click="showExperiment(false)"
-      >
-        Back to full view
+      </b-sidebar>
+      <div class="flex flex-row w-full">
+        <div class="w-1/6">
+          <!-- Button for full view of experiment through sidebar -->
+          <div
+            class="inline-block h-6 w-6 bg-pink-600 shaman-button"
+            v-b-toggle.experimentSidebar
+          >
+            Browse experiments
+          </div>
+        </div>
+        <div class="w-full">
+          <!-- Include ExperimentDisplay wth name and objectID properties -->
+          <ExperimentDisplay
+            :key="objectId"
+            :name="experimentName"
+            :objectid="objectId"
+          ></ExperimentDisplay>
+        </div>
+        <!-- Position a 'Back to full view' button on the rop right corner of the experiment display -->
+        <div class="w-1/6">
+          <div
+            class="inline-block h-6 w-6 bg-pink-600 shaman-button"
+            @click="showExperiment(false)"
+          >
+            Back to full view
+          </div>
+        </div>
       </div>
-    </b-col>
-    <!-- End of second column. -->
+    </div>
   </div>
 </template>
 
