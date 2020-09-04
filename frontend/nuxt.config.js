@@ -52,6 +52,7 @@ export default {
     { src: '@/plugins/aos', ssr: false },
     { src: '@/plugins/mocks', ssr: false },
     { src: '@/plugins/axios' },
+    { src: '@/plugins/v-tooltip', ssr:false },
     { src: '~plugins/vue-apexcharts', ssr: false },
     { src: '~plugins/highlight', ssr: false },
     { src: '~plugins/nuxt-codemirror.js', ssr: false }

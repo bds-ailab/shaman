@@ -105,6 +105,7 @@
           :key="kpi.description"
           :value="kpi.value"
           :description="kpi.description"
+          :tooltip="kpi.tooltip"
           class="mx-auto"
         ></KPIBox>
       </b-col>
@@ -234,38 +235,50 @@ export default {
         return [
           {
             description: 'Optimized accelerator',
-            value: this.experiment.accelerator
+            value: this.experiment.accelerator,
+            tooltip: 'The name of the optimized component'
           },
           {
             description: 'Gain compared to default',
             value:
-              parseFloat(this.experiment.improvement_default).toFixed(2) + '%'
+              parseFloat(this.experiment.improvement_default).toFixed(2) + '%',
+            tooltip:
+              'Time gain compared to the default parametrization, expressed in percentage.'
           },
           {
             description: 'Average noise',
-            value: parseFloat(this.experiment.average_noise).toFixed(3)
+            value: parseFloat(this.experiment.average_noise).toFixed(3),
+            tooltip: 'Standard error within each tested parametrization'
           },
           {
             description: '% of explored space',
-            value: parseFloat(this.experiment.explored_space).toFixed(3)
+            value: parseFloat(this.experiment.explored_space).toFixed(3),
+            tooltip:
+              'Ratio of different tested parametrization compared to the total of possible parametrizations'
           }
         ]
       } else {
         return [
           {
-            description: 'Optimized accelerator',
-            value: ''
+            description: 'Optimized component',
+            value: '',
+            tooltip: 'The name of the optimized component'
           },
           {
             description: 'Gain compared to default',
+            tooltip:
+              'Time gain compared to the default parametrization, expressed in percentage.',
             value: 0
           },
           {
             description: 'Average noise',
-            value: 0
+            value: 0,
+            tooltip: 'Standard error within each tested parametrization'
           },
           {
             description: '% of explored space',
+            tooltip:
+              'Ratio of different tested parametrization compared to the total of possible parametrizations',
             value: 0
           }
         ]
@@ -370,14 +383,10 @@ export default {
   },
   mounted() {
     axios
-      .all([
-        axios.get('/experiments/' + this.objectid)
-        // axios.get('/io_durations/' + this.objectid)
-      ])
+      .all([axios.get('/experiments/' + this.objectid)])
       .then(
         axios.spread((experimentResponse, ioDurationResponse) => {
           this.experiment = experimentResponse.data
-          //          this.ioDurations = ioDurationResponse.data
         })
       )
       .catch((e) => console.log(e))
@@ -396,3 +405,113 @@ export default {
   }
 }
 </script>
+
+<style>
+/* Tooltip style: taken from https://github.com/Akryum/v-tooltip#style-examples*/
+.tooltip {
+  display: block !important;
+  z-index: 10000;
+}
+
+.tooltip .tooltip-inner {
+  background: #d53f8c;
+  color: white;
+  border-radius: 16px;
+  padding: 5px 10px 4px;
+  font-size: 1rem;
+}
+
+.tooltip .tooltip-arrow {
+  width: 0;
+  height: 0;
+  border-style: solid;
+  position: absolute;
+  margin: 5px;
+  border-color: #d53f8c;
+  z-index: 1;
+}
+
+.tooltip[x-placement^='top'] {
+  margin-bottom: 5px;
+}
+
+.tooltip[x-placement^='top'] .tooltip-arrow {
+  border-width: 5px 5px 0 5px;
+  border-left-color: transparent !important;
+  border-right-color: transparent !important;
+  border-bottom-color: transparent !important;
+  bottom: -5px;
+  left: calc(50% - 5px);
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.tooltip[x-placement^='bottom'] {
+  margin-top: 5px;
+}
+
+.tooltip[x-placement^='bottom'] .tooltip-arrow {
+  border-width: 0 5px 5px 5px;
+  border-left-color: transparent !important;
+  border-right-color: transparent !important;
+  border-top-color: transparent !important;
+  top: -5px;
+  left: calc(50% - 5px);
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.tooltip[x-placement^='right'] {
+  margin-left: 5px;
+}
+
+.tooltip[x-placement^='right'] .tooltip-arrow {
+  border-width: 5px 5px 5px 0;
+  border-left-color: transparent !important;
+  border-top-color: transparent !important;
+  border-bottom-color: transparent !important;
+  left: -5px;
+  top: calc(50% - 5px);
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.tooltip[x-placement^='left'] {
+  margin-right: 5px;
+}
+
+.tooltip[x-placement^='left'] .tooltip-arrow {
+  border-width: 5px 0 5px 5px;
+  border-top-color: transparent !important;
+  border-right-color: transparent !important;
+  border-bottom-color: transparent !important;
+  right: -5px;
+  top: calc(50% - 5px);
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.tooltip.popover .popover-inner {
+  background: #f9f9f9;
+  color: black;
+  padding: 24px;
+  border-radius: 5px;
+  box-shadow: 0 5px 30px rgba(black, 0.1);
+}
+
+.tooltip.popover .popover-arrow {
+  border-color: #f9f9f9;
+}
+
+.tooltip[aria-hidden='true'] {
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.15s, visibility 0.15s;
+}
+
+.tooltip[aria-hidden='false'] {
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 0.15s;
+}
+</style>
