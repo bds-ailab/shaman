@@ -26,6 +26,7 @@
     "hammerjs": "^2.0.8",
     "highlight.js": "^10.1.1",
     "nuxt": "^2.14.4",
+    "v-tooltip": "^2.0.3",
     "vue-apexcharts": "^1.5.3",
     "vue-chartjs": "^3.5.0",
     "vue-codemirror": "^4.0.6",
