@@ -2,22 +2,22 @@
   <div>
     <div>
       <b-pagination
+        :id="id"
         v-model="currentPage"
         :total-rows="Object.keys(experiments).length"
         :per-page="perPage"
-        aria-controls="experimentTable"
+        :aria-controls="id"
         class="overflow-auto"
-        @input="showExperiment(false)"
       ></b-pagination>
+      <!-- @input="showExperiment(false)" -->
     </div>
     <!-- End of pagination -->
-
     <!-- Start of table -->
     <div>
       <div class="table-responsive">
         <b-table
-          id="experimentTable"
-          ref="experimentTable"
+          :id="id"
+          :ref="id"
           selectable
           select-mode="single"
           striped
@@ -49,7 +49,6 @@
           </template>
         </b-table>
       </div>
-      <!-- Ugly test workaround: copy pasting -->
     </div>
     <!-- End of table -->
   </div></template
@@ -58,20 +57,24 @@
 <script>
 export default {
   props: {
-    experiments: {
-      type: Object,
-      default: {}
-    },
-    fields: {
-      type: Object,
+    id: {
+      type: String,
       default: ''
     },
+    experiments: {
+      type: Object,
+      default: () => []
+    },
+    fields: {
+      type: Array,
+      default: () => []
+    },
     perPage: {
-      type: int,
+      type: Number,
       default: 10
     },
     currentPage: {
-      type: int,
+      type: Number,
       default: 0
     },
     sortBy: {
@@ -79,12 +82,17 @@ export default {
       default: ''
     },
     sortDesc: {
-      type: String,
-      default: ''
+      type: Boolean,
+      default: true
     },
     onRowSelected: {
       type: Function,
-      default: function() {}
+      default: () => []
+    }
+  },
+  methods: {
+    showExperiment(viewExperiment) {
+      this.viewExperiment = viewExperiment
     }
   }
 }

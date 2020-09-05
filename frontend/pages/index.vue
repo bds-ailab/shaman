@@ -1,5 +1,5 @@
 <template>
-  <div class="main container">
+  <div class="main container-fluid">
     <logo />
     <div class="hero mx-auto text-center text-6xl font-bold">
       SHAMan UI

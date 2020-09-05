@@ -31,7 +31,7 @@
     </b-row>
     <!--Start of KPI row. -->
     <div class="flex flex-row justify-center mt-2">
-      <AccordionText key="expParam" title="Optimizer">
+      <AccordionText id="expParam" title="Optimizer">
         <div class="mb-4">
           <li v-for="(value, key) in experimentParameters" :key="key">
             <span>
@@ -41,7 +41,7 @@
         </div>
       </AccordionText>
 
-      <AccordionText key="noiseParam" title="Noise reduction">
+      <AccordionText id="noiseParam" title="Noise reduction">
         <div>
           <li v-for="(value, key) in noiseReductionParameters" :key="key">
             <span>
@@ -50,7 +50,7 @@
           </li>
         </div>
       </AccordionText>
-      <AccordionText key="sbatch" title="Sbatch">
+      <AccordionText id="sbatch" title="Sbatch">
         <div>
           <pre v-highlightjs>
             <code class="bash">
@@ -59,7 +59,7 @@
             </pre>
         </div>
       </AccordionText>
-      <AccordionText key="censoring" title="Pruning strategy">
+      <AccordionText id="censoring" title="Pruning strategy">
         <div>
           <li v-for="(value, key) in pruningStrategyParameters" :key="key">
             <span>
@@ -200,7 +200,6 @@ export default {
       }
     },
     sbatch() {
-      console.log(this.experiment.sbatch)
       return this.experiment.sbatch
         ? this.experiment.sbatch // .replace('\n', '<br>')
         : ''
