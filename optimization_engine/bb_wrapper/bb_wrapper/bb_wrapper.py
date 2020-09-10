@@ -11,52 +11,46 @@ Please contact Bull S. A. S. for details about its license.
 """
 
 import os
+from pathlib import Path
 import re
 from shutil import copyfile
 import subprocess
 from shlex import split
-# TODO: deal with problem of configuration
-from iomodules_handler.io_modules import SBBSlurmAccelerator, SROAccelerator
-# __DEFAULT_CONFIGURATION__ as IOMODULES_CONFIGURATION
-IOMODULES_CONFIGURATION = ""
 
-# TODO: add manual SBB support
-__ACCELERATORS__ = {"fiol": SROAccelerator,
-                    "sbb_slurm": SBBSlurmAccelerator}
+# TODO: find a way to load global configuration
+from .tunable_component.component import TunableComponent
 
 
-class AccBlackBox:
+class BBWrapper:
     """
-    Given an instance of a class Accelerator (from the iomodules_handler library) and
+    Given an instance of a class TunableComponent and
     a sbatch file, builds a "black-box" which is suitable for use with BBO.
     """
 
-    def __init__(self, accelerator_name, parameter_names, sbatch_file,
-                 instrumented=False,
-                 acc_configuration_file=IOMODULES_CONFIGURATION,
-                 sbatch_dir=os.getcwd()):
+    def __init__(self, component_name: str, parameter_names: List[str], sbatch_file: str,
+                 component_configuration_file: str = "",
+                 sbatch_dir: str = os.getcwd()) -> None:
         """Creates an object of class AccBlackBox, with the accelerator accelerator_name
         and the file sbatch_file.
 
         Args:
-            accelerator_name (str): The name of the accelerator.
-            parameter_names (list of str): The name of the parameters that will be tested.
-            acc_configuration_file (str): The path to the configuration of the accelerators
+            component_name (str): The name of the component, among those registered.
+            parameter_names (list of str): The name of the parameters that will be tuned.
+            component_configuration_file (str): The path to the configuration of the accelerators
                 (in the sense of iomodules-handler).
             sbatch_file (str): The path to the sbatch file to launch.
-            instrumented (bool): Whether or not the experiment should be monitored using the
-                IO Instrumentation monitoring tool.
             sbatch_dir (str): The path to the directory where the sbatch file is generated.
         """
-        self.accelerator_name = accelerator_name
+        self.component_name = component_name
         self.parameter_names = parameter_names
-        self.acc_configuration_file = acc_configuration_file
+        self.component_configuration_file = component_configuration_file
         self.sbatch_dir = sbatch_dir
-        self.accelerator = __ACCELERATORS__[self.accelerator_name.lower()]
         self.sbatch_file = self.copy_sbatch(sbatch_file)
         self.instrumented = instrumented
+
         # The list of jobids that have been run through the blackbox
         self.jobids = list()
+
         # Attributes concerning the default run
         # The jobid of the run using default parameters
         self.default_jobid = None
@@ -64,14 +58,10 @@ class AccBlackBox:
         self.default_execution_time = None
         # The default paremeters
         self.default_parameters = None
-        # The accelerator setup with the current parameters
-        # Is initialized to be setup with the default parameters
-        self.acc_setup = self.accelerator(
-            module_configuration=self.acc_configuration_file)
 
-    def copy_sbatch(self, sbatch_file):
+    def copy_sbatch(self, sbatch_file: str) -> str:
         """This method copies the sbatch in order to transform it into a timed
-        sbatch which can be used by little-shaman.
+        sbatch which can be used by the optimizer.
         This sbatch file will be stored in the same folder as the sbatch
         submitted to the command line.
 
@@ -85,9 +75,8 @@ class AccBlackBox:
         timed_written = False
         direct_copy = False
         os.makedirs(self.sbatch_dir, exist_ok=True)
-        sbatch_file_name = os.path.basename(sbatch_file)
-        new_path = os.path.join(self.sbatch_dir,
-                                f"{os.path.splitext(sbatch_file_name)[0]}_shaman.sbatch")
+        new_path = Path(self.sbatch_dir) / \
+            Path(sbatch_file).stem + "_shaman.sbatch"
         copy_sbatch = open(new_path, "w")
         # Check if file is already timed
         with open(sbatch_file, "r") as read_file:
@@ -122,7 +111,7 @@ class AccBlackBox:
                 copy_sbatch.close()
             return new_path
 
-    def compute(self, parameters):
+    def compute(self, parameters: Iterable) -> float:
         """Given a set of accelerators parameter, submits the sbatch using
         these parameters.
 
@@ -136,72 +125,64 @@ class AccBlackBox:
         parameter_dict = dict(zip(self.parameter_names, parameters))
         # Log the output
         print(
-            f"Launching {self.accelerator_name} black-box with parametrization {parameter_dict}")
-        # Setup the accelerator with the parameters
-        self.acc_setup = self.accelerator(
-            parameter_dict, module_configuration=self.acc_configuration_file)
+            f"Launching {self.component_name} black-box with parametrization {parameter_dict}")
+        # Setup the component with the parameters
+        self.component = TunableComponent(
+            self.component_name, module_configuration=self.component_configuration_file, parameters=parameter_dict)
         # Submit the sbatch using the accelerator
         job_id = self.acc_setup.submit_sbatch(
-            self.sbatch_file, wait=True, instrumented=self.instrumented)
+            self.sbatch_file, wait=True)
         # Add the ran jobid to the list of jobids
         self.jobids.append(job_id)
-        execution_time = float(self._parse_slurm_times(os.path.join(os.getcwd(),
-                                                                    f"slurm-{job_id}.out")))
+        execution_time = float(self._parse_slurm_times(
+            Path.cwd() / f"slurm-{job_id}.out"))
         print(f"Application elapsed time: {execution_time}")
         return execution_time
 
-    def run_default(self):
+    def run_default(self) -> float:
         """Launch the black-box with the default parameters, as specified in the IOModules
         configuration file.
         """
         # Log the output
         print(
-            f"Launching {self.accelerator_name} black-box with default parametrization")
+            f"Launching {self.component_name} black-box with default parametrization")
         # Submit the sbatch using the accelerator
-        job_id = self.acc_setup.submit_sbatch(
-            self.sbatch_file, wait=True, instrumented=self.instrumented)
+        self.default_component = TunableComponent(
+            self.component_name, self.component_configuration_file)
+        job_id = self.default_component.submit_sbatch(
+            self.sbatch_file, wait=True)
         # Store the id of the default job
         self.default_jobid = job_id
         # Store the default parameters
-        self.default_parameters = self.acc_setup.parameters
-        execution_time = float(self._parse_slurm_times(os.path.join(os.getcwd(),
-                                                                    f"slurm-{job_id}.out")))
+        self.default_parameters = self.default_component.parameters
+        execution_time = float(self._parse_slurm_times(
+            Path.cwd() / f"slurm-{job_id}.out"))
         print(f"Default application elapsed time: {execution_time}")
         self.default_execution_time = execution_time
         return execution_time
 
-    @property
-    def slurm_config(self):
-        """
-        Returns the path to the file to use for the Slurm configuration.
-        """
-        acc = self.accelerator(
-            module_configuration=self.acc_configuration_file)
-        return acc.var_env["SLURM_CONF"]
-
-    def step_cost_function(self):
+    def step_cost_function(self) -> float:
         """
         Defines a custom cost function in order to be able to use BBO asynchronously. It computes
         the slurm running time of the currently running job (i.e. the last element of
         the currently running jobid).
         """
-        return self.parse_job_elapsed_time(self.acc_setup.submitted_jobids[-1], self.slurm_config)
+        return self.parse_job_elapsed_time(self.acc_setup.submitted_jobids[-1])
 
-    def on_interrupt(self):
+    def on_interrupt(self) -> None:
         """
         If the .compute method of the black-box is called, scancel the last job.
         """
-        self.scancel_job(
-            self.acc_setup.submitted_jobids[-1], self.slurm_config)
+        self.scancel_job(self.acc_setup.submitted_jobids[-1])
 
-    def _parse_slurm_times(self, out_file):
+    def _parse_slurm_times(self, out_file=str) -> float:
         """Parses the slurm times associated with the file slurm-job_id.out
 
         Args:
             out_file (str): The job slurm output file path to parse.
 
         Returns:
-            The time real value
+            float: The time real value
         """
         real_time = None
         try:
@@ -218,7 +199,7 @@ class AccBlackBox:
             raise FileNotFoundError("Slurm output was not generated.")
 
     @staticmethod
-    def parse_milliseconds(string_time):
+    def parse_milliseconds(string_time: str) -> float:
         """
         Given a string date with the format MMmSS.MSs (as returned by the linux time command),
         parses it to seconds.
@@ -238,7 +219,7 @@ class AccBlackBox:
         return minutes * 60 + seconds + milliseconds / 1000
 
     @staticmethod
-    def parse_job_elapsed_time(job_id, slurm_conf):
+    def parse_job_elapsed_time(job_id: int) -> float:
         """
         Given a Slurm jobid, parses the output of the squeue command for this job in order to
         return the running time.
@@ -251,8 +232,7 @@ class AccBlackBox:
         """
         sub_ps = subprocess.run(split(f"squeue -j {job_id}"),
                                 stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE,
-                                env=dict(os.environ, SLURM_CONF=slurm_conf))
+                                stderr=subprocess.PIPE)
         output_stdout = sub_ps.stdout.decode()
         if output_stdout:
             try:
@@ -267,16 +247,15 @@ class AccBlackBox:
         return 0
 
     @staticmethod
-    def scancel_job(job_id, slurm_conf):
+    def scancel_job(job_id: int) -> None:
         """Call scancel on the job job_id.
 
         Args:
-            job_id ([type]): [description]
+            job_id (int): The id of the job to cancel.
         """
         sub_ps = subprocess.run(split(f"scancel {job_id}"),
                                 stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE,
-                                env=dict(os.environ, SLURM_CONF=slurm_conf))
+                                stderr=subprocess.PIPE)
         if sub_ps.returncode == 0:
             print(f"Successfully cancelled {job_id}")
         else:

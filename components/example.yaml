@@ -1,0 +1,40 @@
+"""
+Example configuration file for a tunable component.
+
+This file generates a component:
+    - Called example
+    - That can be activated through the sbatch command line --example
+    - Without any header included in the sbatch
+    - With the variable LD_PRELOAD=example_lib written at the top of the file
+    - With the command line example_run written at the top
+
+An example resulting sbatch example.sbatch would be:
+
+> #!/bin/bash
+> #SBATCH --job-name=TestJob
+>
+> example_header
+> LD_PRELOAD=example_lib
+> example_cmd --folder /home/
+> my_program_name
+
+It would be submitted like:
+> sbatch --example example.sbatch
+
+with the environment variable param_1=1
+"""
+
+components:
+    fiol:
+      plugin: fastio=yes
+      header: echo "Clean cache"
+      parameters:
+        BINSIZE:
+          env_var: True
+          type: int
+          default: 17828372
+        THRESHOLD:
+          env_var: True
+          type: str
+          default: 2
+

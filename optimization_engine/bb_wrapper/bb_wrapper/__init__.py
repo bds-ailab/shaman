@@ -9,9 +9,4 @@ This is not Free or Open Source software.
 Please contact Bull S. A. S. for details about its license.
 """
 
-import os
-
-__FILE_DIR__ = os.path.dirname(os.path.realpath(__file__))
-__DEFAULT_CONFIGURATION__ = os.path.join(__FILE_DIR__, "config.cfg")
-
-__CURRENT_DIR__ = os.getcwd()
+from pathlib import Path
