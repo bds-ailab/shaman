@@ -46,7 +46,6 @@ class BBWrapper:
         self.component_configuration_file = component_configuration_file
         self.sbatch_dir = sbatch_dir
         self.sbatch_file = self.copy_sbatch(sbatch_file)
-        self.instrumented = instrumented
 
         # The list of jobids that have been run through the blackbox
         self.jobids = list()
@@ -130,7 +129,7 @@ class BBWrapper:
         self.component = TunableComponent(
             self.component_name, module_configuration=self.component_configuration_file, parameters=parameter_dict)
         # Submit the sbatch using the accelerator
-        job_id = self.acc_setup.submit_sbatch(
+        job_id = self.component_setup.submit_sbatch(
             self.sbatch_file, wait=True)
         # Add the ran jobid to the list of jobids
         self.jobids.append(job_id)
@@ -167,13 +166,13 @@ class BBWrapper:
         the slurm running time of the currently running job (i.e. the last element of
         the currently running jobid).
         """
-        return self.parse_job_elapsed_time(self.acc_setup.submitted_jobids[-1])
+        return self.parse_job_elapsed_time(self.component_setup.submitted_jobids[-1])
 
     def on_interrupt(self) -> None:
         """
         If the .compute method of the black-box is called, scancel the last job.
         """
-        self.scancel_job(self.acc_setup.submitted_jobids[-1])
+        self.scancel_job(self.component_setup.submitted_jobids[-1])
 
     def _parse_slurm_times(self, out_file=str) -> float:
         """Parses the slurm times associated with the file slurm-job_id.out

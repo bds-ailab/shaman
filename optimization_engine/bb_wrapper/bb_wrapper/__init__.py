@@ -1,5 +1,5 @@
-"""Init for little-shaman.
-Sets the default configuration as a global variable.
+"""
+Init for the optimization engine.
 """
 
 __copyright__ = """
@@ -10,3 +10,5 @@ Please contact Bull S. A. S. for details about its license.
 """
 
 from pathlib import Path
+
+COMPONENT_CONFIG = Path(__file__).parents[1] / "components/components.yaml"

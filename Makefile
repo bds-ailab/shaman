@@ -1,3 +1,5 @@
+# TODO: add a make component file
+
 install: install-bbo install-iomodules install-little-shaman
 
 install-citools:

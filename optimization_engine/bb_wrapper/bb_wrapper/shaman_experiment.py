@@ -19,8 +19,8 @@ from httpx import Client
 
 from bbo.optimizer import BBOptimizer
 from .bb_wrapper import BBWrapper
-from little_shaman.configuration_parser import ShamanConfig
-
+from .shaman_config_model import ShamanConfig
+from . import COMPONENT_CONFIG
 
 __CURRENT_DIR__ = Path.cwd()
 
@@ -40,17 +40,17 @@ class ShamanExperiment:
                  result_file: str = None) -> None:
         """Builds an object of class ShamanExperiment.
         This experiment is defined by giving:
-            - The name of the accelerator to use.
-            - The number of iterations the optimization should happen.
+            - The name of the component to tune.
+            - The number of allowed iterations for the optimization process.
             - The name of the sbatch file to run.
             - The name of the experiment.
+            - A configuration file to setup the experiment.
             - Where the slurm outputs should be stored (optional, if not specified,
                 the outputs are deleted)
             - The path to the result file (optional, if not specified, no file is created).
-            - A configuration file to setup the experiment.
 
         Args:
-            accelerator_name (str): The name of the accelerator to use.
+            component_name (str): The name of the accelerator to use.
             nbr_iteration (int): The number of iterations.
             sbatch_file (str): The path to the sbatch file.
             experiment_name (str): The name of the experiment.
@@ -64,39 +64,35 @@ class ShamanExperiment:
                 Defaults to the configuration file present in the package and called
                 config.cfg.
         """
-        self.accelerator_name = accelerator_name
         # The name of the component that will be tuned through the experiment
-
-        self.nbr_iteration = nbr_iteration
+        self.component_name = component_name
         # The maximum number of iterations
+        self.nbr_iteration = nbr_iteration
+        # The name of the sbatch to use, after ensuring its existence
         if Path(sbatch_file).exists():
             self.sbatch_file = sbatch_file
         else:
             raise FileNotFoundError(f"Could not find sbatch {sbatch_file}.")
-        # The name of the sbatch to use, after ensuring its existence
-
-        # Create the black box object using the informations
-        self.bb_wrapper = BBWrapper(self.accelerator_name,
-                                    self.configuration.acc_parameter_names,
-                                    self.sbatch_file,
-                                    sbatch_dir=self.sbatch_dir)
-
-        # Informations about the experiment
+        # Store information about the experiment
         self.experiment_name = experiment_name
         self.sbatch_dir = sbatch_dir
         self.slurm_dir = slurm_dir
         self.result_file = result_file
         self.experiment_id = ""
 
-        # TODO: transform as a Pydantic model using yaml
         # Parse the configuration
-        self.configuration = ShamanConfig(
-            configuration_file, self.accelerator_name)
+        self.configuration = ShamanConfig.from_yaml(
+            configuration_file, self.component_name)
+        # Create the black box object using the informations
+        self.bb_wrapper = BBWrapper(self.component_name,
+                                    self.configuration.component_parameter_names,
+                                    self.sbatch_file,
+                                    sbatch_dir=self.sbatch_dir)
+
         # Create API client using the configuration information
         self.api_client = Client(base_url=self.api_url, proxies={})
         # Setup black box optimizer using configuration information
         self.bb_optimizer = self.setup_bb_optimizer()
-
         # Compute the start of the experiment
         self.experiment_start = datetime.datetime.utcnow().strftime("%y/%m/%d %H:%M:%S")
 
@@ -106,13 +102,21 @@ class ShamanExperiment:
         """
         # Create the BBOptimizer object using the different options in the
         # configuration
-        max_step_cost = self.configuration.max_step_duration
-        if self.configuration.max_step_duration == "default":
-            max_step_cost = self.bb_wrapper.default_execution_time
+        # If pruning is enabled, parse corresponding fields
+        if self.configuration.pruning:
+            pruning = True
+            if self.configuration.max_step_duration == "default":
+                max_step_cost = self.bb_wrapper.default_execution_time
+            else:
+                max_step_cost = self.configuration.max_step_duration
+        else:
+            max_step_cost = None
+            pruning = False
+
         self.bb_optimizer = BBOptimizer(black_box=self.bb_wrapper,
                                         parameter_space=self.configuration.acc_parameter_space,
                                         max_iteration=self.nbr_iteration,
-                                        async_optim=self.configuration.pruning,
+                                        async_optim=pruning,
                                         max_step_cost=max_step_cost,
                                         **self.configuration.bbo_kwargs)
         return self.bb_optimizer
@@ -162,7 +166,7 @@ class ShamanExperiment:
         """
         Returns as a string the URL to the API using the data in the configuration file.
         """
-        return f"http://{self.configuration.api_parameters['host']}:{self.configuration.api_parameters['port']}"
+        return f"http://{self.configuration.api.host}:{self.configuration.api.port}"
 
     def create_experiment(self) -> None:
         """Create the experiment upon initialization.
@@ -170,9 +174,9 @@ class ShamanExperiment:
         dict_ = {"experiment_name": self.experiment_name,
                  "experiment_start": self.experiment_start,
                  "experiment_budget": self.nbr_iteration,
-                 "accelerator": self.accelerator_name,
-                 "experiment_parameters": dict(self.configuration.bbo_parameters),
-                 "noise_reduction_strategy": dict(self.configuration.noise_reduction_parameters),
+                 "component": self.component_name,
+                 "experiment_parameters": dict(self.configuration.bbo),
+                 "noise_reduction_strategy": dict(self.configuration.noise_reduction),
                  "pruning_strategy": {"pruning_strategy": self.configuration.pruning},
                  "sbatch": open(self.sbatch_file, "r").read()}
         request = self.api_client.post("experiments", json=dict_)
@@ -189,7 +193,7 @@ class ShamanExperiment:
         """
         # TODO: add improvement and average noise at each update
         dict_ = {
-            "jobids": self.bb_wrapper.acc_setup.submitted_jobids[-1]}
+            "jobids": self.bb_wrapper.component_setup.submitted_jobids[-1]}
         dict_.update({"execution_time": history["fitness"][-1],
                       "parameters": self.build_parameter_dict(self.configuration.acc_parameter_names, history["parameters"].tolist(
                       ))[-1],
