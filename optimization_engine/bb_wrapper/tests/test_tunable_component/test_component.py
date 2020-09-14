@@ -1,7 +1,6 @@
 """Tests the tunable component behavior.
 """
 
-from unittest.mock import patch
 import os
 import tempfile
 import unittest

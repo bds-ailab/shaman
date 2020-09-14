@@ -41,6 +41,11 @@ class TestSHAManModelVanilla(unittest.TestCase):
     noise reduction.
     """
 
+    def test_unknown_component(self):
+        """Tests that loading the config from yaml with an unknown component, a key error is raised."""
+        with self.assertRaises(KeyError):
+            SHAManConfig.from_yaml(VANILLA_CONFIG, "do_not_exist")
+
     def test_load_config_vanilla_component_1(self):
         """Tests that loading the config from yaml behaves as expected for component_1."""
         shaman_config = SHAManConfig.from_yaml(VANILLA_CONFIG, "component_1")

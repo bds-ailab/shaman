@@ -22,6 +22,8 @@ from .component_model import TunableComponentsModel
 # Save current environment as variable
 ENV = os.environ.copy()
 
+# TODO: Add custom components support
+
 
 class TunableComponent:
     """

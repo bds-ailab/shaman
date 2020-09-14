@@ -1,4 +1,4 @@
-"""The class ShamanExperiment is a tool to launch, monitor and save optimization
+"""The class SHAManExperiment is a tool to launch, monitor and save optimization
 experiments.
 """
 
@@ -13,19 +13,21 @@ import datetime
 import sys
 import os
 from pathlib import Path
+from shutil import move
 
 import numpy as np
 from httpx import Client
+from typing import Dict, List
 
 from bbo.optimizer import BBOptimizer
 from .bb_wrapper import BBWrapper
-from .shaman_config_model import ShamanConfig
+from .shaman_config_model import SHAManConfig
 from . import COMPONENT_CONFIG
 
 __CURRENT_DIR__ = Path.cwd()
 
 
-class ShamanExperiment:
+class SHAManExperiment:
     """This class represents an optimization experiment. It allows to
     plan, launch and store the information corresponding to an experiment."""
 
@@ -38,7 +40,7 @@ class ShamanExperiment:
                  sbatch_dir: str = None,
                  slurm_dir: str = None,
                  result_file: str = None) -> None:
-        """Builds an object of class ShamanExperiment.
+        """Builds an object of class SHAManExperiment.
         This experiment is defined by giving:
             - The name of the component to tune.
             - The number of allowed iterations for the optimization process.
@@ -54,9 +56,9 @@ class ShamanExperiment:
             nbr_iteration (int): The number of iterations.
             sbatch_file (str): The path to the sbatch file.
             experiment_name (str): The name of the experiment.
-            sbatch_dir (str): The working directory, where the shaman sbatch will be stored.
+            sbatch_dir (str or Path): The working directory, where the shaman sbatch will be stored.
                 If not specified, the directory where the command is called.
-            slurm_dir (str): The directory where the slurm outptus will be stored.
+            slurm_dir (str or Path): The directory where the slurm outptus will be stored.
                 If set to None, all the slurm outputs are removed after the end of the experiment.
             result_file (str): The path to the result file.
                 If set to None, no such file is created and the results are printed to the screen.
@@ -75,13 +77,27 @@ class ShamanExperiment:
             raise FileNotFoundError(f"Could not find sbatch {sbatch_file}.")
         # Store information about the experiment
         self.experiment_name = experiment_name
-        self.sbatch_dir = sbatch_dir
-        self.slurm_dir = slurm_dir
+        # Store the sbatch directory and convert to Path if not already
+        if sbatch_dir:
+            if isinstance(sbatch_dir, Path):
+                self.sbatch_dir = sbatch_dir
+            else:
+                self.sbatch_dir = Path(sbatch_dir)
+        else:
+            self.sbatch_dir = Path.cwd()
+        # Store the slurm directory and convert to Path if not already
+        if slurm_dir:
+            if isinstance(slurm_dir, Path):
+                self.slurm_dir = slurm_dir
+            else:
+                self.slurm_dir = Path(slurm_dir)
+        else:
+            self.slurm_dir = None
         self.result_file = result_file
         self.experiment_id = ""
 
         # Parse the configuration
-        self.configuration = ShamanConfig.from_yaml(
+        self.configuration = SHAManConfig.from_yaml(
             configuration_file, self.component_name)
         # Create the black box object using the informations
         self.bb_wrapper = BBWrapper(self.component_name,
@@ -105,24 +121,23 @@ class ShamanExperiment:
         # If pruning is enabled, parse corresponding fields
         if self.configuration.pruning:
             pruning = True
-            if self.configuration.max_step_duration == "default":
-                max_step_cost = self.bb_wrapper.default_execution_time
-            else:
-                max_step_cost = self.configuration.max_step_duration
+            max_step_cost = self.bb_wrapper.default_execution_time if self.configuration.pruning.max_step_duration == "default" else self.configuration.pruning.max_step_duration
         else:
             max_step_cost = None
             pruning = False
 
         self.bb_optimizer = BBOptimizer(black_box=self.bb_wrapper,
-                                        parameter_space=self.configuration.acc_parameter_space,
+                                        parameter_space=self.configuration.component_parameter_space,
                                         max_iteration=self.nbr_iteration,
                                         async_optim=pruning,
                                         max_step_cost=max_step_cost,
-                                        **self.configuration.bbo_kwargs)
+                                        **self.configuration.bbo)
         return self.bb_optimizer
 
     def launch(self) -> None:
-        """Launches the tuning experiment"""
+        """
+        Launches the tuning experiment
+        """
         # Create the experiment through API request
         self.create_experiment()
         if self.configuration.default_first:
@@ -147,19 +162,21 @@ class ShamanExperiment:
         """Cleans the experiment by removing the sbatch generated by Shaman.
         If there is no value specified for the slurm outputs folder, removes them."""
         for file_ in Path(__CURRENT_DIR__).glob("slurm*.out"):
-            file_path = Path(__CURRENT_DIR__) / file_
             if self.slurm_dir:
                 # Create if it doesn't already exist the folder
-                os.makedirs(self.slurm_dir, exist_ok=True)
+                self.slurm_dir.mkdir(exist_ok=True)
                 # Move the output
-                os.rename(file_path, Path(self.slurm_dir) / file_)
+                print(self.slurm_dir)
+                print(file_)
+                print(self.slurm_dir / file_.name)
+                file_.rename(self.slurm_dir / file_.name)
             else:
                 # Remove the output
-                os.remove(file_path)
+                file_.unlink()
         # Clean up the sbatch file in the current dir where the experiment runs
         # Else keep it
         for file_ in Path(__CURRENT_DIR__).glob("*_shaman*.sbatch"):
-            os.remove(Path(__CURRENT_DIR__) / file_)
+            (Path(__CURRENT_DIR__) / file_).unlink()
 
     @property
     def api_url(self) -> str:

@@ -37,4 +37,7 @@ components:
           env_var: True
           type: str
           default: 2
-
+        TITI:
+          env_var: True
+          type: str
+          default: 2

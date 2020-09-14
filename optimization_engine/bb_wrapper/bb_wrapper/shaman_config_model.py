@@ -112,7 +112,10 @@ class SHAManConfig(BaseConfiguration):
     def __post_init__(self) -> None:
         """Initialize an object of class SHAManConfig.
         """
-        self.component_parameters = self.components[self.component_name]
+        try:
+            self.component_parameters = self.components[self.component_name]
+        except KeyError:
+            raise KeyError(f"Invalid component name {self.component_name}")
 
     @ property
     def bbo_parameters(self) -> Dict:

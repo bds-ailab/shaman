@@ -28,7 +28,7 @@ scripts/spelling.txt
 sbatch_script*
 
 # DDL
-__pycache__/
+*/__pycache__/*
 
 # Eggs info for the packages
 **/*.egg-info

@@ -16,8 +16,10 @@ import re
 from shutil import copyfile
 import subprocess
 from shlex import split
+from typing import List, Iterable
 
 # TODO: find a way to load global configuration
+# Solution: cp configuration file into folder
 from .tunable_component.component import TunableComponent
 
 
@@ -29,7 +31,7 @@ class BBWrapper:
 
     def __init__(self, component_name: str, parameter_names: List[str], sbatch_file: str,
                  component_configuration_file: str = "",
-                 sbatch_dir: str = os.getcwd()) -> None:
+                 sbatch_dir: str = Path.cwd()) -> None:
         """Creates an object of class AccBlackBox, with the accelerator accelerator_name
         and the file sbatch_file.
 
@@ -44,7 +46,8 @@ class BBWrapper:
         self.component_name = component_name
         self.parameter_names = parameter_names
         self.component_configuration_file = component_configuration_file
-        self.sbatch_dir = sbatch_dir
+        self.sbatch_dir = Path(sbatch_dir) if not isinstance(
+            sbatch_dir, Path) else sbatch_dir
         self.sbatch_file = self.copy_sbatch(sbatch_file)
 
         # The list of jobids that have been run through the blackbox
@@ -73,9 +76,9 @@ class BBWrapper:
         # Flag indicating if a time command has been written
         timed_written = False
         direct_copy = False
-        os.makedirs(self.sbatch_dir, exist_ok=True)
-        new_path = Path(self.sbatch_dir) / \
-            Path(sbatch_file).stem + "_shaman.sbatch"
+        self.sbatch_dir.mkdir(exist_ok=True)
+        new_path = self.sbatch_dir / \
+            (str(Path(sbatch_file).stem) + "_shaman.sbatch")
         copy_sbatch = open(new_path, "w")
         # Check if file is already timed
         with open(sbatch_file, "r") as read_file:
@@ -129,7 +132,7 @@ class BBWrapper:
         self.component = TunableComponent(
             self.component_name, module_configuration=self.component_configuration_file, parameters=parameter_dict)
         # Submit the sbatch using the accelerator
-        job_id = self.component_setup.submit_sbatch(
+        job_id = self.component.submit_sbatch(
             self.sbatch_file, wait=True)
         # Add the ran jobid to the list of jobids
         self.jobids.append(job_id)
@@ -166,13 +169,13 @@ class BBWrapper:
         the slurm running time of the currently running job (i.e. the last element of
         the currently running jobid).
         """
-        return self.parse_job_elapsed_time(self.component_setup.submitted_jobids[-1])
+        return self.parse_job_elapsed_time(self.component.submitted_jobids[-1])
 
     def on_interrupt(self) -> None:
         """
         If the .compute method of the black-box is called, scancel the last job.
         """
-        self.scancel_job(self.component_setup.submitted_jobids[-1])
+        self.scancel_job(self.component.submitted_jobids[-1])
 
     def _parse_slurm_times(self, out_file=str) -> float:
         """Parses the slurm times associated with the file slurm-job_id.out
@@ -238,7 +241,7 @@ class BBWrapper:
                 # Try to parse the output of the squeue command
                 # If it returns a ValueError, it means that the job is already over
                 # Set the resulting time to 0
-                raw_time = sub_ps.stdout.decode().split(" ")[-8].split(":")
+                raw_time = output_stdout.split(" ")[-8].split(":")
                 time_in_second = int(raw_time[0]) * 60 + int(raw_time[1])
                 return time_in_second
             except ValueError:
