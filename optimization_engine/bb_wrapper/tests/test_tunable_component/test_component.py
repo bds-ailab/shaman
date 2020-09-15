@@ -107,7 +107,7 @@ class TestTunableComponent(unittest.TestCase):
         tunable_component.setup_var_env()
         expected_var_env = {"param_1": "1"}
         expected_var_env.update(current_var_env)
-        self.assertDictEqual(
+        self.assertDictContainsSubset(
             tunable_component.var_env, expected_var_env)
 
     def test_setup_var_env(self):
@@ -117,7 +117,7 @@ class TestTunableComponent(unittest.TestCase):
         tunable_component.setup_var_env()
         expected_var_env = {"param_1": "10"}
         expected_var_env.update(current_var_env)
-        self.assertDictEqual(
+        self.assertDictContainsSubset(
             tunable_component.var_env, expected_var_env)
 
     def test_optional_parameters(self):

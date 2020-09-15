@@ -2,13 +2,6 @@
 Setup file for the little-shaman module.
 """
 
-__copyright__ = """
-Copyright (C) 2019 Bull S. A. S. - All rights reserved
-Bull, Rue Jean Jaures, B.P.68, 78340, Les Clayes-sous-Bois, France
-This is not Free or Open Source software.
-Please contact Bull S. A. S. for details about its license.
-"""
-
 import os
 import glob
 from setuptools import setup, find_packages
@@ -40,7 +33,7 @@ def requirements():
 
 
 setup(
-    name="little_shaman",
+    name="shaman",
     version=VERSION,
     description="Python package to automatically tune the accelerators"
                 "developed by Atos BDS R&D Data Management for a given"
@@ -54,7 +47,7 @@ setup(
     include_package_data=True,
     entry_points={
         'console_scripts': [
-            'little-shaman = little_shaman.run_experiment:main',
+            'shaman = bb_wrapper.run_experiment:cli',
         ],
     },
 )

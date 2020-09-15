@@ -2,13 +2,6 @@
 experiments.
 """
 
-__copyright__ = """
-Copyright (C) 2019 Bull S. A. S. - All rights reserved
-Bull, Rue Jean Jaures, B.P.68, 78340, Les Clayes-sous-Bois, France
-This is not Free or Open Source software.
-Please contact Bull S. A. S. for details about its license.
-"""
-
 import datetime
 import sys
 import os
@@ -23,6 +16,7 @@ from bbo.optimizer import BBOptimizer
 from .bb_wrapper import BBWrapper
 from .shaman_config_model import SHAManConfig
 from . import COMPONENT_CONFIG
+
 
 __CURRENT_DIR__ = Path.cwd()
 
@@ -39,7 +33,8 @@ class SHAManExperiment:
                  configuration_file: str,
                  sbatch_dir: str = None,
                  slurm_dir: str = None,
-                 result_file: str = None) -> None:
+                 result_file: str = None,
+                 component_config: str = COMPONENT_CONFIG) -> None:
         """Builds an object of class SHAManExperiment.
         This experiment is defined by giving:
             - The name of the component to tune.
@@ -65,6 +60,7 @@ class SHAManExperiment:
             configuration_file (str): The path to the configuration file.
                 Defaults to the configuration file present in the package and called
                 config.cfg.
+            component_config (str): The path to the configuration of the components.
         """
         # The name of the component that will be tuned through the experiment
         self.component_name = component_name
@@ -103,7 +99,8 @@ class SHAManExperiment:
         self.bb_wrapper = BBWrapper(self.component_name,
                                     self.configuration.component_parameter_names,
                                     self.sbatch_file,
-                                    sbatch_dir=self.sbatch_dir)
+                                    sbatch_dir=self.sbatch_dir,
+                                    component_configuration_file=component_config)
 
         # Create API client using the configuration information
         self.api_client = Client(base_url=self.api_url, proxies={})
@@ -140,7 +137,7 @@ class SHAManExperiment:
         """
         # Create the experiment through API request
         self.create_experiment()
-        if self.configuration.default_first:
+        if self.configuration.experiment.default_first:
             # Launch a run using default parameterization of the accelerator
             self.bb_wrapper.run_default()
         # Setup the optimizer
@@ -166,9 +163,6 @@ class SHAManExperiment:
                 # Create if it doesn't already exist the folder
                 self.slurm_dir.mkdir(exist_ok=True)
                 # Move the output
-                print(self.slurm_dir)
-                print(file_)
-                print(self.slurm_dir / file_.name)
                 file_.rename(self.slurm_dir / file_.name)
             else:
                 # Remove the output
@@ -185,22 +179,80 @@ class SHAManExperiment:
         """
         return f"http://{self.configuration.api.host}:{self.configuration.api.port}"
 
+    @property
+    def start_experiment_dict(self) -> Dict:
+        """Creates a dictionnary describing the experiment from its start. 
+        """
+        return {"experiment_name": self.experiment_name,
+                "experiment_start": self.experiment_start,
+                "experiment_budget": self.nbr_iteration,
+                "component": self.component_name,
+                "experiment_parameters": dict(self.configuration.bbo),
+                "noise_reduction_strategy": dict(self.configuration.noise_reduction) if self.configuration.noise_reduction else dict(),
+                "pruning_strategy": {"pruning_strategy": self.configuration.pruning.max_step_duration if self.configuration.pruning else self.configuration.pruning},
+                "sbatch": open(self.sbatch_file, "r").read()}
+
     def create_experiment(self) -> None:
         """Create the experiment upon initialization.
         """
-        dict_ = {"experiment_name": self.experiment_name,
-                 "experiment_start": self.experiment_start,
-                 "experiment_budget": self.nbr_iteration,
-                 "component": self.component_name,
-                 "experiment_parameters": dict(self.configuration.bbo),
-                 "noise_reduction_strategy": dict(self.configuration.noise_reduction),
-                 "pruning_strategy": {"pruning_strategy": self.configuration.pruning},
-                 "sbatch": open(self.sbatch_file, "r").read()}
-        request = self.api_client.post("experiments", json=dict_)
+        request = self.api_client.post(
+            "experiments", json=self.start_experiment_dict)
         if not 200 <= request.status_code < 400:
             raise Exception(
                 f"Could not create experiment with status code {request.status_code}")
         self.experiment_id = request.json()["id"]
+
+    @property
+    def best_time(self) -> float:
+        """
+        Returns the current best noise.
+
+        Returns:
+            float: The best time.
+        """
+        _, best_time = self.bb_optimizer._get_best_performance()
+        return best_time
+
+    @property
+    def improvement_default(self) -> float:
+        """
+        Computes the improvement compared to the default parametrization.
+
+        Returns:
+            float: The improvement compared to the default parametrization.
+        """
+        return float(round((self.bb_wrapper.default_execution_time -
+                            self.best_time) /
+                           self.bb_wrapper.default_execution_time, 2)*100)
+
+    @property
+    def average_noise(self) -> float:
+        """
+        Computes the average noise within the tested parametrization.
+
+        Returns:
+            float: The average measured noise.
+        """
+        return float(np.mean(self.bb_optimizer.measured_noise))
+
+    def _updated_dict(self, history: Dict) -> Dict:
+        """Builds the updated dictionary that will be sent at each iteration to the API.
+
+        Args:
+            history (Dict): The BBO history from the optimizer
+
+        Returns:
+            Dict: The updated dict to add to the POST request.
+        """
+        return {"jobids": self.bb_wrapper.component.submitted_jobids[-1],
+                "execution_time": history["fitness"][-1],
+                "parameters": self.build_parameter_dict(self.configuration.component_parameter_names, history["parameters"].tolist(
+                ))[-1],
+                "truncated": bool(history["truncated"][-1]),
+                "resampled": bool(history["resampled"][-1]),
+                "initialization": bool(history["initialization"][-1]),
+                "improvement_default": self.improvement_default,
+                "average_noise": self.average_noise}
 
     def update_history(self, history: Dict) -> None:
         """Update the optimization history at each BBO step and force conversion from numpy types.
@@ -208,44 +260,42 @@ class SHAManExperiment:
         Args:
             history (dict): The BBO history
         """
-        # TODO: add improvement and average noise at each update
-        dict_ = {
-            "jobids": self.bb_wrapper.component_setup.submitted_jobids[-1]}
-        dict_.update({"execution_time": history["fitness"][-1],
-                      "parameters": self.build_parameter_dict(self.configuration.acc_parameter_names, history["parameters"].tolist(
-                      ))[-1],
-                      "truncated": bool(history["truncated"][-1]),
-                      "resampled": bool(history["resampled"][-1]),
-                      "initialization": bool(history["initialization"][-1])})
         request = self.api_client.put(
-            f"experiments/{self.experiment_id}/update", json=dict_)
+            f"experiments/{self.experiment_id}/update", json=self._updated_dict(history))
         if not 200 <= request.status_code < 400:
             self.fail()
             raise Exception(
                 f"Could not finish experiment with status code {request.status_code}")
 
-    def end(self):
-        """End the experiment once it is over.
+    @property
+    def end_dict(self) -> Dict:
         """
-        dict_ = {
+        Comptues the dictionary sent to the API at the end of the experiment.
+
+        Returns:
+            Dict: The dictionary to send to the API.
+        """
+        return {
             "averaged_execution_time": self.bb_optimizer.averaged_fitness,
             "min_execution_time": self.bb_optimizer.min_fitness,
             "max_execution_time": self.bb_optimizer.max_fitness,
-            "std_execution_time": self.bb_optimizer.measured_noise,
+            "std_execution_time": self.average_noise,
             "resampled_nbr": self.bb_optimizer.resampled_nbr,
-            "improvement_default": float(round((self.bb_wrapper.default_execution_time -
-                                                self.bb_optimizer.best_fitness) /
-                                               self.bb_wrapper.default_execution_time, 2)*100),
+            "improvement_default": self.improvement_default,
             "elapsed_time": self.bb_optimizer.elapsed_time,
             "default_run": {
                 "execution_time": self.bb_wrapper.default_execution_time,
                 "job_id": self.bb_wrapper.default_jobid,
                 "parameters": self.bb_wrapper.default_parameters
             },
-            "average_noise": float(np.mean(self.bb_optimizer.measured_noise)),
+            "average_noise": self.average_noise,
             "explored_space": float(self.bb_optimizer.size_explored_space[0])}
+
+    def end(self):
+        """End the experiment once it is over.
+        """
         request = self.api_client.put(
-            f"experiments/{self.experiment_id}/finish", json=dict_)
+            f"experiments/{self.experiment_id}/finish", json=self.end_dict)
         if not 200 <= request.status_code < 400:
             self.fail()
             raise Exception(
@@ -278,13 +328,11 @@ class SHAManExperiment:
         fitness, and the BBO summary.
         """
         # Compute the optimal parametrization from the bb optimizer object
-        optimal_param = self.build_parameter_dict(self.configuration.acc_parameter_names,
+        optimal_param = self.build_parameter_dict(self.configuration.component_parameter_names,
                                                   [self.bb_optimizer.best_parameters_in_grid])
         print(f"Optimal time: {self.bb_optimizer.best_fitness}")
         print(f"Improvement compared to default:"
-              f"{round((self.bb_wrapper.default_execution_time - self.bb_optimizer.best_fitness)/self.bb_wrapper.default_execution_time, 2)*100}%")
-        print(
-            f"Speedup: {self.bb_optimizer.best_fitness / self.bb_wrapper.default_execution_time}")
+              f"{self.improvement_default}%")
         print(f"Optimal parametrization: {optimal_param}")
         print(
             f"Number of early stops: {sum(self.bb_optimizer.history['truncated'])}")

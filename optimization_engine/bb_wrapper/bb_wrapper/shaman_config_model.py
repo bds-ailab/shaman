@@ -36,7 +36,7 @@ class ExperimentParameters(BaseModel):
     """
     Contains the experiment parameters.
     """
-    default_first: bool
+    default_first: bool = True
 
 
 class PruningParameters(BaseModel):
