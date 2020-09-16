@@ -1,0 +1,13 @@
+components:
+  component_1:
+    command: hostname
+    parameters:
+      param_1:
+        env_var: True
+        type: int
+        default: 1
+      param_2:
+        env_var: True
+        type: str
+        default: /home/
+        flag: folder

@@ -111,14 +111,17 @@ class TunableComponent:
                     following_line = lines[enum + 1]
                     # And not the following one
                     if not following_line.startswith("#"):
-                        # Add the header at the beginning of the script and break
-                        copy_sbatch.write(self.description.header + "\n")
-                        # Add the ld preload at the beginning of the script and break
-                        copy_sbatch.write(
-                            "LD_PRELOAD=" + self.description.ld_preload + "\n")
-                        # Add the command line
-                        copy_sbatch.write(
-                            self.cmd_line + "\n")
+                        # Add the header at the beginning of the script if exists
+                        if self.description.header:
+                            copy_sbatch.write(self.description.header + "\n")
+                        # Add the ld preload at the beginning of the script if exists
+                        if self.description.ld_preload:
+                            copy_sbatch.write(
+                                "LD_PRELOAD=" + self.description.ld_preload + "\n")
+                        # Add the command line if exists
+                        if self.cmd_line:
+                            copy_sbatch.write(
+                                self.cmd_line + "\n")
                         written = True
         copy_sbatch.close()
         return copy_sbatch_path
@@ -177,9 +180,7 @@ class TunableComponent:
                                   stdout=slave,
                                   stderr=slave,
                                   env=self.var_env)
-        with os.fdopen(master) as stdout:
-            # Skip first empty line
-            _ = stdout.readline()
+        with os.fdopen(master, 'r') as stdout:
             try:
                 # Get job id in second line if the submission has been a success
                 job_id = int(stdout.readline().split()[-1])
@@ -187,6 +188,9 @@ class TunableComponent:
             except ValueError:
                 # Try again because Slurm acts weird with its output and skipping two lines
                 # can do the trick
+                job_id = int(stdout.readline().split()[-1])
+                self.submitted_jobids.append(job_id)
+            except ValueError:
                 job_id = int(stdout.readline().split()[-1])
                 self.submitted_jobids.append(job_id)
             # Else, raise an error

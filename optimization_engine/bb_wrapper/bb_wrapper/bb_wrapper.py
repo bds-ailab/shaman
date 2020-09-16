@@ -106,6 +106,21 @@ class BBWrapper:
                 copy_sbatch.close()
             return new_path
 
+    def setup_component(self, parameters: Iterable) -> None:
+        """Setsup the component with the right configuration and the right parameters.
+
+        Args:
+            parameters (Iterable): The parameters to setup the component with.
+
+        Returns:
+            None: only setsup the attribute.
+        """
+        parameter_dict = dict(zip(self.parameter_names, parameters))
+        print(
+            f"Setting up {self.component_name} black-box with parametrization {parameter_dict}")
+        self.component = TunableComponent(
+            self.component_name, module_configuration=self.component_configuration_file, parameters=parameter_dict)
+
     def compute(self, parameters: Iterable) -> float:
         """Given a set of accelerators parameter, submits the sbatch using
         these parameters.
@@ -116,14 +131,8 @@ class BBWrapper:
         Returns:
             The time spent to run the sbatch.
         """
-        # Build the dictionary that will contain the parameters
-        parameter_dict = dict(zip(self.parameter_names, parameters))
-        # Log the output
-        print(
-            f"Launching {self.component_name} black-box with parametrization {parameter_dict}")
-        # Setup the component with the parameters
-        self.component = TunableComponent(
-            self.component_name, module_configuration=self.component_configuration_file, parameters=parameter_dict)
+        # Setup the component
+        self.setup_component(parameters)
         # Submit the sbatch using the accelerator
         job_id = self.component.submit_sbatch(
             self.sbatch_file, wait=True)

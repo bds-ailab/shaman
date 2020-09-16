@@ -33,7 +33,7 @@ def requirements():
 
 
 setup(
-    name="shaman",
+    name="bb_wrapper",
     version=VERSION,
     description="Python package to automatically tune the accelerators"
                 "developed by Atos BDS R&D Data Management for a given"
