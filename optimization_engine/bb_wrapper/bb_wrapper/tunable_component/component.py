@@ -10,7 +10,7 @@ The name of the components and its parametrization must be indicated in a YAML f
 Of course, a child class can add any wanted new methods specific to the tunable component.
 """
 import os
-import pty
+# import pty
 import subprocess
 from shlex import split
 from pathlib import Path
@@ -35,16 +35,32 @@ class TunableComponent:
 
         Args:
             name (str): The name of the module to load from the configuration
-            module_configuration (str): The path to the configuration file of the component, as YAML file.
+            module_configuration (str): The path to the configuration file of the component,
+                either as a YAML file or an URL.
             parameters (dict): The parameters to setup the component.
         """
-        # Check if the configuration file exists
-        if not Path(module_configuration).is_file():
-            raise FileNotFoundError(
-                "Module configuration can't be found. Please make sure this file exist.")
-        try:
-            possible_components = TunableComponentsModel.from_yaml(
+        # Check if the configuration file is an URL and try loading
+        if "http://" in str(module_configuration):
+            possible_components = TunableComponentsModel.from_api(
                 module_configuration).components
+        # Else, check if it's a file
+        else:
+            # If it's a YAML
+            if Path(module_configuration).suffix == ".yaml":
+                # If it exists
+                if Path(module_configuration).is_file():
+                    try:
+                        possible_components = TunableComponentsModel.from_yaml(
+                            module_configuration).components
+                    # If the file can't be found, raise an error
+                    except:
+                        raise FileNotFoundError(
+                            "Module configuration can't be found. Please make sure this file exist.")
+            # If it's not a YAML, raise an error
+            else:
+                raise ValueError("File must have a YAML format.")
+
+        try:
             self.description = possible_components[name]
         except KeyError:
             raise KeyError(f"There is no component with the name {name}. If you want to use it, \
@@ -64,7 +80,7 @@ class TunableComponent:
         self.submitted_jobids = list()
         # List of the jobs that have been submitted using the accelerator
 
-    @property
+    @ property
     def cmd_line(self) -> str:
         """Collects all the parameters with a flag and a value and arrange them in order
         to build a command line that can be used to launch the component. If there is no

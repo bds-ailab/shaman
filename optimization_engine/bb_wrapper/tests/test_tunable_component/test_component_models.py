@@ -2,6 +2,7 @@
 Tests that the component model behaves as expected.
 """
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 from pydantic import ValidationError
@@ -69,6 +70,36 @@ TEST_COMPONENT_CONFIG = Path(__file__).parent / \
     "test_component_config" / "test.yaml"
 
 
+class MockResponse:
+    def __init__(self, json_data, status_code):
+        self.json_data = json_data
+        self.status_code = status_code
+
+    def json(self):
+        return self.json_data
+
+
+def mocked_requests_get(*args, **kwargs):
+    """Mocks the post requests.
+    """
+    if args[0] == 'http://mock_api:5000/components':
+        mock_components = {'components':
+                           {'component_1':
+                            {'plugin': 'example_1', 'header': 'example_header', 'command': 'example_cmd', 'ld_preload': 'example_lib',
+                             'parameters': {'param_1': {'type': 'int', 'default': 1, 'optional': False, 'env_var': True, 'description': None, 'cmd_var': None, 'flag': None}, 'param_2': {'type': 'str', 'default': '/home/', 'optional': False, 'env_var': None, 'description': None, 'cmd_var': 'True', 'flag': 'folder'}},
+                             'custom_component': None},
+                            'component_2': {'plugin': 'example_2', 'header': 'example_header', 'command': 'example_cmd', 'ld_preload': 'example_lib',
+                                            'parameters':
+                                            {'param_1': {'type': 'int', 'default': 1, 'optional': False, 'env_var': True, 'description': None, 'cmd_var': None, 'flag': None},
+                                             'param_2': {'type': 'str', 'default': '/home/', 'optional': False, 'env_var': None, 'description': None, 'cmd_var': 'True', 'flag': 'folder'},
+                                             'param_3': {'type': 'str', 'default': None, 'optional': False, 'env_var': None, 'description': None, 'cmd_var': 'True', 'flag': 'f'}},
+                                            'custom_component': None},
+                            'component_3': {'plugin': 'example_3', 'header': 'example_header', 'command': None, 'ld_preload': 'example_lib', 'parameters': {'param_1': {'type': 'int', 'default': None, 'optional': False, 'env_var': True, 'description': None, 'cmd_var': None, 'flag': None}, 'param_2': {'type': 'int', 'default': 2, 'optional': False, 'env_var': True, 'description': None, 'cmd_var': None, 'flag': None}}, 'custom_component': None},
+                            'component_4': {'plugin': 'example_4', 'header': 'example_header', 'command': 'example_cmd', 'ld_preload':
+                                            'example_lib', 'parameters': {'xxx': {'type': 'int', 'default': None, 'optional': True, 'env_var': True, 'description': None, 'cmd_var': None, 'flag': None}}, 'custom_component': None}}}
+        return MockResponse(mock_components, 200)
+
+
 class TestComponentModels(unittest.TestCase):
     """Test that the component model behaves as expected.
     As the configuration relies on Pydantic, this tests only the custom validators.
@@ -119,6 +150,25 @@ class TestComponentModels(unittest.TestCase):
             TEST_COMPONENT_CONFIG)
         assert tunable_components.components["component_1"].plugin == "example_1"
         assert tunable_components.components["component_2"].plugin == "example_2"
+
+    @ patch('httpx.get', side_effect=mocked_requests_get)
+    def test_load_component_from_api(self, mocked_request):
+        """
+        Tests that loading a component configuration file from the API behaves as expected.
+        """
+        tunable_components = TunableComponentsModel.from_api(
+            "http://mock_api:5000/components")
+        assert tunable_components.components["component_1"].plugin == "example_1"
+        assert tunable_components.components["component_2"].plugin == "example_2"
+
+    @ patch('httpx.get', side_effect=mocked_requests_get)
+    def test_load_component_from_api_error(self, mocked_request):
+        """
+        Tests that loading a component configuration from the API fails when the status code is <= 200 and > 400
+        """
+        with self.assertRaises(Exception):
+            tunable_components = TunableComponentsModel.from_api(
+                "http://mock_api:5000/component")
 
 
 if __name__ == "__main__":

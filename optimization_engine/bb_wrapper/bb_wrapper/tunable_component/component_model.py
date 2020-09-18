@@ -6,7 +6,8 @@ from typing import Dict, Optional, Union, Type, Any
 from enum import Enum
 import ast
 import builtins
-
+import httpx
+from httpx import ConnectError
 from pydantic import BaseModel, validator, root_validator
 import yaml
 
@@ -15,11 +16,27 @@ class BaseConfiguration:
     """Base class to load YAML.
     """
     @classmethod
-    def from_yaml(cls, path):
+    def from_yaml(cls, path: str):
         """
         Loads the yaml file located at the path path.
+
+        Args:
+            path (str): The path to the YAML file.
         """
         return cls(**yaml.load(Path(path).read_text(), Loader=yaml.SafeLoader))
+
+    @classmethod
+    def from_api(cls, url: str):
+        """Loads the JSON file located at the url resource.
+
+        Args:
+            url (str): The URL to reach the API resource.
+        """
+        request = httpx.get(url)
+        if 200 <= request.status_code < 400:
+            return cls(**request.json())
+        else:
+            raise Exception("Could not read component configuration from API.")
 
 
 class TunableParameter(BaseModel):

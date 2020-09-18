@@ -4,6 +4,7 @@
 import os
 import tempfile
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 from bb_wrapper.tunable_component.component import TunableComponent
@@ -23,11 +24,41 @@ TEST_SBATCH_HEADER = Path(__file__).parent / \
 current_var_env = os.environ.copy()
 
 
+class MockResponse:
+    def __init__(self, json_data, status_code):
+        self.json_data = json_data
+        self.status_code = status_code
+
+    def json(self):
+        return self.json_data
+
+
+def mocked_requests_get(*args, **kwargs):
+    """Mocks the post requests.
+    """
+    if args[0] == 'http://mock_api:5000/components':
+        mock_components = {'components':
+                           {'component_1':
+                            {'plugin': 'example_1', 'header': 'example_header', 'command': 'example_cmd', 'ld_preload': 'example_lib',
+                             'parameters': {'param_1': {'type': 'int', 'default': 1, 'optional': False, 'env_var': True, 'description': None, 'cmd_var': None, 'flag': None}, 'param_2': {'type': 'str', 'default': '/home/', 'optional': False, 'env_var': None, 'description': None, 'cmd_var': 'True', 'flag': 'folder'}},
+                             'custom_component': None},
+                            'component_2': {'plugin': 'example_2', 'header': 'example_header', 'command': 'example_cmd', 'ld_preload': 'example_lib',
+                                            'parameters':
+                                            {'param_1': {'type': 'int', 'default': 1, 'optional': False, 'env_var': True, 'description': None, 'cmd_var': None, 'flag': None},
+                                             'param_2': {'type': 'str', 'default': '/home/', 'optional': False, 'env_var': None, 'description': None, 'cmd_var': 'True', 'flag': 'folder'},
+                                             'param_3': {'type': 'str', 'default': None, 'optional': False, 'env_var': None, 'description': None, 'cmd_var': 'True', 'flag': 'f'}},
+                                            'custom_component': None},
+                            'component_3': {'plugin': 'example_3', 'header': 'example_header', 'command': None, 'ld_preload': 'example_lib', 'parameters': {'param_1': {'type': 'int', 'default': None, 'optional': False, 'env_var': True, 'description': None, 'cmd_var': None, 'flag': None}, 'param_2': {'type': 'int', 'default': 2, 'optional': False, 'env_var': True, 'description': None, 'cmd_var': None, 'flag': None}}, 'custom_component': None},
+                            'component_4': {'plugin': 'example_4', 'header': 'example_header', 'command': 'example_cmd', 'ld_preload':
+                                            'example_lib', 'parameters': {'xxx': {'type': 'int', 'default': None, 'optional': True, 'env_var': True, 'description': None, 'cmd_var': None, 'flag': None}}, 'custom_component': None}}}
+        return MockResponse(mock_components, 200)
+
+
 class TestTunableComponent(unittest.TestCase):
     """Tests that the TunableComponent class works properly."""
 
-    def test_class_initialization(self):
-        """Checks the proper initialization of the TunableComponent class."""
+    def test_class_initialization_yaml(self):
+        """Checks the proper initialization of the TunableComponent class through a YAML file."""
         TunableComponent(name="component_1",
                          module_configuration=TEST_COMPONENT_CONFIG)
 
@@ -36,7 +67,22 @@ class TestTunableComponent(unittest.TestCase):
         """
         with self.assertRaises(FileNotFoundError):
             TunableComponent(name="component_1",
-                             module_configuration="/file/which/does/not/exist")
+                             module_configuration="/file/which/does/not/exist.yaml")
+
+    def test_configuration_wrong_format(self):
+        """Check that if the configuration file has the wrong format an error is raised.
+        """
+        with self.assertRaises(ValueError):
+            TunableComponent(name="component_1",
+                             module_configuration="/file/which/is/a/text.txt")
+
+    @ patch('httpx.get', side_effect=mocked_requests_get)
+    def test_configuration_api(self, mocked_request):
+        """Check that loading the configuration through the API works as expected.
+        """
+        component = TunableComponent(name="component_1",
+                                     module_configuration="http://mock_api:5000/components")
+        print(component.description)
 
     def test_configuration_unknown_name(self):
         """Check that a key error is raised when calling a component with an unknown name.
@@ -166,14 +212,6 @@ class TestTunableComponent(unittest.TestCase):
         expected_cmd_line_wait = f"sbatch --wait --example_1 {TEST_SBATCH}"
         self.assertEqual(cmd_line_wait, expected_cmd_line_wait,
                          "Problem with building command line building with wait mode activated.")
-
-    def test_submit_sbatch_jobid(self):
-        """Tests that "submit_sbatch" returns the proper jobid for this use cases."""
-        # TODO
-
-    def test_submit_sbatch_except(self):
-        """Tests that "submit_sbatch" raises the proper exception for this use cases."""
-        # TODO
 
 
 if __name__ == '__main__':

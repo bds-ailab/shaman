@@ -23,7 +23,7 @@ class BBWrapper:
     """
 
     def __init__(self, component_name: str, parameter_names: List[str], sbatch_file: str,
-                 component_configuration_file: str = "",
+                 component_configuration: str = "",
                  sbatch_dir: str = Path.cwd()) -> None:
         """Creates an object of class AccBlackBox, with the accelerator accelerator_name
         and the file sbatch_file.
@@ -31,14 +31,14 @@ class BBWrapper:
         Args:
             component_name (str): The name of the component, among those registered.
             parameter_names (list of str): The name of the parameters that will be tuned.
-            component_configuration_file (str): The path to the configuration of the accelerators
-                (in the sense of iomodules-handler).
+            component_configuration (str): The path to the configuration of the components. It can
+                either link to a file or to a API connection.
             sbatch_file (str): The path to the sbatch file to launch.
             sbatch_dir (str): The path to the directory where the sbatch file is generated.
         """
         self.component_name = component_name
         self.parameter_names = parameter_names
-        self.component_configuration_file = component_configuration_file
+        self.component_configuration = component_configuration
         self.sbatch_dir = Path(sbatch_dir) if not isinstance(
             sbatch_dir, Path) else sbatch_dir
         self.sbatch_file = self.copy_sbatch(sbatch_file)
@@ -119,7 +119,7 @@ class BBWrapper:
         print(
             f"Setting up {self.component_name} black-box with parametrization {parameter_dict}")
         self.component = TunableComponent(
-            self.component_name, module_configuration=self.component_configuration_file, parameters=parameter_dict)
+            self.component_name, module_configuration=self.component_configuration, parameters=parameter_dict)
 
     def compute(self, parameters: Iterable) -> float:
         """Given a set of accelerators parameter, submits the sbatch using
@@ -152,7 +152,7 @@ class BBWrapper:
             f"Launching {self.component_name} black-box with default parametrization")
         # Submit the sbatch using the accelerator
         self.default_component = TunableComponent(
-            self.component_name, self.component_configuration_file)
+            self.component_name, self.component_configuration)
         job_id = self.default_component.submit_sbatch(
             self.sbatch_file, wait=True)
         # Store the id of the default job
