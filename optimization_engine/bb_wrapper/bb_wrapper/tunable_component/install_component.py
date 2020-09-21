@@ -23,7 +23,6 @@ def install_component(component_file: str = Option(..., help="The path to the co
     """
     api_client = Client(base_url=f"{api_host}:{api_port}", proxies={})
     component = TunableComponentModel.from_yaml(component_file)
-    print(component.dict())
     request = api_client.post("components", json=component.dict())
     if not 200 <= request.status_code < 400:
         raise Exception(

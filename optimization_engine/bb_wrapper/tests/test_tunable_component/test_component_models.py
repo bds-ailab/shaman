@@ -98,6 +98,9 @@ def mocked_requests_get(*args, **kwargs):
                             'component_4': {'plugin': 'example_4', 'header': 'example_header', 'command': 'example_cmd', 'ld_preload':
                                             'example_lib', 'parameters': {'xxx': {'type': 'int', 'default': None, 'optional': True, 'env_var': True, 'description': None, 'cmd_var': None, 'flag': None}}, 'custom_component': None}}}
         return MockResponse(mock_components, 200)
+    elif args[0] == "http://mock_api:5000/component":
+        mock_components = {"state": "failure"}
+        return MockResponse(mock_components, 504)
 
 
 class TestComponentModels(unittest.TestCase):

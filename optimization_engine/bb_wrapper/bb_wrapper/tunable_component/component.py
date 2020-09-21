@@ -40,7 +40,7 @@ class TunableComponent:
             parameters (dict): The parameters to setup the component.
         """
         # Check if the configuration file is an URL and try loading
-        if "http://" in str(module_configuration):
+        if ("http://" or "https://") in str(module_configuration):
             possible_components = TunableComponentsModel.from_api(
                 module_configuration).components
         # Else, check if it's a file
@@ -49,13 +49,12 @@ class TunableComponent:
             if Path(module_configuration).suffix == ".yaml":
                 # If it exists
                 if Path(module_configuration).is_file():
-                    try:
-                        possible_components = TunableComponentsModel.from_yaml(
-                            module_configuration).components
-                    # If the file can't be found, raise an error
-                    except:
-                        raise FileNotFoundError(
-                            "Module configuration can't be found. Please make sure this file exist.")
+                    possible_components = TunableComponentsModel.from_yaml(
+                        module_configuration).components
+                # If the file can't be found, raise an error
+                else:
+                    raise FileNotFoundError(
+                        "Module configuration can't be found. Please make sure this file exist.")
             # If it's not a YAML, raise an error
             else:
                 raise ValueError("File must have a YAML format.")
