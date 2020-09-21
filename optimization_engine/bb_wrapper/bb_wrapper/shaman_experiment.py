@@ -60,7 +60,8 @@ class SHAManExperiment:
             configuration_file (str): The path to the configuration file.
                 Defaults to the configuration file present in the package and called
                 config.cfg.
-            component_config (str): The path to the configuration of the components.
+            component_config (str): The path to the configuration of the components, either a file or
+                an URL.
         """
         # The name of the component that will be tuned through the experiment
         self.component_name = component_name
