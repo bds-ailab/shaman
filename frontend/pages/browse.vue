@@ -1,107 +1,132 @@
 <template>
-  <!-- Page content is a single row -->
-  <div class="flex flex-row w-full min-h-screen">
-    <!-- First column holding experiment table
-      The column fits in whole page by default
-      When an experiment is selected, it takes 1/4 of the page.
-      All child div will be positioned vertically.
+  <div class="container-fluid">
+    <!-- Page content is a single row -->
 
-      NOTE: wrap all bootsrap components into div to make sure items will be positioned correctly
-     -->
-    <b-col
-      :class="{
-        'col-md-2': viewExperiment,
-        'col-md-12': !viewExperiment,
-        container: !viewExperiment
-      }"
-    >
-      <!-- Start of pagination
-      -->
-      <b-row>
-        <b-pagination
-          v-model="currentPage"
-          :total-rows="Object.keys(experiments).length"
-          :per-page="perPage"
-          aria-controls="experimentTable"
-          class="overflow-auto"
-          @input="showExperiment(false)"
-        ></b-pagination>
-      </b-row>
-      <!-- End of pagination -->
-
-      <!-- Start of table -->
-      <b-row>
-        <div class="table-responsive">
-          <b-table
-            id="experimentTable"
-            ref="experimentTable"
-            selectable
-            select-mode="single"
-            striped
-            hover
-            :items="Object.values(experiments)"
-            :fields="fields"
-            :per-page="perPage"
-            :current-page="currentPage"
-            :sort-by.sync="sortBy"
-            :sort-desc.sync="sortDesc"
-            @row-selected="onRowSelected"
-          >
-            <template v-slot:cell(status)="data">
-              <p v-if="data.value === 'created'" key="created">
-                <i class="fas fa-sync text-blue-600"></i>
-              </p>
-              <p v-if="data.value === 'running'" key="running">
-                <i class="fas fa-sync fa-spin text-orange-600"></i>
-              </p>
-              <p v-if="data.value === 'finished'" key="finished">
-                <i class="fas fa-sync fa-check-circle text-green-600"></i>
-              </p>
-              <p v-if="data.value === 'failed'" key="failed">
-                <i class="fas fa-times-circle text-red-600"></i>
-              </p>
-              <p v-if="data.value === 'stopped'" key="stopped">
-                <i class="fas fa-square text-purple-600"></i>
-              </p>
-            </template>
-          </b-table>
-        </div>
-      </b-row>
-      <!-- End of table -->
-    </b-col>
-    <!-- End of first column -->
-    <!-- Start of second column. Rendered only when viewExperiment is true.
-      This column takes all remaining width.
-      As long as table content takes 1/4 of width it will take 3/4 of width
-    -->
-    <b-col v-if="viewExperiment" md="9">
-      <!-- Include ExperimentDisplay wth name and objectID properties -->
-      <ExperimentDisplay
-        :key="objectId"
-        :name="experimentName"
-        :objectid="objectId"
-      ></ExperimentDisplay>
-    </b-col>
-    <!-- Position a 'Back to full view' button on the rop right corner of the experiment display -->
-    <b-col md="1">
-      <div
-        class="inline-block h-6 w-6 bg-pink-600 shaman-button"
-        @click="showExperiment(false)"
+    <div class="flex flex-col w-2/3 mx-auto" v-if="!viewExperiment">
+      <ExperimentTable
+        :id="mainTable"
+        :experiments="experiments"
+        :fields="fields"
+        :perPage="perPage"
+        :currentPage="currentPage"
+        :sortBy="sortBy"
+        :sortDesc="sortDesc"
+        :onRowSelected="onRowSelected"
       >
-        Back to full view
+      </ExperimentTable>
+    </div>
+    <div v-if="viewExperiment">
+      <b-sidebar
+        id="experimentSidebar"
+        title="Browse experiments"
+        backdrop
+        width="500px"
+      >
+        <div>
+          <!-- <ExperimentTable
+            :id="sideTable"
+            :experiments="experiments"
+            :fields="reduced_fields"
+            :perPage="perPage"
+            :currentPage="currentPage"
+            :sortBy="sortBy"
+            :sortDesc="sortDesc"
+            :onRowSelected="onRowSelected"
+          >
+          </ExperimentTable> -->
+          <div>
+            <div>
+              <b-pagination
+                :id="id"
+                v-model="currentPage"
+                :total-rows="Object.keys(experiments).length"
+                :per-page="perPage"
+                :aria-controls="id"
+                class="overflow-auto"
+              ></b-pagination>
+              <!-- @input="showExperiment(false)" -->
+            </div>
+            <!-- End of pagination -->
+            <!-- Start of table -->
+            <div>
+              <div class="table-responsive">
+                <b-table
+                  :id="id"
+                  :ref="id"
+                  selectable
+                  select-mode="single"
+                  striped
+                  hover
+                  :items="Object.values(experiments)"
+                  :fields="reduced_fields"
+                  :per-page="perPage"
+                  :current-page="currentPage"
+                  :sort-by.sync="sortBy"
+                  :sort-desc.sync="sortDesc"
+                  @row-selected="onRowSelected"
+                >
+                  <template v-slot:cell(status)="data">
+                    <p v-if="data.value === 'created'" key="created">
+                      <i class="fas fa-sync text-blue-600"></i>
+                    </p>
+                    <p v-if="data.value === 'running'" key="running">
+                      <i class="fas fa-sync fa-spin text-orange-600"></i>
+                    </p>
+                    <p v-if="data.value === 'finished'" key="finished">
+                      <i class="fas fa-sync fa-check-circle text-green-600"></i>
+                    </p>
+                    <p v-if="data.value === 'failed'" key="failed">
+                      <i class="fas fa-times-circle text-red-600"></i>
+                    </p>
+                    <p v-if="data.value === 'stopped'" key="stopped">
+                      <i class="fas fa-square text-purple-600"></i>
+                    </p>
+                  </template>
+                </b-table>
+              </div>
+            </div>
+            <!-- End of table -->
+          </div>
+        </div>
+      </b-sidebar>
+      <div class="flex flex-row w-full">
+        <div class="flex flex-col w-1/6">
+          <!-- Button for full view of experiment through sidebar -->
+          <div
+            class="inline-block h-6 w-6 bg-pink-600 shaman-button mx-auto mb-4"
+            @click="showExperiment(false)"
+          >
+            Back to full view
+          </div>
+          <div
+            class="inline-block h-6 w-6 bg-pink-600 shaman-button mb-4 mx-auto"
+            v-b-toggle.experimentSidebar
+          >
+            Browse experiments
+          </div>
+        </div>
+        <div class="w-full">
+          <!-- Include ExperimentDisplay wth name and objectID properties -->
+
+          <ExperimentDisplay
+            :key="objectId"
+            :name="experimentName"
+            :objectid="objectId"
+          ></ExperimentDisplay>
+        </div>
       </div>
-    </b-col>
-    <!-- End of second column. -->
+    </div>
   </div>
 </template>
 
 <script>
 import axios from 'axios'
+import ExperimentTable from '../components/ExperimentTable'
 import ExperimentDisplay from '../components/ExperimentDisplay'
 // Load data using the REST API
 export default {
   name: 'BrowsePage',
-  components: { ExperimentDisplay },
+  components: { ExperimentDisplay, ExperimentTable },
   data() {
     return {
       sortBy: 'experiment_start',
@@ -111,6 +136,7 @@ export default {
       selected: null,
       perPage: 10,
       currentPage: 1,
+      currentPageSidebar: 5,
       default_fields: [
         { key: 'experiment_name', sortable: true },
         { key: 'experiment_start', sortable: true, sortDirection: 'asc' },
@@ -165,11 +191,8 @@ export default {
   },
   methods: {
     showExperiment(viewExperiment) {
-      this.viewExperiment = viewExperiment
-      if (viewExperiment) {
-        this.fields = this.reduced_fields
-      } else {
-        this.fields = this.default_fields
+      if (viewExperiment !== this.viewExperiment) {
+        this.viewExperiment = viewExperiment
       }
     },
     onRowSelected(item) {
