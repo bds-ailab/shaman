@@ -14,13 +14,6 @@ All of the potentially available heuristics are described in the __heuristics__ 
 the available initialization in __initial_parametrization__.
 """
 
-__copyright__ = """
-Copyright (C) 2020 Bull S. A. S. - All rights reserved
-Bull, Rue Jean Jaures, B.P.68, 78340, Les Clayes-sous-Bois, France
-This is not Free or Open Source software.
-Please contact Bull S. A. S. for details about its license.
-"""
-
 import time
 import contextlib
 from concurrent.futures import ThreadPoolExecutor

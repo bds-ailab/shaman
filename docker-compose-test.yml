@@ -50,6 +50,22 @@ services:
     volumes:
       - secrets:/secrets
 
+  shaman_engine:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.engine
+    image: engine
+    depends_on:
+      - controller
+    container_name: optimization_engine
+    privileged: true
+    hostname: optimization_engine
+    command: tail -f /dev/null
+    networks:
+      - slurm
+    volumes:
+      - secrets:/secrets
+
   mongo:
     image: mongo:4.0
     container_name: mongo
@@ -94,16 +110,6 @@ services:
     ports:
       - "3000:3000"
 
-  shaman_engine:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.engine
-    image: engine
-    container_name: engine
-    privileged: true
-    hostname: engine
-    command: tail -f /dev/null
-
   api:
     build:
       context: .
@@ -118,8 +124,7 @@ services:
     networks:
       - mongo
 
-
-  # redis:
+  redis:
 
 networks:
   slurm:

@@ -1,5 +1,14 @@
 FROM slurm-dependencies
 
+# Install openssh server
+RUN yum install -y openssh-server
+
+# Launch sshd server
+RUN mkdir /var/run/sshd &&\
+    ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key -N ''
+RUN /usr/sbin/sshd
+
+
 # Copy the configuration file
 COPY docker/config/slurm.conf /etc/slurm/
 

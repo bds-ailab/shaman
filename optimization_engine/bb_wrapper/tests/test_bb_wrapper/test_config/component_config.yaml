@@ -1,0 +1,60 @@
+components:
+  component_1:
+    plugin: example_1
+    header: example_header
+    command: example_cmd
+    ld_preload: example_lib
+    parameters:
+      param_1:
+        env_var: True
+        type: int
+        default: 1
+      param_2:
+        cmd_var: True
+        type: str
+        default: /home/
+        flag: folder
+
+  component_2:
+    plugin: example_2
+    header: example_header
+    command: example_cmd
+    ld_preload: example_lib
+    parameters:
+      param_1:
+        env_var: True
+        type: int
+        default: 1
+      param_2:
+        cmd_var: True
+        type: str
+        default: /home/
+        flag: folder
+      param_3:
+        cmd_var: True
+        type: str
+        flag: f
+
+  component_3:
+    plugin: example_3
+    header: example_header
+    ld_preload: example_lib
+    parameters:
+      param_1:
+        env_var: True
+        type: int
+      param_2:
+        env_var: True
+        type: int
+        default: 2
+
+  component_4:
+    plugin: example_4
+    header: example_header
+    command: example_cmd
+    ld_preload: example_lib
+    parameters:
+      xxx:
+        env_var: True
+        type: int
+        optional: True
