@@ -10,6 +10,7 @@ import time
 from typer import Typer, Option
 
 from .shaman_experiment import SHAManExperiment
+from . import COMPONENT_CONFIG
 
 cli = Typer(add_completion=False)
 
@@ -26,7 +27,8 @@ def run(component_name: str = Option(..., help="The name of the component to tun
         None, help="The directory to store the sbatch"),
         slurm_dir: str = Option(
         None, help="The directory to write the slurm outputs"),
-        result_file: str = Option(None, help="The path to the result file.")) -> None:
+        result_file: str = Option(None, help="The path to the result file."),
+        component_config: str = Option(COMPONENT_CONFIG, help="The path to the component config file")) -> None:
     """Run an optimization experiment.
     """
     # Create an experiment by initializing an object of class ShamanExperiment
@@ -37,7 +39,8 @@ def run(component_name: str = Option(..., help="The name of the component to tun
                                   sbatch_dir=sbatch_dir,
                                   slurm_dir=slurm_dir,
                                   result_file=result_file,
-                                  configuration_file=configuration_file)
+                                  configuration_file=configuration_file,
+                                  component_config=component_config)
     # Log the beginning of the experiment
     print(f"Lauching experiment {experiment_name}")
     # Catch possible keyyboard interrupt

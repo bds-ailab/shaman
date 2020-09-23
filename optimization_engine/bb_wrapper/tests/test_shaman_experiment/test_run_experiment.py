@@ -13,6 +13,8 @@ from typer.testing import CliRunner
 from bb_wrapper.run_experiment import cli, run
 
 CONFIG = Path(__file__).parent / "test_config" / "vanilla.yaml"
+COMPONENT_CONFIG = Path(__file__).parent / \
+    "test_config" / "component_config.yaml"
 SBATCH = Path(__file__).parent / "test_sbatch" / "test_sbatch.sbatch"
 
 
@@ -34,7 +36,8 @@ class TestShamanExperiment(unittest.TestCase):
             configuration_file=CONFIG,
             sbatch_dir=None,
             slurm_dir=None,
-            result_file=None
+            result_file=None,
+            component_config=COMPONENT_CONFIG
         )
         assert not list(Path.cwd().glob("slurm*.out"))
         assert not list(Path.cwd().glob("*_shaman.sbatch"))
@@ -43,6 +46,22 @@ class TestShamanExperiment(unittest.TestCase):
     @patch('bb_wrapper.shaman_experiment.SHAManExperiment.end')
     def test_main_cli(self, mock_launch, mock_end):
         """ Test the shaman CLI runs properly """
+        args_list = ['--component-name', 'component_1',
+                     '--nbr-iteration', '3',
+                     '--sbatch-file', SBATCH,
+                     '--experiment-name', 'test_experiment',
+                     '--configuration-file', CONFIG,
+                     '--component-config', COMPONENT_CONFIG]
+        result = runner.invoke(cli, args_list)
+        assert result.exit_code == 0
+        assert "experiment test_experiment" in result.stdout
+        assert not list(Path.cwd().glob("slurm*.out"))
+        assert not list(Path.cwd().glob("*_shaman.sbatch"))
+
+    @patch('bb_wrapper.shaman_experiment.SHAManExperiment.launch')
+    @patch('bb_wrapper.shaman_experiment.SHAManExperiment.end')
+    def test_main_cli_config(self, mock_launch, mock_end):
+        """ Test the shaman CLI runs properly default config"""
         args_list = ['--component-name', 'component_1',
                      '--nbr-iteration', '3',
                      '--sbatch-file', SBATCH,
