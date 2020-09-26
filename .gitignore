@@ -178,7 +178,7 @@ htmlcov/
 .nox/
 .coverage
 .coverage.*
-cov.xml
+*cov.xml
 .cache
 nosetests.xml
 coverage.xml
