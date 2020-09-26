@@ -20,6 +20,7 @@ scripts/spelling.txt
 **/*env
 **/*venv
 **/venv*
+**/.venv/
 
 # Eggs info for the package
 */*.egg-info/*
