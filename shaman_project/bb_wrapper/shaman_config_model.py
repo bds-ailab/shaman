@@ -14,8 +14,7 @@ import yaml
 
 
 class BaseConfiguration:
-    """Base class to load YAML.
-    """
+    """Base class to load YAML."""
 
     @classmethod
     def from_yaml(cls, path, component_name):
@@ -26,15 +25,6 @@ class BaseConfiguration:
             **yaml.load(Path(path).read_text(), Loader=yaml.SafeLoader),
             component_name=component_name,
         )
-
-
-class ApiParameters(BaseModel):
-    """
-    Contains the parameters of the API.
-    """
-
-    host: str
-    port: int
 
 
 class ExperimentParameters(BaseModel):
@@ -55,9 +45,9 @@ class PruningParameters(BaseModel):
     @validator("max_step_duration")
     def check_max_step(cls, v):
         """Checks that the max step duration is either:
-            - default
-            - a numpy function
-            - an int
+        - default
+        - a numpy function
+        - an int
         """
         if isinstance(v, int):
             return v
@@ -107,7 +97,6 @@ class SHAManConfig(BaseConfiguration):
     Contains the configuration of the SHAMan application.
     """
 
-    api: ApiParameters
     experiment: ExperimentParameters
     bbo: Dict
     components: Dict[str, Dict[str, ParameterRange]]
@@ -117,8 +106,7 @@ class SHAManConfig(BaseConfiguration):
     component_parameters: Dict[str, ParameterRange] = dataclasses.field(init=False)
 
     def __post_init__(self) -> None:
-        """Initialize an object of class SHAManConfig.
-        """
+        """Initialize an object of class SHAManConfig."""
         try:
             self.component_parameters = self.components[self.component_name]
         except KeyError:

@@ -3,7 +3,8 @@ Rest API endpoints related to SHAman are defined in this module
 """
 from typing import List, Optional
 from starlette.responses import Response
-from fastapi import APIRouter, HTTPException, WebSocket
+from fastapi import HTTPException, WebSocket
+from .experiment_router import ExperimentRouter, ExperimentDatabase
 from ..models import (
     Experiment,
     WebSocketExperiment,
@@ -14,93 +15,75 @@ from ..models import (
     InitExperiment,
     ExperimentForm,
 )
-from ..databases import (
-    create_experiment,
-    get_experiments,
-    get_experiment,
-    update_experiment,
-    close_experiment,
-    connect_shaman_db,
-    close_shaman_db,
-    watch_experiments,
-    watch_experiment,
-    get_experiment_status,
-    fail_experiment,
-    stop_experiment,
-    launch_experiment,
-)
-from ..logger import get_logger
 
 
-logger = get_logger(__name__)
+router = ExperimentRouter()
 
 
-router = APIRouter(on_startup=[connect_shaman_db], on_shutdown=[close_shaman_db])
-
-
+# TODO: Add response type hint (and create associated pydantic model)
 @router.post(
     "/",
-    status_code=202,
-    response_description="Successfully created experiment",
     summary="Create a new experiment",
     description="Create a new experiment and store experiment data inside SHAMAN MongoDB database",
+    response_description="Successfully created experiment",
+    status_code=202,
 )
-def create_shaman_experiment(experiment: InitExperiment):
+async def create_shaman_experiment(experiment: InitExperiment):
     """
-    Receive experiment data inside POST request and store experiment inside SHAMAN MongoDB database
+    Receive experiment data inside POST request and store experiment inside SHAMAN MongoDB database.
     """
-    result = create_experiment(experiment.dict())
-    print(result)
+    result = await router.db.create_experiment(experiment.dict())
     return {"id": str(result.inserted_id)}
 
 
 @router.get(
     "/",
-    status_code=200,
-    response_description="Successfully read experiments",
-    response_model=List[Experiment],
     summary="Get experiments",
     description="Get all or a limited number of experiments",
+    response_description="Successfully read experiments",
+    status_code=200,
 )
-def get_shaman_experiments(limit: Optional[int] = None, offset: Optional[int] = None):
+async def get_shaman_experiments(
+    limit: int = 1000, offset: Optional[int] = None
+) -> List[Experiment]:
     """
-    Receive experiment data inside POST request and store experiment inside SHAMAN MongoDB database
+    Receive experiment data inside POST request and store experiment inside SHAMAN MongoDB database.
     """
-    experiments = get_experiments(limit=limit, offset=offset)
-    return list(experiments)
+    return await router.db.get_experiments(limit=limit, offset=offset)
 
 
 @router.post(
     "/launch",
-    status_code=200,
-    response_description="Successfully launched experiment",
-    response_model=ExperimentForm,
     summary="Launch an experiment",
     description="Launch an experiment through the user interface",
+    response_description="Successfully launched experiment",
+    response_class=Response,
+    status_code=202,
 )
-def launch_shaman_experiment(experiment_form: ExperimentForm):
+async def launch_shaman_experiment(experiment_form: ExperimentForm):
     """Given the data from the user, launch a SHAMan experiment.
 
     Args:
         experiment_form (ExperimentForm): the data sent from the UI to describe an experiment.
     """
-    launch_experiment(experiment_form)
+    # TODO: Use update status of experiment to pending
+    await router.redis.enqueue_job("launch_experiment", experiment_form.dict())
+    return Response(content=None, status_code=202)
 
 
 @router.get(
     "/{experiment_id}",
-    status_code=200,
-    response_description="Successfully read experiment",
-    response_model=DetailedExperiment,
-    responses={404: {"model": Message}},
     summary="Get experiment by ID",
     description="Get a single experiment by ID",
+    response_description="Successfully read experiment",
+    responses={404: {"model": Message}},
+    status_code=200,
 )
-def get_shaman_experiments(experiment_id: str):
+async def get_shaman_experiments(experiment_id: str) -> DetailedExperiment:
     """
     Receive experiment data inside POST request and store experiment inside SHAMAN MongoDB database
     """
-    experiment = get_experiment(experiment_id)
+    experiment = await router.db.get_experiment(experiment_id)
     if experiment is None:
         raise HTTPException(
             status_code=404, detail=f"Experiment {experiment_id} not found"
@@ -110,14 +93,14 @@ def get_shaman_experiments(experiment_id: str):
 
 @router.put(
     "/{experiment_id}/update",
-    status_code=202,
-    response_class=Response,
-    response_description="Successfully stored intermediate result",
     summary="Update experiment with intermediate result",
     description="Update experiment and store intermediate resul inside SHAMAN MongoDB database",
+    response_description="Successfully stored intermediate result",
+    response_class=Response,
+    status_code=202,
 )
-def update_shaman_experiment(experiment_id: str, result: IntermediateResult):
-    update_experiment(experiment_id, result.dict())
+async def update_shaman_experiment(experiment_id: str, result: IntermediateResult):
+    await router.db.update_experiment(experiment_id, result.dict())
     return Response(content=None, status_code=202)
 
 
@@ -125,7 +108,7 @@ def update_shaman_experiment(experiment_id: str, result: IntermediateResult):
 async def websocket_endpoint(websocket: WebSocket):
     # Get experiment status
     await websocket.accept()
-    async for insert in watch_experiments():
+    async for insert in router.db.watch_experiments():
         experiment = Experiment(**insert)
         await websocket.send_text(experiment.json())
 
@@ -133,58 +116,58 @@ async def websocket_endpoint(websocket: WebSocket):
 @router.websocket("/{experiment_id}/stream")
 async def websocket_endpoint(experiment_id: str, websocket: WebSocket):
     # Get experiment status
-    status = get_experiment_status(experiment_id)
+    status = await router.db.get_experiment_status(experiment_id)
     if not status == "finished":
         await websocket.accept()
         print("Accepted connection to websocket")
-        async for update in watch_experiment(experiment_id):
+        async for update in router.db.watch_experiment(experiment_id):
             experiment = DetailedExperiment(**update)
             await websocket.send_text(experiment.json())
 
 
 @router.put(
     "/{experiment_id}/finish",
-    status_code=202,
-    response_class=Response,
-    response_description="Successfully closed experiment",
     summary="Store final experiment data and close experiment",
     description=(
         "Update experiment with final data inside SHAMAN MongoDB database"
         "and consider experiment as finished"
     ),
+    response_description="Successfully closed experiment",
+    response_class=Response,
+    status_code=202,
 )
-def close_shaman_experiment(experiment_id: str, result: FinalResult):
-    close_experiment(experiment_id, result.dict())
+async def close_shaman_experiment(experiment_id: str, result: FinalResult):
+    await router.db.close_experiment(experiment_id, result.dict())
     return Response(content=None, status_code=202)
 
 
 @router.put(
     "/{experiment_id}/fail",
-    status_code=202,
-    response_class=Response,
-    response_description="Successfully closed experiment",
     summary="Store final experiment data and close experiment",
     description=(
         "Update experiment with final data inside SHAMAN MongoDB database"
         "and consider experiment as finished"
     ),
+    response_description="Successfully closed experiment",
+    response_class=Response,
+    status_code=202,
 )
-def fail_shaman_experiment(experiment_id: str):
-    fail_experiment(experiment_id)
+async def fail_shaman_experiment(experiment_id: str):
+    await router.db.fail_experiment(experiment_id)
     return Response(content=None, status_code=202)
 
 
 @router.put(
     "/{experiment_id}/stop",
-    status_code=202,
-    response_class=Response,
-    response_description="Successfully closed experiment",
     summary="Store final experiment data and close experiment",
     description=(
         "Update experiment with final data inside SHAMAN MongoDB database"
         "and consider experiment as finished"
     ),
+    response_description="Successfully closed experiment",
+    response_class=Response,
+    status_code=202,
 )
-def stop_shaman_experiment(experiment_id: str):
-    stop_experiment(experiment_id)
+async def stop_shaman_experiment(experiment_id: str):
+    await router.db.stop_experiment(experiment_id)
     return Response(content=None, status_code=202)

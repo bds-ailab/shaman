@@ -1,7 +1,3 @@
-api:
-  host: localhost
-  port: 5000
-
 experiment:
   default_first: true
 

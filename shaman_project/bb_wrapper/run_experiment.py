@@ -26,8 +26,7 @@ def run(
     slurm_dir: str = Option(None, help="The directory to write the slurm outputs"),
     result_file: str = Option(None, help="The path to the result file."),
 ) -> None:
-    """Run an optimization experiment.
-    """
+    """Run an optimization experiment."""
     # Create an experiment by initializing an object of class ShamanExperiment
     experiment = SHAManExperiment(
         component_name=component_name,

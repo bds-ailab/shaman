@@ -25,11 +25,10 @@ class AppConfig(BaseSettings):
         - Using environment variables
     """
 
-    shaman_mongodb_host: str = "mongo"
+    shaman_mongodb_host: str = "mimsy.farm"
     shaman_mongodb_port: int = 27017
     shaman_mongodb_database: str = "shaman_db"
     log_level: LoggingLevel = "DEBUG"
-    running_directory: Path = Path("/shaman_rundir")
 
     class Config:
         case_sensitive = False

@@ -2,31 +2,37 @@
 a collection containing the available components.
 """
 from httpx import Client
-import typer import Typer
-import Option
+from typer import Typer, Argument
 
 from .component_model import TunableComponentsModel
-
+from ..shaman_settings import SHAManSettings
 
 cli = Typer(add_completion=False)
+shaman_settings = SHAManSettings()
 
 
 @cli.command()
-def install_component(component_file: str = Option(..., help="The path to the component file containing the data"),
-                      api_host: str = Option(..., help="The host of the API"),
-                      api_port: str = Option(..., help="The port of the API")):
+def install_component(
+    component_file: str = Argument(
+        ..., help="The path to the component file containing the data"
+    )
+):
     """
     Function to install a component:
         - Takes as input a YAML file
         - Parses it as a dictionary through the Pydantic model TunableComponentsModel
         - Send it as a POST request to /components
     """
-    api_client = Client(base_url=f"{api_host}:{api_port}", proxies={})
-    component = TunableComponentModel.from_yaml(component_file)
-    request = api_client.post("components", json=component.dict())
+    api_client = Client(
+        base_url=f"http://{shaman_settings.api_host}:{shaman_settings.api_port}",
+        proxies={},
+    )
+    component = TunableComponentsModel.from_yaml(component_file)
+    request = api_client.post(shaman_settings.component_endpoint, json=component.dict())
     if not 200 <= request.status_code < 400:
         raise Exception(
-            f"Could not create component with status code {request.status_code}")
+            f"Could not create component with status code {request.status_code}"
+        )
 
 
 if __name__ == "__main__":

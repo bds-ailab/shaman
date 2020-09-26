@@ -15,10 +15,10 @@ from typing import Dict, List
 from bbo.optimizer import BBOptimizer
 from .bb_wrapper import BBWrapper
 from .shaman_config_model import SHAManConfig
-from . import COMPONENT_CONFIG
-
+from .shaman_settings import SHAManSettings
 
 __CURRENT_DIR__ = Path.cwd()
+shaman_settings = SHAManSettings()
 
 
 class SHAManExperiment:
@@ -35,7 +35,6 @@ class SHAManExperiment:
         sbatch_dir: str = None,
         slurm_dir: str = None,
         result_file: str = None,
-        component_config: str = COMPONENT_CONFIG,
     ) -> None:
         """Builds an object of class SHAManExperiment.
         This experiment is defined by giving:
@@ -62,8 +61,6 @@ class SHAManExperiment:
             configuration_file (str): The path to the configuration file.
                 Defaults to the configuration file present in the package and called
                 config.cfg.
-            component_config (str): The path to the configuration of the components, either a file or
-                an URL.
         """
         # The name of the component that will be tuned through the experiment
         self.component_name = component_name
@@ -99,17 +96,19 @@ class SHAManExperiment:
         self.configuration = SHAManConfig.from_yaml(
             configuration_file, self.component_name
         )
+        # Create API client using the configuration information
+        self.api_client = Client(base_url=self.api_url, proxies={})
         # Create the black box object using the informations
         self.bb_wrapper = BBWrapper(
             self.component_name,
             self.configuration.component_parameter_names,
             self.sbatch_file,
             sbatch_dir=self.sbatch_dir,
-            component_configuration=component_config,
+            component_configuration=self.api_url
+            + "/"
+            + shaman_settings.component_endpoint,
         )
 
-        # Create API client using the configuration information
-        self.api_client = Client(base_url=self.api_url, proxies={})
         # Setup black box optimizer using configuration information
         self.bb_optimizer = self.setup_bb_optimizer()
         # Compute the start of the experiment
@@ -189,12 +188,11 @@ class SHAManExperiment:
         """
         Returns as a string the URL to the API using the data in the configuration file.
         """
-        return f"http://{self.configuration.api.host}:{self.configuration.api.port}"
+        return f"http://{shaman_settings.api_host}:{shaman_settings.api_port}"
 
     @property
     def start_experiment_dict(self) -> Dict:
-        """Creates a dictionnary describing the experiment from its start. 
-        """
+        """Creates a dictionnary describing the experiment from its start."""
         return {
             "experiment_name": self.experiment_name,
             "experiment_start": self.experiment_start,
@@ -213,8 +211,7 @@ class SHAManExperiment:
         }
 
     def create_experiment(self) -> None:
-        """Create the experiment upon initialization.
-        """
+        """Create the experiment upon initialization."""
         request = self.api_client.post("experiments", json=self.start_experiment_dict)
         if not 200 <= request.status_code < 400:
             raise Exception(
@@ -324,8 +321,7 @@ class SHAManExperiment:
         }
 
     def end(self):
-        """End the experiment once it is over.
-        """
+        """End the experiment once it is over."""
         request = self.api_client.put(
             f"experiments/{self.experiment_id}/finish", json=self.end_dict
         )

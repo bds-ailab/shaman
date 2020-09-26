@@ -68,10 +68,16 @@ class TunableComponent:
         try:
             self.description = possible_components[name]
         except KeyError:
+            # If the component name is wrong but there other components, list them
+            if possible_components:
+                error_message = "There are no registered components"
+            else:
+                error_message = f"Current possible components are: \
+                      {possible_components.keys()}"
+            # If there is no component, say so
             raise KeyError(
                 f"There is no component with the name {name}. If you want to use it, \
-                  add it to the configuration file. Current possible components are: \
-                      {possible_components.keys()}"
+                  add it to the configuration file. {error_message}"
             )
         # Load the configuration of the component
 

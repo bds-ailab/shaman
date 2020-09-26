@@ -102,6 +102,20 @@ class DetailedExperiment(Experiment):
     sbatch: str = None
 
 
+class IODurations(BaseModel):
+    """
+    Describes the IO durations.
+    """
+
+    experiment_id: str = None
+    min_duration_read: List[float] = None
+    average_duration_read: List[float] = None
+    max_duration_read: List[float] = None
+    min_duration_write: List[float] = None
+    average_duration_write: List[float] = None
+    max_duration_write: List[float] = None
+
+
 class IntermediateResult(MongoModel):
     """
     A model describing an intermediate result of an experiment
