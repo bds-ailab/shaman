@@ -20,6 +20,7 @@ scripts/spelling.txt
 **/*env
 **/*venv
 **/venv*
+**/.venv/
 
 # Eggs info for the package
 */*.egg-info/*
@@ -28,7 +29,7 @@ scripts/spelling.txt
 sbatch_script*
 
 # DDL
-*/__pycache__/*
+__pycache__/
 
 # Eggs info for the packages
 **/*.egg-info

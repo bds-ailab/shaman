@@ -1,5 +1,0 @@
-pydantic==1.6.1
-requests==2.24.0
-typer==0.3.2
-typing==3.7.4.3
-PyYAML==5.3.1

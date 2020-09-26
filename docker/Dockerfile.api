@@ -11,8 +11,9 @@ COPY api/ /api
 
 # TODO: very ugly workaround (temporary until redis network is enabled)
 COPY optimization_engine /optimization_engine
-WORKDIR /optimization_engine/bb_wrapper
+WORKDIR /optimization_engine/little_shaman
 RUN pip install ../bbo/ && \
+    pip install ../iomodules_handler && \
     pip install .	
 
 # Build package using setup

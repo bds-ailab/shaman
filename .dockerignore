@@ -2,11 +2,10 @@
 .git
 # Do not send __pycache__ directory to build context
 **/__pycache__/
-**/*.egg-info/
 # Do not send tests to build context
-# **/tests/
+**/tests/
 # Do not send venv do build context
-**/venv*/
+**/venv/
 # Do not send build and dist
 **/build/
 **/dist/
