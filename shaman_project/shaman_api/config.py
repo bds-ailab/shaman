@@ -28,6 +28,8 @@ class AppConfig(BaseSettings):
     shaman_mongodb_host: str = "mimsy.farm"
     shaman_mongodb_port: int = 27017
     shaman_mongodb_database: str = "shaman_db"
+    shaman_redis_host: str = "mimsy.farm"
+    shaman_redis_port: int = 6379
     log_level: LoggingLevel = "DEBUG"
 
     class Config:

@@ -161,7 +161,9 @@ def api(
 )
 def worker(c, watch=True, asyncio_debug=True, dry_run=False):
     """Start the SHAMan Worker in foreground with hot-reload enabled by default."""
-    cmd = "PYTHONASYNCIODEBUG=1 arq "
+    cmd = "arq "
+    if asyncio_debug:
+        os.environ["PYTHONASYNCIODEBUG"] = "1"
     if watch:
         cmd += f"--watch {str(SRC_DIR / 'shaman_worker')} "
     cmd += "shaman_worker.Settings"

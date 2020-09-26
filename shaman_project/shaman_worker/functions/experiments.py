@@ -42,7 +42,6 @@ async def launch_experiment(context, experiment: Dict):
     sbatch_filepath = context["settings"].join_path("ui_sbatch.sbatch")
     # Write sbatch content
     sbatch_filepath.write_text(experiment.sbatch)
-
     # Get SHAMan configuration file path
     config_filepath = context["settings"].join_path("config_shaman.cfg")
     # Create ShamanConfig object
@@ -50,10 +49,11 @@ async def launch_experiment(context, experiment: Dict):
     # Build the configuration file
     shaman_config.build_configuration(experiment.dict())
     # Launch the experiment
-    run(
-        experiment_name=experiment_form.experiment_name,
-        accelerator_name=experiment_form.accelerator_name,
-        nbr_iteration=experiment_form.nbr_iteration,
-        sbatch_file=str(sbatch_filepath),
-        configuration_file=str(config_filepath),
-    )
+    print("Running the runner !")
+    # run(
+    #     experiment_name=experiment_form.experiment_name,
+    #     accelerator_name=experiment_form.accelerator_name,
+    #     nbr_iteration=experiment_form.nbr_iteration,
+    #     sbatch_file=str(sbatch_filepath),
+    #     configuration_file=str(config_filepath),
+    # )

@@ -66,7 +66,6 @@ async def launch_shaman_experiment(experiment_form: ExperimentForm):
     Args:
         experiment_form (ExperimentForm): the data sent from the UI to describe an experiment.
     """
-    # TODO: Use update status of experiment to pending
     await router.redis.enqueue_job("launch_experiment", experiment_form.dict())
     return Response(content=None, status_code=202)
 

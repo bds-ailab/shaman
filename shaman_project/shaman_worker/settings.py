@@ -12,7 +12,7 @@ class RedisConfig(BaseSettings):
     Defines the configuration of Redis.
     """
 
-    host: str = "127.0.0.1"
+    host: str = "mimsy.farm"
     port: int = 6379
 
     def settings(self):

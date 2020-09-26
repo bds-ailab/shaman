@@ -6,6 +6,7 @@ from arq.connections import RedisSettings, ArqRedis
 from ..databases.shaman import ExperimentDatabase
 from ..logger import get_logger
 
+from ..config import CONFIG
 
 logger = get_logger("experiments_router")
 
@@ -17,7 +18,7 @@ class ExperimentRouter(APIRouter):
         self.redis: Optional[ArqRedis] = None
         on_startup = set(kwargs.get("on_startup", []))
         on_startup.add(db.connect)
-        # on_startup.add(self.connect_redis)
+        on_startup.add(self.connect_redis)
         on_shutdown = set(kwargs.get("on_shutdown", []))
         on_shutdown.add(db.close)
         on_shutdown.add(self.close_redis)
@@ -36,8 +37,10 @@ class ExperimentRouter(APIRouter):
         return super().add_api_route(path, endpoint, **kwargs)
 
     async def connect_redis(self):
-        settings = RedisSettings()
-        self.redis = await create_pool(RedisSettings())
+        settings = RedisSettings(
+            host=CONFIG.shaman_redis_host, port=CONFIG.shaman_redis_port
+        )
+        self.redis = await create_pool(settings)
         logger.info(f"Connected to redis server with settings {settings}.")
 
     async def close_redis(self):
