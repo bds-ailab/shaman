@@ -793,7 +793,9 @@ class TestSHAManAPI(unittest.TestCase):
     @patch("bb_wrapper.tunable_component.component.TunableComponent.submit_sbatch")
     @patch("bb_wrapper.bb_wrapper.BBWrapper._parse_slurm_times")
     @patch("httpx.Client.put", side_effect=mocked_requests_put)
-    def test_update_history(self, mock_update, mock_parse, mock_submit, mocked_requests_get):
+    def test_update_history(
+        self, mock_update, mock_parse, mock_submit, mocked_requests_get
+    ):
         """
         Tests that the update_history function works as expected.
         """
@@ -836,7 +838,9 @@ class TestSHAManAPI(unittest.TestCase):
     @patch("bb_wrapper.tunable_component.component.TunableComponent.submit_sbatch")
     @patch("bb_wrapper.bb_wrapper.BBWrapper._parse_slurm_times")
     @patch("httpx.Client.put", side_effect=mocked_requests_put)
-    def test_update_history_fail(self, mock_update, mock_parse, mock_submit, mocked_requests_get):
+    def test_update_history_fail(
+        self, mock_update, mock_parse, mock_submit, mocked_requests_get
+    ):
         """
         Tests that the update_history function works as expected when there is a failure.
         """
@@ -880,6 +884,7 @@ class TestSHAManAPI(unittest.TestCase):
     @patch("bb_wrapper.bb_wrapper.BBWrapper._parse_slurm_times")
     def test_end_dict(self, mock_parse, mock_submit, mocked_requests_get):
         """Tests that the improvement is properly computed."""
+        self.maxDiff = None
         mock_submit.return_value = 10
         mock_parse.return_value = 10
         se = SHAManExperiment(
@@ -902,7 +907,7 @@ class TestSHAManAPI(unittest.TestCase):
             "averaged_execution_time": [2.0, 2.0, 3.0],
             "min_execution_time": [2.0, 2.0, 3.0],
             "max_execution_time": [2.0, 2.0, 3.0],
-            "std_execution_time": 0.25,
+            "std_execution_time": [0.5, 0.0],
             "resampled_nbr": [1.0, 1.0, 1.0],
             "improvement_default": 80.0,
             "elapsed_time": 0,

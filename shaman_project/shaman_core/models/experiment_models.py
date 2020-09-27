@@ -25,7 +25,7 @@ class InitExperiment(MongoModel):
     experiment_name: str
     experiment_start: str
     experiment_budget: int
-    accelerator: str
+    component: str
     experiment_parameters: Dict
     noise_reduction_strategy: Dict
     pruning_strategy: Dict
@@ -40,7 +40,7 @@ class Experiment(MongoModel):
     id: str = Field(..., alias="_id")
     experiment_name: str = None
     experiment_start: str = None
-    accelerator: str = None
+    component: str = None
     status: str = None
 
     @validator("id", pre=True)
@@ -92,7 +92,7 @@ class DetailedExperiment(Experiment):
     std_execution_time: List[float] = None
     resampled_nbr: List[int] = None
     improvement_default: float = None
-    accelerator: str = None
+    component: str = None
     elapsed_time: float = None
     experiment_name: str = None
     explored_space: float = None
@@ -121,7 +121,7 @@ class ExperimentForm(MongoModel):
     """A model describing the data received from the client to launch the experiment.
     """
 
-    accelerator_name: str
+    component_name: str
     nbr_iteration: int
     sbatch: str
     experiment_name: str

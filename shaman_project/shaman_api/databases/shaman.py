@@ -84,7 +84,11 @@ class ExperimentDatabase:
         await self.experiments_collection.update_one(
             {"_id": ObjectId(experiment_id)},
             {
-                "$set": {"status": "running"},
+                "$set": {
+                    "status": "running",
+                    "improvement_default": result["improvement_default"],
+                    "average_noise": result["average_noise"],
+                },
                 "$push": {
                     "jobids": result["jobids"],
                     "execution_time": result["execution_time"],

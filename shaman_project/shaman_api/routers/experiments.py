@@ -5,7 +5,7 @@ from typing import List, Optional
 from starlette.responses import Response
 from fastapi import HTTPException, WebSocket
 from .experiment_router import ExperimentRouter, ExperimentDatabase
-from ..models import (
+from shaman_core.models.experiment_models import (
     Experiment,
     WebSocketExperiment,
     DetailedExperiment,

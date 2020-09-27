@@ -18,7 +18,7 @@ from pathlib import Path
 from collections import OrderedDict
 
 
-from .component_model import TunableComponentsModel
+from shaman_core.models.component_model import TunableComponentsModel
 
 # Save current environment as variable
 ENV = os.environ.copy()

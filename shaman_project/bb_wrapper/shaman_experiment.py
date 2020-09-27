@@ -13,8 +13,13 @@ from httpx import Client
 from typing import Dict, List
 
 from bbo.optimizer import BBOptimizer
+from shaman_core.models.shaman_config_model import SHAManConfig
+from shaman_core.models.experiment_models import (
+    FinalResult,
+    InitExperiment,
+    IntermediateResult,
+)
 from .bb_wrapper import BBWrapper
-from .shaman_config_model import SHAManConfig
 from .shaman_settings import SHAManSettings
 
 __CURRENT_DIR__ = Path.cwd()
@@ -48,7 +53,7 @@ class SHAManExperiment:
             - The path to the result file (optional, if not specified, no file is created).
 
         Args:
-            component_name (str): The name of the accelerator to use.
+            component_name (str): The name of the component to use.
             nbr_iteration (int): The number of iterations.
             sbatch_file (str): The path to the sbatch file.
             experiment_name (str): The name of the experiment.
@@ -149,7 +154,7 @@ class SHAManExperiment:
         # Create the experiment through API request
         self.create_experiment()
         if self.configuration.experiment.default_first:
-            # Launch a run using default parameterization of the accelerator
+            # Launch a run using default parameterization of the component
             self.bb_wrapper.run_default()
         # Setup the optimizer
         self.setup_bb_optimizer()
@@ -193,22 +198,24 @@ class SHAManExperiment:
     @property
     def start_experiment_dict(self) -> Dict:
         """Creates a dictionnary describing the experiment from its start."""
-        return {
-            "experiment_name": self.experiment_name,
-            "experiment_start": self.experiment_start,
-            "experiment_budget": self.nbr_iteration,
-            "component": self.component_name,
-            "experiment_parameters": dict(self.configuration.bbo),
-            "noise_reduction_strategy": dict(self.configuration.noise_reduction)
-            if self.configuration.noise_reduction
-            else dict(),
-            "pruning_strategy": {
-                "pruning_strategy": self.configuration.pruning.max_step_duration
-                if self.configuration.pruning
-                else self.configuration.pruning
-            },
-            "sbatch": open(self.sbatch_file, "r").read(),
-        }
+        return InitExperiment(
+            **{
+                "experiment_name": self.experiment_name,
+                "experiment_start": self.experiment_start,
+                "experiment_budget": self.nbr_iteration,
+                "component": self.component_name,
+                "experiment_parameters": dict(self.configuration.bbo),
+                "noise_reduction_strategy": dict(self.configuration.noise_reduction)
+                if self.configuration.noise_reduction
+                else dict(),
+                "pruning_strategy": {
+                    "pruning_strategy": self.configuration.pruning.max_step_duration
+                    if self.configuration.pruning
+                    else self.configuration.pruning
+                },
+                "sbatch": open(self.sbatch_file, "r").read(),
+            }
+        ).dict()
 
     def create_experiment(self) -> None:
         """Create the experiment upon initialization."""
@@ -266,19 +273,21 @@ class SHAManExperiment:
         Returns:
             Dict: The updated dict to add to the POST request.
         """
-        return {
-            "jobids": self.bb_wrapper.component.submitted_jobids[-1],
-            "execution_time": history["fitness"][-1],
-            "parameters": self.build_parameter_dict(
-                self.configuration.component_parameter_names,
-                history["parameters"].tolist(),
-            )[-1],
-            "truncated": bool(history["truncated"][-1]),
-            "resampled": bool(history["resampled"][-1]),
-            "initialization": bool(history["initialization"][-1]),
-            "improvement_default": self.improvement_default,
-            "average_noise": self.average_noise,
-        }
+        return IntermediateResult(
+            **{
+                "jobids": self.bb_wrapper.component.submitted_jobids[-1],
+                "execution_time": history["fitness"][-1],
+                "parameters": self.build_parameter_dict(
+                    self.configuration.component_parameter_names,
+                    history["parameters"].tolist(),
+                )[-1],
+                "truncated": bool(history["truncated"][-1]),
+                "resampled": bool(history["resampled"][-1]),
+                "initialization": bool(history["initialization"][-1]),
+                "improvement_default": self.improvement_default,
+                "average_noise": self.average_noise,
+            }
+        ).dict()
 
     def update_history(self, history: Dict) -> None:
         """Update the optimization history at each BBO step and force conversion from numpy types.
@@ -303,22 +312,24 @@ class SHAManExperiment:
         Returns:
             Dict: The dictionary to send to the API.
         """
-        return {
-            "averaged_execution_time": self.bb_optimizer.averaged_fitness,
-            "min_execution_time": self.bb_optimizer.min_fitness,
-            "max_execution_time": self.bb_optimizer.max_fitness,
-            "std_execution_time": self.average_noise,
-            "resampled_nbr": self.bb_optimizer.resampled_nbr,
-            "improvement_default": self.improvement_default,
-            "elapsed_time": self.bb_optimizer.elapsed_time,
-            "default_run": {
-                "execution_time": self.bb_wrapper.default_execution_time,
-                "job_id": self.bb_wrapper.default_jobid,
-                "parameters": self.bb_wrapper.default_parameters,
-            },
-            "average_noise": self.average_noise,
-            "explored_space": float(self.bb_optimizer.size_explored_space[0]),
-        }
+        return FinalResult(
+            **{
+                "averaged_execution_time": self.bb_optimizer.averaged_fitness,
+                "min_execution_time": self.bb_optimizer.min_fitness,
+                "max_execution_time": self.bb_optimizer.max_fitness,
+                "std_execution_time": self.bb_optimizer.measured_noise,
+                "resampled_nbr": self.bb_optimizer.resampled_nbr,
+                "improvement_default": self.improvement_default,
+                "elapsed_time": self.bb_optimizer.elapsed_time,
+                "default_run": {
+                    "execution_time": self.bb_wrapper.default_execution_time,
+                    "job_id": self.bb_wrapper.default_jobid,
+                    "parameters": self.bb_wrapper.default_parameters,
+                },
+                "average_noise": self.average_noise,
+                "explored_space": float(self.bb_optimizer.size_explored_space[0]),
+            }
+        ).dict()
 
     def end(self):
         """End the experiment once it is over."""

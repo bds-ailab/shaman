@@ -7,7 +7,8 @@ packages = [
     { include = "bbo", from = "shaman_project/" },
     { include = "bb_wrapper", from = "shaman_project/" },
     { include = "shaman_api", from = "shaman_project/" },
-    { include = "shaman_worker", from = "shaman_project/" }
+    { include = "shaman_worker", from = "shaman_project/" },
+    { include = "shaman_core", from = "shaman_project/" },
 ]
 
 [tool.poetry.dependencies]
@@ -43,6 +44,7 @@ bb-wrapper = ["pydantic", "requests", "typer", "PyYAML"]
 bbo = ["numpy", "scikit-learn", "cma", "scipy", "pandas"]
 shaman-api = ["fastapi", "uvicorn", "arq", "motor", "starlette-exporter", "typer"]
 shaman-worker = ["arq", "prometheus-client", "httpx", "pydantic"]
+shaman-core = ["pydantic"]
 
 [tool.poetry.scripts]
 shaman-api = "shaman_api.cli:cli"

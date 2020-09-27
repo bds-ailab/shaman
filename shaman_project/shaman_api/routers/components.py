@@ -2,7 +2,7 @@
 """
 from typing import Dict
 from .component_router import ComponentRouter
-from bb_wrapper.tunable_component.component_model import (
+from shaman_core.models.component_model import (
     TunableComponentsModel,
     TunableParameter,
 )
