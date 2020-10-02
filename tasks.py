@@ -248,3 +248,12 @@ def mongo(
         print(cmd)
         return
     c.run(cmd)
+
+
+@task
+def compose(c, tty=True, build=False):
+    """Run the development docker-compose."""
+    c.run(
+        f"docker-compose -f docker-compose-test.yml up {'-d' if not tty else ''} {'--build' if build else '' }"
+    )
+

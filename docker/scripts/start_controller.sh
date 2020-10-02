@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 # TODO change _ in - for better compliance with shell conventions
 

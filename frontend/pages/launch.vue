@@ -1,16 +1,11 @@
 <template>
   <div>
-    <form ref="form" @submit.prevent="submitExperiment">
+    <form ref="form" @submit.prevent="submitExperiment" v-if="componentsName">
       <!-- Row for the experiment -->
       <div class="flex flex-row mb-12 justify-center">
         <!-- Experiment parameters -->
         <div class="mx-auto w-1/3">
           <p class="text-2xl">Select experiment parameters</p>
-
-          <!-- Using a sbatch -->
-          <!-- <div class="border-b-2 p-4">
-            <input id="sbatch" type="file" name="sbatch" accept="sbatch" />
-          </div> -->
 
           <div class="border-b-2 p-4">
             <label for="experiment_name" class="font-bold text-xl"
@@ -29,32 +24,60 @@
           </div>
 
           <div class="border-b-2 p-4">
-            <p class="font-bold text-xl">Accelerator:</p>
-            <label for="sbb">SBB:</label>
-            <input
-              id="sbb"
-              type="radio"
-              name="accelerator_name"
-              value="sbb_slurm"
-              required
-              minlength="4"
-              maxlength="8"
-              size="10"
-              class="form-radio text-pink-600 h-6 w-6 ml-2 border-pink-900"
-            />
-
-            <label for="fiol">FIOL:</label>
-            <input
-              id="fiol"
-              type="radio"
-              value="fiol"
-              name="accelerator_name"
-              required
-              minlength="4"
-              maxlength="8"
-              size="10"
-              class="form-radio text-pink-600 h-6 w-6 ml-2 border-pink-900"
-            />
+            <p class="font-bold text-xl">Components:</p>
+            <div class="flex flex-row">
+              <div v-for="component in componentsName" :key="component">
+                <label for="component">{{ component }} </label>
+                <input
+                  :id="component"
+                  v-model="selected_component"
+                  type="radio"
+                  name="component_name"
+                  :value="component"
+                  required
+                  minlength="4"
+                  maxlength="8"
+                  size="10"
+                  class="form-radio text-pink-600 h-6 w-6 ml-2 border-pink-900 mr-4"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="border-b-2 p-4">
+            <p class="font-bold text-xl">Parametric space:</p>
+            <div
+              v-for="(parameter, parameterName) in componentParameters"
+              :key="parameter"
+            >
+              <p class="font-bold text-xl">{{ parameterName }}</p>
+              <p>
+                <label for="min" class="font-bold">Minimum:</label>
+                <input
+                  :id="'parameter_min_' + parameterName"
+                  type="number"
+                  :name="'parameter_min_' + parameterName"
+                  min="0"
+                  class="h-6 w-12 font-bold border-pink-900 border-2
+                rounded-sm text-center text-pink-600 mr-4"
+                />
+                <label for="max" class="font-bold">Maximum:</label>
+                <input
+                  :id="'parameter_max_' + parameterName"
+                  type="number"
+                  :name="'parameter_max_' + parameterName"
+                  min="0"
+                  class="h-6 w-12 font-bold border-pink-900 border-2 rounded-sm text-center text-pink-600 mr-4"
+                />
+                <label for="step" class="font-bold">Step:</label>
+                <input
+                  :id="'parameter_step_' + parameterName"
+                  type="number"
+                  :name="'parameter_step_' + parameterName"
+                  min="0"
+                  class="h-6 w-12 font-bold border-pink-900 border-2 rounded-sm text-center text-pink-600 mr-4"
+                />
+              </p>
+            </div>
           </div>
 
           <div class="border-b-2 p-4">
@@ -114,6 +137,15 @@
         </div>
       </div>
     </form>
+    <div v-else class="flex flex-col items-center">
+      <div class="text-2xl font-bold">
+        I can't find any registered component ! Please refer to the
+        documentation to add one.
+      </div>
+      <div>
+        <img src="../assets/error_pictures/popojojo.jpg" width="500px" />
+      </div>
+    </div>
   </div>
 </template>
 
@@ -130,6 +162,9 @@ export default {
   data() {
     return {
       code: 'Write your sbatch here !',
+      componentsName: null,
+      selected_component: 'unknown',
+      componentsObject: {},
       cmOption: {
         tabSize: 4,
         size: 5,
@@ -141,32 +176,38 @@ export default {
       }
     }
   },
+  computed: {
+    componentParameters() {
+      return this.componentsObject[this.selected_component]
+    }
+  },
+  mounted() {
+    axios.get('/components/parameters').then((response) => {
+      this.componentsObject = response.data
+      this.componentsName = Object.keys(this.componentsObject)
+    })
+  },
   methods: {
     onCmCodeChange(newCode) {
       this.code = newCode
     },
     submitExperiment() {
-      // Note: During development requests are mocked.
-      // Content of response is defined in @/plugins/mocks.js
-      // await this.$axios
-      //   // Perform a POST request
-      //   .$post('/experiments', this.params)
-      //   // If successfull then alert the user
-      //   .then((response) => {
-      //     alert(`Successfully created experiment ${response.id}`)
-      //   })
-      //   // If an error was encountered then alert the user
-      //   .catch((e) => alert('Could not create experiment'))
       const formData = new FormData(this.$refs.form) // reference to form element
       const data = {} // need to convert it before using not with XMLHttpRequest
       for (const [key, val] of formData.entries()) {
+        console.log(key)
+        console.log(val)
         Object.assign(data, { [key]: val })
       }
       console.log(data)
-      axios.post('/experiments/launch', data).catch(function(error) {
-        alert(error)
-      })
-      this.$router.push({ path: '/browse' })
+      axios
+        .post('/experiments/launch', data)
+        .then((response) => {
+          this.$router.push({ path: '/browse' })
+        })
+        .catch(function(error) {
+          alert(error)
+        })
     }
   }
 }

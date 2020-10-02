@@ -73,6 +73,7 @@
                           :class="getInputClass(suboptionValue.type)"
                           class="text-pink-600"
                           :step="subsubOption.step"
+                          required
                         />
                         <label :for="suboptionValue.varname" class="ml-2"
                           >{{ subsubOption.label }} </label

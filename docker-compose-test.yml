@@ -8,7 +8,6 @@ services:
     image: slurm-controller
     container_name: controller
     privileged: true
-    # restart: always
     hostname: controller
     command: tail -f /dev/null
     networks:
@@ -25,13 +24,13 @@ services:
       - controller
     container_name: compute1
     privileged: true
-    # restart: always
     hostname: compute1
     command: tail -f /dev/null
     networks:
       - slurm
     volumes:
       - secrets:/secrets
+      - slurm_fs:/slurm_fs
 
   compute2:
     build:
@@ -42,13 +41,30 @@ services:
       - controller
     container_name: compute2
     privileged: true
-    # restart: always
     hostname: compute2
     command: tail -f /dev/null
     networks:
       - slurm
     volumes:
       - secrets:/secrets
+      - slurm_fs:/slurm_fs
+
+  shaman_engine:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.slurm.optimization
+    image: slurm-optimization
+    container_name: worker
+    privileged: true
+    hostname: worker
+    networks:
+      - slurm
+      - redis
+    depends_on:
+      - controller
+    volumes:
+      - secrets:/secrets
+      - slurm_fs:/slurm_fs
 
   mongo:
     image: mongo:4.0
@@ -94,16 +110,6 @@ services:
     ports:
       - "3000:3000"
 
-  shaman_engine:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.engine
-    image: engine
-    container_name: engine
-    privileged: true
-    hostname: engine
-    command: tail -f /dev/null
-
   api:
     build:
       context: .
@@ -112,18 +118,30 @@ services:
     container_name: api
     privileged: true
     hostname: api
-    command: shaman-api prod
+    command: uvicorn shaman_api:app --port 5000 --host localhost
     ports:
-      - "5000:8080"
+      - "5000:5000"
     networks:
       - mongo
+      - redis
 
-
-  # redis:
+  redis:
+    image: redis:latest
+    container_name: redis
+    hostname: redis
+    restart: on-failure
+    ports:
+      - "6379:6379"
+    expose:
+      - 6379
+    networks:
+      - redis
 
 networks:
   slurm:
   mongo:
+  redis:
 
 volumes:
   secrets:
+  slurm_fs:

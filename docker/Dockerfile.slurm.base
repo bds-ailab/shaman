@@ -20,6 +20,14 @@ RUN chown -R munge: /etc/munge /var/lib/munge /var/log/munge /var/run/munge &&\
     chmod 0700 /var/log/munge &&\
     chmod 0755 /var/run/munge
 
+# Install openssh server
+RUN yum install -y openssh-server
+
+# Launch sshd server
+RUN mkdir /var/run/sshd &&\
+    ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key -N ''
+RUN /usr/sbin/sshd
+
 WORKDIR /
 
 VOLUME ["/home", "/.secret"]

@@ -1,13 +1,6 @@
 # Image for slurm controller
 FROM slurm-base
 
-# Install openssh server
-RUN yum install -y openssh-server
-
-# Launch sshd server
-RUN mkdir /var/run/sshd &&\
-    ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key -N ''
-RUN /usr/sbin/sshd
 
 # Configure the compute nodes to be accessed without ssh
 RUN mkdir -p /compute && \
@@ -15,7 +8,7 @@ RUN mkdir -p /compute && \
 
 COPY docker/scripts/setup_ssh.sh /compute/setup-compute-ssh.sh
 RUN chmod +x /compute/setup-compute-ssh.sh &&\
-    /compute/setup-compute-ssh.sh
+    bash /compute/setup-compute-ssh.sh
 
 # Generate munge key
 RUN /sbin/create-munge-key -f

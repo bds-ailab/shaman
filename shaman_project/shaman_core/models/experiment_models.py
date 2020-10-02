@@ -127,8 +127,7 @@ class ExperimentForm(MongoModel):
     experiment_name: str
     heuristic: str
     initial_sample_size: int
-    with_ioi: Optional[bool]
-    max_step_duration: Optional[int]
+    max_step_duration: Optional[str]
     resampling_policy: Optional[str]
     fitness_aggregation: Optional[str]
     estimator: Optional[str]
@@ -141,6 +140,12 @@ class ExperimentForm(MongoModel):
     next_parameter_strategy: Optional[str]
     cooling_schedule: Optional[str]
     restart: Optional[str]
+
+    class Config:
+        """Ignore extra fields because of unknown name of parameters.
+        """
+
+        extra = "allow"
 
 
 class Message(MongoModel):

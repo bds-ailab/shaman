@@ -1,8 +1,8 @@
 from pathlib import Path
-from .shaman_config import ShamanConfig, ShamanSettings
+from .shaman_config import SHAManConfigBuilder, SHAManSettings
 
 
-SHAMAN_CONFIG_TEMPLATE = Path(__file__).parent / "shaman_config_template.cfg"
+SHAMAN_CONFIG_TEMPLATE = Path(__file__).parent / "shaman_config_template.yaml"
 
 
-__all__ = ["ShamanConfig", "ShamanSettings", "SHAMAN_CONFIG_TEMPLATE"]
+__all__ = ["SHAManConfigBuilder", "SHAManSettings", "SHAMAN_CONFIG_TEMPLATE"]

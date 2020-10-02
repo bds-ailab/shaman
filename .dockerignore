@@ -15,3 +15,7 @@
 **/.nuxt/**
 # Do not send vscode settings to build context
 .vscode/
+# Do not send readme to context
+README.md
+# Do not send vscode settings
+**\vscode\*

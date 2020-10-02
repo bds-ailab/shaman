@@ -127,7 +127,8 @@ class ExperimentDatabase:
         )
 
     async def watch_experiments(self):
-        """Watch the changes on a collection for a given experiment_id using Mongo Stream"""
+        """Watch the changes on a collection for a given experiment_id using Mongo Stream
+        """
         # try:
         async with self.experiments_collection.watch(
             [
@@ -153,9 +154,12 @@ class ExperimentDatabase:
         ) as stream:
             async for insert in stream:
                 yield insert["fullDocument"]
+        # except PyMongoError:
+        # print("Error when watching change.")
 
     async def watch_experiment(self, experiment_id: str):
-        """Watch the changes on a collection for a given experiment_id using Mongo Stream"""
+        """Watch the changes on a collection for a given experiment_id using Mongo Stream
+        """
         # try:
         async with self.experiments_collection.watch(
             [
@@ -174,6 +178,8 @@ class ExperimentDatabase:
         ) as stream:
             async for update in stream:
                 yield update["fullDocument"]
+        # except PyMongoError:
+        # print("Error when watching change.")
 
     async def get_experiment_status(self, experiment_id: str):
         """Given an experiment_id, get the status of the experiment."""

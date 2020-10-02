@@ -1,0 +1,36 @@
+# Image for compute node
+FROM slurm-base
+
+# Setup proper configuration for slurm
+RUN  touch /var/log/slurmd.log &&\
+    chown slurm: /var/log/slurmd.log
+
+# Copy start worker script
+COPY docker/scripts/start_worker.sh /start_compute
+RUN chmod +x /start_compute
+
+# Install python and dependencies
+RUN yum install -y python36 \
+    python38-pip &&\
+    python3 -m pip install --upgrade pip &&\
+    python3 -m pip install --upgrade wheel
+
+# Install poetry
+RUN python3 -m pip install poetry
+
+WORKDIR /shaman_project
+
+# Copy project toml and tasks file
+COPY pyproject.toml .
+COPY poetry.lock .
+COPY tasks.py .
+COPY shaman_project /shaman_project/shaman_project
+
+ENV PATH="/root/.local/bin/:$PATH"
+# Install required dependencies
+RUN poetry config virtualenvs.create false && \
+    poetry install -E bbo -E bb-wrapper -E shaman-core -E shaman-worker
+
+WORKDIR /
+
+ENTRYPOINT ["tini", "--", "/start_compute"]

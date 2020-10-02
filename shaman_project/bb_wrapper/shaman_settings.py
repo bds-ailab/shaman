@@ -7,6 +7,6 @@ from pydantic import BaseSettings
 
 
 class SHAManSettings(BaseSettings):
-    api_host: str = "127.0.0.1"
+    api_host: str = "api"
     api_port: int = 5000
     component_endpoint: str = "components"

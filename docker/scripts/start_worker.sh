@@ -14,4 +14,6 @@ remunge
 echo "Starting slurmd"
 slurmd -f /etc/slurm/slurm.conf
 
-tail -f /dev/null
+# Export local 
+LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8 arq shaman_worker.Settings
+# tail -f /dev/null

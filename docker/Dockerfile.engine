@@ -1,2 +1,0 @@
-# Dockerfile containing the optimization library
-FROM centos/python-36-centos7

@@ -1,0 +1,12 @@
+experiment:
+  default_first: True
+
+bbo:
+  reevaluate: False
+  max_retry: 5
+
+pruning:
+
+noise_reduction:
+
+components:

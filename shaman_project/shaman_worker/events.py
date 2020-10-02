@@ -1,6 +1,6 @@
 """Startup and shutdown worker events."""
 from os import chdir
-from .shaman_config import ShamanSettings
+from .shaman_config import SHAManSettings
 
 
 async def startup(context):
@@ -8,7 +8,7 @@ async def startup(context):
     On startup of the optimization worker, go to the right directory to run the SHAMan optimization.
     """
     # Store working directory as string
-    context["settings"] = settings = ShamanSettings()
+    context["settings"] = settings = SHAManSettings()
     # Go to working directory
     settings.chdir()
     # Print a message to stdout for the user
