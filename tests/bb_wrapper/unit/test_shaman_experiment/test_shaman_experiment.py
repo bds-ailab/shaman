@@ -84,7 +84,7 @@ def mocked_requests_put(*args, **kwargs):
 
 def mocked_requests_get(*args, **kwargs):
     """Mock the get requests containing the data of the experiment."""
-    if args[0] == "http://127.0.0.1:5000/components":
+    if args[0] == "http://api:5000/components":
         mock_components = {
             "components": {
                 "component_1": {
@@ -558,7 +558,7 @@ class TestSHAManAPI(unittest.TestCase):
             experiment_name="test_experiment",
             configuration_file=CONFIG,
         )
-        self.assertEqual(se.api_url, "http://127.0.0.1:5000")
+        self.assertEqual(se.api_url, "http://api:5000")
 
     @patch("httpx.get", side_effect=mocked_requests_get)
     def test_start_experiment_dict_vanilla(self, mocked_requests_get):

@@ -117,17 +117,17 @@ form_options:
                 type: radio
                 options:
                   one_point_crossover:
-                    varname: bbo.heuristics.genetic_algorithm.crossover.one_point_crossover
+                    varname: bbo.heuristics.genetic_algorithm.crossover.single_point_crossover
                     label: 'One point crossover'
                   two_point_crossover:
-                    varname: bbo.heuristics.genetic_algorithm.crossover.two_point_crossovers
+                    varname: bbo.heuristics.genetic_algorithm.crossover.double_point_crossover
                     label: 'Two point crossovers'
               mutation_method:
                 label: 'Mutation method'
                 type: radio
                 options:
                   mutate_neighbor:
-                    varname: bbo.heuristics.genetic_algorithm.mutations.mutate_neighbor
+                    varname: bbo.heuristics.genetic_algorithm.mutations.mutate_chromosome_to_neighbor
                     label: 'Mutate into neighbor'
               mutation_rate:
                 label: 'Mutation rate'

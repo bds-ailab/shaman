@@ -20,6 +20,7 @@ CONFIG_ASYNC_MEDIAN = os.path.join(TEST_DATA, "config_shaman_async_median.cfg")
 TEST_SBATCH = os.path.join(TEST_DATA, "test_sbatch.sbatch")
 
 # TODO: check in database if the data has been properly written
+# TODO: update tests
 
 
 class TestAsyncOptimization(unittest.TestCase):

@@ -49,6 +49,7 @@ shaman-core = ["pydantic","httpx","pyyaml"]
 [tool.poetry.scripts]
 shaman-api = "shaman_api.cli:cli"
 shaman-install = "bb_wrapper.tunable_component.install_component:cli"
+shaman-optimize = "bb_wrapper.run_experiment:cli"
 
 [build-system]
 requires = ["poetry>=0.12"]

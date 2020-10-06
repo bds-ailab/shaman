@@ -369,7 +369,7 @@ export default {
       .catch((e) => console.log(e))
     // Listen to websocket
     this.ws = new WebSocket(
-      'ws://localhost:5000/experiments/' + this.objectid + '/stream'
+      'ws://mimsy.farm:5000/experiments/' + this.objectid + '/stream'
     )
     this.ws.onmessage = (event) => {
       const expUpdate = JSON.parse(event.data)

@@ -11,6 +11,7 @@ RUN chmod +x /start_compute
 
 # Install python and dependencies
 RUN yum install -y python36 \
+#TODO: figure out why pip36 is not working for install
     python38-pip &&\
     python3 -m pip install --upgrade pip &&\
     python3 -m pip install --upgrade wheel
@@ -26,6 +27,12 @@ COPY poetry.lock .
 COPY tasks.py .
 COPY shaman_project /shaman_project/shaman_project
 
+# Set correct locale
+# TODO: remove later 
+ENV LC_ALL en_US.UTF-8
+ENV LANG en_US.UTF-8
+
+
 ENV PATH="/root/.local/bin/:$PATH"
 # Install required dependencies
 RUN poetry config virtualenvs.create false && \
@@ -33,4 +40,4 @@ RUN poetry config virtualenvs.create false && \
 
 WORKDIR /
 
-ENTRYPOINT ["tini", "--", "/start_compute"]
+ENTRYPOINT ["/start_compute"]

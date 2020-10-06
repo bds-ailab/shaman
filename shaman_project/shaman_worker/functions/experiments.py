@@ -19,6 +19,7 @@ async def launch_experiment(context, experiment: Dict):
     sbatch_filepath = context["settings"].join_path("ui_sbatch.sbatch")
     # Write sbatch content
     sbatch_filepath.write_text(experiment["sbatch"])
+    debug(f"Writing sbatch at {sbatch_filepath}")
     # Get SHAMan configuration file path
     config_filepath = context["settings"].join_path("config_shaman.yaml")
     # Create ShamanConfig object

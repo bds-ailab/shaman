@@ -29,6 +29,7 @@ def install_component(
     )
     component = TunableComponentsModel.from_yaml(component_file)
     request = api_client.post(shaman_settings.component_endpoint, json=component.dict())
+    print("Successfully registered components.")
     if not 200 <= request.status_code < 400:
         raise Exception(
             f"Could not create component with status code {request.status_code}"

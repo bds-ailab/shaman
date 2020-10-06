@@ -5,13 +5,11 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile.slurm.controller
-    image: slurm-controller
+    image: sphrbthyk/shaman_project:slurm-controller
     container_name: controller
     privileged: true
     hostname: controller
     command: tail -f /dev/null
-    networks:
-      - slurm
     volumes:
       - secrets:/secrets
 
@@ -19,15 +17,13 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile.slurm.compute
-    image: slurm-compute
+    image: sphrbthyk/shaman_project:slurm-compute
     depends_on:
       - controller
     container_name: compute1
     privileged: true
     hostname: compute1
     command: tail -f /dev/null
-    networks:
-      - slurm
     volumes:
       - secrets:/secrets
       - slurm_fs:/slurm_fs
@@ -36,15 +32,13 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile.slurm.compute
-    image: slurm-compute
+    image: sphrbthyk/shaman_project:slurm-compute
     depends_on:
       - controller
     container_name: compute2
     privileged: true
     hostname: compute2
     command: tail -f /dev/null
-    networks:
-      - slurm
     volumes:
       - secrets:/secrets
       - slurm_fs:/slurm_fs
@@ -53,13 +47,10 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile.slurm.optimization
-    image: slurm-optimization
+    image: sphrbthyk/shaman_project:slurm-optimization
     container_name: worker
     privileged: true
     hostname: worker
-    networks:
-      - slurm
-      - redis
     depends_on:
       - controller
     volumes:
@@ -79,8 +70,6 @@ services:
     expose:
       - 27017
     command: mongod --bind_ip 0.0.0.0 --replSet rs0
-    networks:
-      - mongo
 
   mongo_init:
     image: mongo:4.0
@@ -95,14 +84,12 @@ services:
       mongo
       --host mongo
       --eval 'rs.initiate({_id: "rs0", members: [{_id: 0, host : "mongo:27017"}]})'
-    networks:
-      - mongo
 
   ui:
     build:
       context: .
       dockerfile: docker/Dockerfile.ui
-    image: ui
+    image: sphrbthyk/shaman_project:ui
     container_name: ui
     privileged: true
     hostname: ui
@@ -114,16 +101,13 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile.api
-    image: api
+    image: sphrbthyk/shaman_project:api
     container_name: api
     privileged: true
     hostname: api
-    command: uvicorn shaman_api:app --port 5000 --host localhost
+    command: uvicorn shaman_api:app --port 5000 --host 0.0.0.0
     ports:
       - "5000:5000"
-    networks:
-      - mongo
-      - redis
 
   redis:
     image: redis:latest
@@ -134,13 +118,6 @@ services:
       - "6379:6379"
     expose:
       - 6379
-    networks:
-      - redis
-
-networks:
-  slurm:
-  mongo:
-  redis:
 
 volumes:
   secrets:

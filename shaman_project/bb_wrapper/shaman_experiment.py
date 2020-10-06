@@ -22,6 +22,8 @@ from shaman_core.models.experiment_models import (
 from .bb_wrapper import BBWrapper
 from .shaman_settings import SHAManSettings
 
+from devtools import debug
+
 __CURRENT_DIR__ = Path.cwd()
 shaman_settings = SHAManSettings()
 
@@ -62,7 +64,7 @@ class SHAManExperiment:
             slurm_dir (str or Path): The directory where the slurm outptus will be stored.
                 If set to None, all the slurm outputs are removed after the end of the experiment.
             result_file (str): The path to the result file.
-                If set to None, no such file is created and the results are printed to the screen.
+                If set to None, no such file is created and the results are debuged to the screen.
             configuration_file (str): The path to the configuration file.
                 Defaults to the configuration file present in the package and called
                 config.cfg.
@@ -143,7 +145,7 @@ class SHAManExperiment:
             max_iteration=self.nbr_iteration,
             async_optim=pruning,
             max_step_cost=max_step_cost,
-            **self.configuration.bbo,
+            **self.configuration.bbo_parameters,
         )
         return self.bb_optimizer
 
@@ -151,14 +153,17 @@ class SHAManExperiment:
         """
         Launches the tuning experiment
         """
+        debug("Launching experiment !")
         # Create the experiment through API request
         self.create_experiment()
         if self.configuration.experiment.default_first:
             # Launch a run using default parameterization of the component
+            debug("Running default parametrization")
             self.bb_wrapper.run_default()
         # Setup the optimizer
         self.setup_bb_optimizer()
         # Launch the optimization
+        debug("Optimizing")
         self.bb_optimizer.optimize(callbacks=[self.update_history])
         # Summarize the optimization
         # If there is a result file, write the output in it
@@ -273,17 +278,18 @@ class SHAManExperiment:
         Returns:
             Dict: The updated dict to add to the POST request.
         """
+        debug(history)
         return IntermediateResult(
             **{
                 "jobids": self.bb_wrapper.component.submitted_jobids[-1],
-                "execution_time": history["fitness"][-1],
+                "execution_time": list(history["fitness"])[-1],
                 "parameters": self.build_parameter_dict(
                     self.configuration.component_parameter_names,
                     history["parameters"].tolist(),
                 )[-1],
-                "truncated": bool(history["truncated"][-1]),
-                "resampled": bool(history["resampled"][-1]),
-                "initialization": bool(history["initialization"][-1]),
+                "truncated": bool(list(history["truncated"])[-1]),
+                "resampled": bool(list(history["resampled"])[-1]),
+                "initialization": bool(list(history["initialization"])[-1]),
                 "improvement_default": self.improvement_default,
                 "average_noise": self.average_noise,
             }
@@ -295,6 +301,7 @@ class SHAManExperiment:
         Args:
             history (dict): The BBO history
         """
+        debug(f"Writing update dictionary {self._updated_dict(history)}")
         request = self.api_client.put(
             f"experiments/{self.experiment_id}/update", json=self._updated_dict(history)
         )

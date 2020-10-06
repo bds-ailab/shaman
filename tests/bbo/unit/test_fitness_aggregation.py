@@ -40,6 +40,7 @@ class TestSimpleFitnessTransformation(unittest.TestCase):
             "fitness": [2, 3, 4, 1],
             "parameters": np.array([[1, 2], [1, 2], [3, 4], [3, 4]]),
             "truncated": [False, False, False, False],
+            "initialization": np.array([True, True, True, True]),
         }
         transformed_history = sft.transform(history)
         np.testing.assert_array_equal(transformed_history["fitness"], [2.5, 2.5])
@@ -56,6 +57,7 @@ class TestSimpleFitnessTransformation(unittest.TestCase):
             "fitness": [2, 3, 4, 1],
             "parameters": np.array([[1, 2], [1, 2], [3, 4], [3, 4]]),
             "truncated": [False, False, False, False],
+            "initialization": np.array([True, True, True, True]),
         }
         transformed_history = sft.transform(history)
         np.testing.assert_array_equal(transformed_history["fitness"], [0.5, 1.5])

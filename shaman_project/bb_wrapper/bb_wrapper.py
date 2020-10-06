@@ -11,6 +11,8 @@ import subprocess
 from shlex import split
 from typing import List, Iterable
 
+from devtools import debug
+
 # TODO: find a way to load global configuration
 # Solution: cp configuration file into folder
 from .tunable_component.component import TunableComponent
@@ -121,7 +123,7 @@ class BBWrapper:
             None: only setsup the attribute.
         """
         parameter_dict = dict(zip(self.parameter_names, parameters))
-        print(
+        debug(
             f"Setting up {self.component_name} black-box with parametrization {parameter_dict}"
         )
         self.component = TunableComponent(
@@ -149,7 +151,7 @@ class BBWrapper:
         execution_time = float(
             self._parse_slurm_times(Path.cwd() / f"slurm-{job_id}.out")
         )
-        print(f"Application elapsed time: {execution_time}")
+        debug(f"Application elapsed time: {execution_time}")
         return execution_time
 
     def run_default(self) -> float:
@@ -157,7 +159,7 @@ class BBWrapper:
         configuration file.
         """
         # Log the output
-        print(f"Launching {self.component_name} black-box with default parametrization")
+        debug(f"Launching {self.component_name} black-box with default parametrization")
         # Submit the sbatch using the accelerator
         self.default_component = TunableComponent(
             self.component_name, self.component_configuration
@@ -170,7 +172,7 @@ class BBWrapper:
         execution_time = float(
             self._parse_slurm_times(Path.cwd() / f"slurm-{job_id}.out")
         )
-        print(f"Default application elapsed time: {execution_time}")
+        debug(f"Default application elapsed time: {execution_time}")
         self.default_execution_time = execution_time
         return execution_time
 

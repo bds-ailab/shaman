@@ -143,7 +143,7 @@
         documentation to add one.
       </div>
       <div>
-        <img src="../assets/error_pictures/popojojo.jpg" width="500px" />
+        <img src="../assets/error_pictures/unicorn.svg" width="500px" />
       </div>
     </div>
   </div>

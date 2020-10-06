@@ -204,8 +204,11 @@ class ExperimentDatabase:
         components = await self.components_collection.find(
             {}, projection={"_id": 0}
         ).to_list(length=1)
-        return {
-            component: parameters["parameters"]
-            for component, parameters in components[0]["components"].items()
-        }
+        if components:
+            return {
+                component: parameters["parameters"]
+                for component, parameters in components[0]["components"].items()
+            }
+        else:
+            {"": []}
 

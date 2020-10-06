@@ -7,7 +7,7 @@
         one to get <nuxt-link to="/launch">started</nuxt-link>
       </div>
       <div>
-        <img :src="cookiePic" width="500px" />
+        <img :src="unicorn" width="500px" />
       </div>
     </div>
     <div v-else>
@@ -127,7 +127,7 @@
 import axios from 'axios'
 import ExperimentTable from '../components/ExperimentTable'
 import ExperimentDisplay from '../components/ExperimentDisplay'
-import cookiePic from '../assets/error_pictures/cookie.jpg'
+import unicorn from '../assets/error_pictures/unicorn_2.svg'
 // Load data using the REST API
 export default {
   name: 'BrowsePage',
@@ -153,7 +153,7 @@ export default {
         { key: 'status', sortable: false }
       ],
       fields: [],
-      cookiePic
+      unicorn
     }
   },
   computed: {
@@ -175,7 +175,7 @@ export default {
         this.fields = this.default_fields
         response.data.forEach((exp) => (this.experiments[exp._id] = exp))
         // Listen to websocket
-        this.ws = new WebSocket('ws://localhost:5000/experiments/stream')
+        this.ws = new WebSocket('ws://mimsy.farm:5000/experiments/stream')
         this.ws.onmessage = (event) => {
           const experimentUpdate = JSON.parse(event.data)
           experimentUpdate._id = experimentUpdate.id

@@ -14,7 +14,7 @@ from devtools import debug
 class SHAManSettings(BaseSettings):
     """Class to get settings of shaman engine."""
 
-    directory: Path = Path.home() / "slurm_fs"
+    directory: Path = "/slurm_fs"
 
     def chdir(self) -> None:
         self.directory.mkdir(exist_ok=True, parents=True)
@@ -172,3 +172,4 @@ class SHAManConfigBuilder:
         """
         with open(self.output_file, "w") as configfile:
             yaml.dump(self.config, configfile)
+            print(f"Dumped configuration file at {self.output_file}")

@@ -93,4 +93,6 @@ class SimpleFitnessTransformation(FitnessTransformation):
             "parameters": np.array(new_parameters),
             "fitness": np.array(new_fitness),
             "truncated": history["truncated"],
+            "initialization": history["initialization"],
+            "resampled": history["resampled"],
         }
