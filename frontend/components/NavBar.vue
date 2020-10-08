@@ -1,49 +1,59 @@
 <template>
-  <b-row id="navbar-container">
-    <b-navbar
-      toggleable="xl"
-      type="light"
-      class="justify-content-md-center justify-content-start"
-    >
-      <b-navbar-toggle target="navbar-toggle-collapse" class="mr-4 ml-auto">
-        <template v-slot:default="{ expanded }">
-          <b-icon v-if="expanded" icon="chevron-bar-up"></b-icon>
-          <b-icon v-else icon="chevron-bar-down"></b-icon>
-        </template>
-      </b-navbar-toggle>
-
-      <b-collapse id="navbar-toggle-collapse" is-nav>
-        <b-navbar-nav
-          class="mx-auto justify-content-between align-items-center"
-        >
-          <b-nav-item
+  <div>
+    <b-button v-b-toggle.sidebar-1 class="bg-pink-700"
+      ><i class="fas fa-bars"></i
+    ></b-button>
+    <b-sidebar id="sidebar-1" title="" shadow>
+      <div class="flex flex-col justify-items-center">
+        <div class="mb-4">
+          <logo />
+        </div>
+        <div class="ml-6 my-auto">
+          <div
             v-for="link in navbarStructure"
             :key="link.path"
-            :to="link.path"
+            class="mx-auto mb-4 menu"
           >
-            {{ link.text }}
-          </b-nav-item>
-        </b-navbar-nav>
-      </b-collapse>
-    </b-navbar>
-  </b-row>
+            <nuxt-link :to="link.path" class="text-xl"
+              ><i :class="link.icon" class="mr-4"></i>{{ link.text }}</nuxt-link
+            >
+          </div>
+        </div>
+      </div>
+    </b-sidebar>
+  </div>
 </template>
 
 <script>
+import Logo from '~/components/Logo.vue'
+
 export default {
+  components: {
+    Logo
+  },
   data() {
     return {
       navbarStructure: [
-        { path: '/', text: 'Home' },
-        { path: '/browse', text: 'Browse experiments' },
-        { path: '/launch', text: 'Launch a new experiment' },
+        { path: '/', text: 'HOME', icon: 'fas fa-home' },
+        {
+          path: '/browse',
+          text: 'BROWSE',
+          icon: 'fas fa-microscope'
+        },
+        {
+          path: '/launch',
+          text: 'CREATE',
+          icon: 'fas fa-flask'
+        },
         {
           path: '/documentation',
-          text: 'Documentation'
+          text: 'USER MANUAL',
+          icon: 'fas fa-book'
         },
         {
           path: '/relatedworks',
-          text: 'Related Works'
+          text: 'RELATED WORKS',
+          icon: 'fas fa-scroll'
         }
       ]
     }
@@ -55,24 +65,7 @@ export default {
 /* Import theme colors palette */
 @import '../css/palette.styl';
 
-#navbar-container nav {
-  font-size: 1.5rem;
-  margin-bottom: 4rem;
-}
-
-#navbar-container ul .nav-link {
-  margin-left: 20px;
-  margin-right: 20px;
-  font-family: 'Roboto', sans-serif;
-}
-
-#navbar-container ul .nav-link:hover {
-  color: $pastelGreenColor;
-  border-bottom: 2px solid $pastelGreenColor;
-}
-
-#navbar-container ul .nuxt-link-exact-active {
-  color: $accentColor;
-  border-bottom: 2px solid $accentColor;
+.menu {
+  font-family: 'Roboto';
 }
 </style>

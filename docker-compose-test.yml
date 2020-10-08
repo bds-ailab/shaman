@@ -61,9 +61,9 @@ services:
     image: mongo:4.0
     container_name: mongo
     hostname: mongo
-    # volumes:
-    # tochange
-    # - /home_nfs/roberts/shaman_data/dockercompose_data:/data/db
+    volumes:
+      # tochange
+      - mongo_data:/data/db
     restart: on-failure
     ports:
       - "27017:27017"
@@ -74,9 +74,6 @@ services:
   mongo_init:
     image: mongo:4.0
     container_name: mongo_init
-    # volumes:
-    # tochange
-    # - /home_nfs/roberts/shaman_data/dockercompose_data:/data/db
     restart: on-failure
     depends_on:
       - mongo
@@ -85,17 +82,17 @@ services:
       --host mongo
       --eval 'rs.initiate({_id: "rs0", members: [{_id: 0, host : "mongo:27017"}]})'
 
-  ui:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.ui
-    image: sphrbthyk/shaman_project:ui
-    container_name: ui
-    privileged: true
-    hostname: ui
-    command: npm run start
-    ports:
-      - "3000:3000"
+  # ui:
+  #   build:
+  #     context: .
+  #     dockerfile: docker/Dockerfile.ui
+  #   image: sphrbthyk/shaman_project:ui
+  #   container_name: ui
+  #   privileged: true
+  #   hostname: ui
+  #   command: npm run start
+  #   ports:
+  #     - "3000:3000"
 
   api:
     build:
@@ -122,3 +119,4 @@ services:
 volumes:
   secrets:
   slurm_fs:
+  mongo_data:

@@ -16,9 +16,11 @@
           :value="value.vmodel"
           :class="getInputClass(value.type)"
           class="text-pink-600 border-gray-900"
+          v-tooltip.left="value.description"
         />
-        <label :for="value.varname" class="font-bold text-xl ml-2"
-          >{{ value.label }} </label
+        <label :for="value.varname" class="font-bold text-xl ml-2">{{
+          value.label
+        }}</label
         ><br />
 
         <!-- {{ value.vmodel }} -->
@@ -30,13 +32,16 @@
             :key="derivedKey"
             class="ml-12"
           >
-            <p class="font-bold">{{ derivedValue.label }}</p>
+            <p v-tooltip.left="derivedValue.description" class="font-bold">
+              {{ derivedValue.label }}
+            </p>
             <div
               v-for="(option, optionKey) in derivedValue.options"
               :key="optionKey"
             >
               <input
                 :id="option.varname"
+                v-tooltip.left="option.description"
                 v-model="derivedValue.vmodel"
                 :type="derivedValue.type"
                 :name="derivedValue.varname"
@@ -45,8 +50,11 @@
                 class="text-pink-600"
                 required
               />
-              <label :for="option.varname" class="ml-2"
-                >{{ option.label }} </label
+              <label
+                v-tooltip.left="option.description"
+                :for="option.varname"
+                class="ml-2"
+                >{{ option.label }}</label
               ><br />
 
               <div v-if="derivedValue.vmodel === option.varname">
@@ -65,6 +73,7 @@
                       <div class="ml-12">
                         <input
                           :id="suboptionKey"
+                          v-tooltip.left="subsubOption.description"
                           :type="suboptionValue.type"
                           :name="suboptionKey"
                           :value="subsubOption.varname"
@@ -76,7 +85,8 @@
                           required
                         />
                         <label :for="suboptionValue.varname" class="ml-2"
-                          >{{ subsubOption.label }} </label
+                          >{{ subsubOption.label }}
+                          {{ subsubOption.description }}</label
                         ><br />
                       </div>
                     </div>

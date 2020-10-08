@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <div class="container">
+  <div class="container">
+    <div class="mb-3 mt-2">
       <NavBar></NavBar>
     </div>
     <nuxt />

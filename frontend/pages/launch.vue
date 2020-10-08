@@ -20,6 +20,7 @@
               maxlength="8"
               size="10"
               class="form-textarea ml-2"
+              v-tooltip.right="'Name to identify the experiment'"
             />
           </div>
 
@@ -39,48 +40,70 @@
                   maxlength="8"
                   size="10"
                   class="form-radio text-pink-600 h-6 w-6 ml-2 border-pink-900 mr-4"
+                  v-tooltip.right="'The component to optimize'"
                 />
+                <!-- Later, add description of the component in the tooltip -->
               </div>
             </div>
           </div>
           <div class="border-b-2 p-4">
             <p class="font-bold text-xl">Parametric space:</p>
-            <div
-              v-for="(parameter, parameterName) in componentParameters"
-              :key="parameter"
-            >
-              <p class="font-bold text-xl">{{ parameterName }}</p>
-              <p>
-                <label for="min" class="font-bold">Minimum:</label>
-                <input
-                  :id="'parameter_min_' + parameterName"
-                  type="number"
-                  :name="'parameter_min_' + parameterName"
-                  min="0"
-                  class="h-6 w-12 font-bold border-pink-900 border-2
-                rounded-sm text-center text-pink-600 mr-4"
-                />
-                <label for="max" class="font-bold">Maximum:</label>
-                <input
-                  :id="'parameter_max_' + parameterName"
-                  type="number"
-                  :name="'parameter_max_' + parameterName"
-                  min="0"
-                  class="h-6 w-12 font-bold border-pink-900 border-2 rounded-sm text-center text-pink-600 mr-4"
-                />
-                <label for="step" class="font-bold">Step:</label>
-                <input
-                  :id="'parameter_step_' + parameterName"
-                  type="number"
-                  :name="'parameter_step_' + parameterName"
-                  min="0"
-                  class="h-6 w-12 font-bold border-pink-900 border-2 rounded-sm text-center text-pink-600 mr-4"
-                />
-              </p>
+            <div class="flex flex-row justify-between">
+              <div
+                v-for="(parameter, parameterName) in componentParameters"
+                :key="parameter"
+                v-tooltip.right="
+                  'Fill in the minimum value, the maximum value and the step value that can take the parameter.'
+                "
+                class="flex flex-col"
+              >
+                <p class="font-bold text-xl">{{ parameterName }}</p>
+                <div class="flex flex-row">
+                  <!-- Column for label of grid value -->
+                  <div class="flex flex-col my-auto mr-2">
+                    <label for="min" class="font-bold">Min:</label>
+                    <label for="max" class="font-bold">Max:</label>
+                    <label for="step" class="font-bold">Step:</label>
+                  </div>
+                  <!-- Column for input values -->
+                  <div class="flex flex-col">
+                    <input
+                      :id="'parameter_min_' + parameterName"
+                      type="number"
+                      :name="'parameter_min_' + parameterName"
+                      min="0"
+                      required
+                      class="h-6 w-12 font-bold border-pink-900 border-2
+                rounded-sm text-center text-pink-600 mr-4  m-auto"
+                    />
+                    <input
+                      :id="'parameter_max_' + parameterName"
+                      type="number"
+                      :name="'parameter_max_' + parameterName"
+                      min="0"
+                      required
+                      class="h-6 w-12 font-bold border-pink-900 border-2 rounded-sm text-center text-pink-600 mr-4  m-auto"
+                    />
+                    <input
+                      :id="'parameter_step_' + parameterName"
+                      type="number"
+                      :name="'parameter_step_' + parameterName"
+                      min="0"
+                      required
+                      class="h-6 w-12 font-bold border-pink-900 border-2 rounded-sm text-center text-pink-600 mr-4  m-auto"
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div class="border-b-2 p-4">
+          <div
+            v-tooltip.right="
+              'Maximum number of iterations the application will run for. Note that the initialization budget will be added to this value.'
+            "
+            class="border-b-2 p-4"
+          >
             <label for="nbr_iteration" class="font-bold text-xl"
               >Number of iterations:</label
             >
@@ -91,12 +114,18 @@
               name="nbr_iteration"
               min="2"
               max="20"
+              required
               class="h-6 w-12 font-bold border-pink-900 border-2 rounded-sm text-center text-pink-600"
             />
           </div>
 
           <!-- Using a text input -->
-          <div class="border-b-2 p-4">
+          <div
+            class="border-b-2 p-4"
+            v-tooltip.right="
+              'Enter a valid sbatch. If the sbatch is not valid, the experiment will fail.'
+            "
+          >
             <label for="sbatch" class="font-bold text-xl align-top"
               >Sbatch content:</label
             >
@@ -139,8 +168,7 @@
     </form>
     <div v-else class="flex flex-col items-center">
       <div class="text-2xl font-bold">
-        I can't find any registered component ! Please refer to the
-        documentation to add one.
+        Looking for registered components ...
       </div>
       <div>
         <img src="../assets/error_pictures/unicorn.svg" width="500px" />

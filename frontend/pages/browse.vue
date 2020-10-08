@@ -92,21 +92,17 @@
             </div>
           </div>
         </b-sidebar>
-        <div class="flex flex-row w-full">
-          <div class="flex flex-col w-1/6">
+        <div class="flex flex-col w-full">
+          <div class="flex flex-row justify-between mb-4">
             <!-- Button for full view of experiment through sidebar -->
-            <div
-              class="inline-block h-6 w-6 bg-pink-600 shaman-button mx-auto mb-4"
-              @click="showExperiment(false)"
-            >
+            <div v-b-toggle.experimentSidebar>
+              <i class="fas fa-arrow-alt-circle-right fa-lg"></i> Browse
+              experiments
+            </div>
+            <button @click="showExperiment(false)">
               Back to full view
-            </div>
-            <div
-              class="inline-block h-6 w-6 bg-pink-600 shaman-button mb-4 mx-auto"
-              v-b-toggle.experimentSidebar
-            >
-              Browse experiments
-            </div>
+              <i class="fas fa-arrow-alt-circle-left fa-lg"></i>
+            </button>
           </div>
           <div class="w-full">
             <!-- Include ExperimentDisplay wth name and objectID properties -->

@@ -3,6 +3,7 @@ form_options:
     section: pruning_strategy
     type: checkbox
     label: 'Stop unpromising trials ?'
+    description: 'If checked, trial runs that take longer than a certain threshold will be aborted.'
     derived_options:
       max_step_duration:
         varname: 'max_step_duration'
@@ -12,26 +13,32 @@ form_options:
           default:
             varname: default
             label: 'Default parametrization'
+            description: 'Stop any step that take longer than the execution time of the default run.'
           median:
             varname: median
             label: 'Current median'
+            description: 'Stop any step that take longer than the median currently measured on the execution time sample.'
 
   noise_reduction:
     section: noise_reduction
     type: checkbox
     label: 'Use noise reduction ?'
+    description: 'If checked, parametrizations are resampled to ensure a better estimation of the performance measure at this location. '
     derived_options:
       fitness_aggregation:
         type: 'radio'
         varname: 'fitness_aggregation'
         label: 'Fitness aggregation'
+        description: 'Transformation to apply to the data before selecting the next parametrization to evaluate.'
         options:
           none:
             varname: None
             label: 'No aggregation'
+            description: 'Do not perform any aggregation.'
           simple_fitness_aggregation:
             varname: simple_fitness_aggregation
             label: 'Simple fitness aggregation'
+            description: 'Transforms the data using one of the estimator below:'
             options:
               estimator:
                 label: 'Estimator'
@@ -49,11 +56,13 @@ form_options:
         label: 'Resampling policy'
         type: 'radio'
         varname: 'resampling_policy'
+        description: 'Rule to apply to determine if a parametrization should be resampled.'
         options:
           static_resampling:
             type: 'static'
             label: 'Static resampling'
             varname: simple_resampling
+            description: 'Repeat each parametrization a fixed number of times.'
             options:
               nbr_resamples:
                 label: 'Number of repetitions'
@@ -68,6 +77,7 @@ form_options:
             type: 'radio'
             varname: 'dynamic_resampling'
             label: 'Dynamic resampling'
+            description: 'Repeat parametrizations until the width of their 95% confidence interval goes below a certain threshold.'
             options:
               percentage:
                 label: 'Percentage'
@@ -85,6 +95,7 @@ form_options:
     vmodel: false
     type: number
     label: 'initialization steps'
+    description: 'The number of steps dedicated to initialization, that is exploring the parametric space using a Latin Hypercube Design.'
 
   heuristic:
     section: bbo
@@ -100,6 +111,7 @@ form_options:
           genetic_algorithm:
             varname: genetic_algorithm
             label: 'Genetic algorithm'
+            description: 'Genetic algorithms consist in selecting a subset of parameters, among the already tested parametrizations, according to a selection mechanism that considers the objective value of each parametrization, and combining these parametrization to create new ones.'
             vmodel: false
             options:
               selection_method:
@@ -143,6 +155,7 @@ form_options:
             varname: 'surrogate_model'
             label: 'Surrogate model'
             vmodel: false
+            description: Surrogate modeling consists in using a regression or interpolation technique over the currently known surface to build a computationally cheap approximation of the black-box function and to then select the most promising data point in terms of performance on this surrogate function by using an acquisition function.
             options:
               regression_model:
                 label: 'Regression model'
@@ -165,6 +178,7 @@ form_options:
           simulated_annealing:
             varname: 'simulated_annealing'
             label: 'Simulated annealing'
+            description: 'The simulated annealing heuristic is a hill-climbing algorithm which can probabilistically accept a solution worse than the current one.'
             vmodel: false
             options:
               cooldown_function:
@@ -198,7 +212,7 @@ form_options:
                     label: 'Move to neighbor'
                     varname: bbo.heuristics.simulated_annealing.neighbor_functions.hop_to_next_value
               temperature:
-                label: "Initial temperature"
+                label: 'Initial temperature'
                 type: number
                 options:
                   initial_temperature:

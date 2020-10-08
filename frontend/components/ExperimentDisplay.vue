@@ -398,6 +398,7 @@ export default {
 
 .tooltip .tooltip-inner {
   background: #d53f8c;
+  opacity: 0.8;
   color: white;
   border-radius: 16px;
   padding: 5px 10px 4px;
