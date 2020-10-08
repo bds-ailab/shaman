@@ -13,12 +13,19 @@ from httpx import Client
 from typing import Dict, List
 
 from bbo.optimizer import BBOptimizer
+from shaman_core.models.shaman_config_model import SHAManConfig
+from shaman_core.models.experiment_models import (
+    FinalResult,
+    InitExperiment,
+    IntermediateResult,
+)
 from .bb_wrapper import BBWrapper
-from .shaman_config_model import SHAManConfig
-from . import COMPONENT_CONFIG
+from .shaman_settings import SHAManSettings
 
+from devtools import debug
 
 __CURRENT_DIR__ = Path.cwd()
+shaman_settings = SHAManSettings()
 
 
 class SHAManExperiment:
@@ -35,7 +42,6 @@ class SHAManExperiment:
         sbatch_dir: str = None,
         slurm_dir: str = None,
         result_file: str = None,
-        component_config: str = COMPONENT_CONFIG,
     ) -> None:
         """Builds an object of class SHAManExperiment.
         This experiment is defined by giving:
@@ -49,7 +55,7 @@ class SHAManExperiment:
             - The path to the result file (optional, if not specified, no file is created).
 
         Args:
-            component_name (str): The name of the accelerator to use.
+            component_name (str): The name of the component to use.
             nbr_iteration (int): The number of iterations.
             sbatch_file (str): The path to the sbatch file.
             experiment_name (str): The name of the experiment.
@@ -58,12 +64,10 @@ class SHAManExperiment:
             slurm_dir (str or Path): The directory where the slurm outptus will be stored.
                 If set to None, all the slurm outputs are removed after the end of the experiment.
             result_file (str): The path to the result file.
-                If set to None, no such file is created and the results are printed to the screen.
+                If set to None, no such file is created and the results are debuged to the screen.
             configuration_file (str): The path to the configuration file.
                 Defaults to the configuration file present in the package and called
                 config.cfg.
-            component_config (str): The path to the configuration of the components, either a file or
-                an URL.
         """
         # The name of the component that will be tuned through the experiment
         self.component_name = component_name
@@ -99,17 +103,19 @@ class SHAManExperiment:
         self.configuration = SHAManConfig.from_yaml(
             configuration_file, self.component_name
         )
+        # Create API client using the configuration information
+        self.api_client = Client(base_url=self.api_url, proxies={})
         # Create the black box object using the informations
         self.bb_wrapper = BBWrapper(
             self.component_name,
             self.configuration.component_parameter_names,
             self.sbatch_file,
             sbatch_dir=self.sbatch_dir,
-            component_configuration=component_config,
+            component_configuration=self.api_url
+            + "/"
+            + shaman_settings.component_endpoint,
         )
 
-        # Create API client using the configuration information
-        self.api_client = Client(base_url=self.api_url, proxies={})
         # Setup black box optimizer using configuration information
         self.bb_optimizer = self.setup_bb_optimizer()
         # Compute the start of the experiment
@@ -139,7 +145,7 @@ class SHAManExperiment:
             max_iteration=self.nbr_iteration,
             async_optim=pruning,
             max_step_cost=max_step_cost,
-            **self.configuration.bbo,
+            **self.configuration.bbo_parameters,
         )
         return self.bb_optimizer
 
@@ -147,14 +153,17 @@ class SHAManExperiment:
         """
         Launches the tuning experiment
         """
+        debug("Launching experiment !")
         # Create the experiment through API request
         self.create_experiment()
         if self.configuration.experiment.default_first:
-            # Launch a run using default parameterization of the accelerator
+            # Launch a run using default parameterization of the component
+            debug("Running default parametrization")
             self.bb_wrapper.run_default()
         # Setup the optimizer
         self.setup_bb_optimizer()
         # Launch the optimization
+        debug("Optimizing")
         self.bb_optimizer.optimize(callbacks=[self.update_history])
         # Summarize the optimization
         # If there is a result file, write the output in it
@@ -189,32 +198,32 @@ class SHAManExperiment:
         """
         Returns as a string the URL to the API using the data in the configuration file.
         """
-        return f"http://{self.configuration.api.host}:{self.configuration.api.port}"
+        return f"http://{shaman_settings.api_host}:{shaman_settings.api_port}"
 
     @property
     def start_experiment_dict(self) -> Dict:
-        """Creates a dictionnary describing the experiment from its start. 
-        """
-        return {
-            "experiment_name": self.experiment_name,
-            "experiment_start": self.experiment_start,
-            "experiment_budget": self.nbr_iteration,
-            "component": self.component_name,
-            "experiment_parameters": dict(self.configuration.bbo),
-            "noise_reduction_strategy": dict(self.configuration.noise_reduction)
-            if self.configuration.noise_reduction
-            else dict(),
-            "pruning_strategy": {
-                "pruning_strategy": self.configuration.pruning.max_step_duration
-                if self.configuration.pruning
-                else self.configuration.pruning
-            },
-            "sbatch": open(self.sbatch_file, "r").read(),
-        }
+        """Creates a dictionnary describing the experiment from its start."""
+        return InitExperiment(
+            **{
+                "experiment_name": self.experiment_name,
+                "experiment_start": self.experiment_start,
+                "experiment_budget": self.nbr_iteration,
+                "component": self.component_name,
+                "experiment_parameters": dict(self.configuration.bbo),
+                "noise_reduction_strategy": dict(self.configuration.noise_reduction)
+                if self.configuration.noise_reduction
+                else dict(),
+                "pruning_strategy": {
+                    "pruning_strategy": self.configuration.pruning.max_step_duration
+                    if self.configuration.pruning
+                    else self.configuration.pruning
+                },
+                "sbatch": open(self.sbatch_file, "r").read(),
+            }
+        ).dict()
 
     def create_experiment(self) -> None:
-        """Create the experiment upon initialization.
-        """
+        """Create the experiment upon initialization."""
         request = self.api_client.post("experiments", json=self.start_experiment_dict)
         if not 200 <= request.status_code < 400:
             raise Exception(
@@ -269,19 +278,22 @@ class SHAManExperiment:
         Returns:
             Dict: The updated dict to add to the POST request.
         """
-        return {
-            "jobids": self.bb_wrapper.component.submitted_jobids[-1],
-            "execution_time": history["fitness"][-1],
-            "parameters": self.build_parameter_dict(
-                self.configuration.component_parameter_names,
-                history["parameters"].tolist(),
-            )[-1],
-            "truncated": bool(history["truncated"][-1]),
-            "resampled": bool(history["resampled"][-1]),
-            "initialization": bool(history["initialization"][-1]),
-            "improvement_default": self.improvement_default,
-            "average_noise": self.average_noise,
-        }
+        debug(history)
+        return IntermediateResult(
+            **{
+                "jobids": self.bb_wrapper.component.submitted_jobids[-1],
+                "execution_time": list(history["fitness"])[-1],
+                "parameters": self.build_parameter_dict(
+                    self.configuration.component_parameter_names,
+                    history["parameters"].tolist(),
+                )[-1],
+                "truncated": bool(list(history["truncated"])[-1]),
+                "resampled": bool(list(history["resampled"])[-1]),
+                "initialization": bool(list(history["initialization"])[-1]),
+                "improvement_default": self.improvement_default,
+                "average_noise": self.average_noise,
+            }
+        ).dict()
 
     def update_history(self, history: Dict) -> None:
         """Update the optimization history at each BBO step and force conversion from numpy types.
@@ -289,6 +301,7 @@ class SHAManExperiment:
         Args:
             history (dict): The BBO history
         """
+        debug(f"Writing update dictionary {self._updated_dict(history)}")
         request = self.api_client.put(
             f"experiments/{self.experiment_id}/update", json=self._updated_dict(history)
         )
@@ -306,26 +319,27 @@ class SHAManExperiment:
         Returns:
             Dict: The dictionary to send to the API.
         """
-        return {
-            "averaged_execution_time": self.bb_optimizer.averaged_fitness,
-            "min_execution_time": self.bb_optimizer.min_fitness,
-            "max_execution_time": self.bb_optimizer.max_fitness,
-            "std_execution_time": self.average_noise,
-            "resampled_nbr": self.bb_optimizer.resampled_nbr,
-            "improvement_default": self.improvement_default,
-            "elapsed_time": self.bb_optimizer.elapsed_time,
-            "default_run": {
-                "execution_time": self.bb_wrapper.default_execution_time,
-                "job_id": self.bb_wrapper.default_jobid,
-                "parameters": self.bb_wrapper.default_parameters,
-            },
-            "average_noise": self.average_noise,
-            "explored_space": float(self.bb_optimizer.size_explored_space[0]),
-        }
+        return FinalResult(
+            **{
+                "averaged_execution_time": self.bb_optimizer.averaged_fitness,
+                "min_execution_time": self.bb_optimizer.min_fitness,
+                "max_execution_time": self.bb_optimizer.max_fitness,
+                "std_execution_time": self.bb_optimizer.measured_noise,
+                "resampled_nbr": self.bb_optimizer.resampled_nbr,
+                "improvement_default": self.improvement_default,
+                "elapsed_time": self.bb_optimizer.elapsed_time,
+                "default_run": {
+                    "execution_time": self.bb_wrapper.default_execution_time,
+                    "job_id": self.bb_wrapper.default_jobid,
+                    "parameters": self.bb_wrapper.default_parameters,
+                },
+                "average_noise": self.average_noise,
+                "explored_space": float(self.bb_optimizer.size_explored_space[0]),
+            }
+        ).dict()
 
     def end(self):
-        """End the experiment once it is over.
-        """
+        """End the experiment once it is over."""
         request = self.api_client.put(
             f"experiments/{self.experiment_id}/finish", json=self.end_dict
         )

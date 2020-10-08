@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/bash
 
 mkdir -p ~/.ssh
 chmod 0700 ~/.ssh

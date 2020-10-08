@@ -7,7 +7,8 @@ packages = [
     { include = "bbo", from = "shaman_project/" },
     { include = "bb_wrapper", from = "shaman_project/" },
     { include = "shaman_api", from = "shaman_project/" },
-    { include = "shaman_worker", from = "shaman_project/" }
+    { include = "shaman_worker", from = "shaman_project/" },
+    { include = "shaman_core", from = "shaman_project/" },
 ]
 
 [tool.poetry.dependencies]
@@ -36,15 +37,19 @@ pytest = "^6.0.1"
 pytest-cov = "^2.10.1"
 invoke = "^1.4.1"
 devtools = "^0.6"
+watchgod = "^0.6"
 
 [tool.poetry.extras]
 bb-wrapper = ["pydantic", "requests", "typer", "PyYAML"]
 bbo = ["numpy", "scikit-learn", "cma", "scipy", "pandas"]
 shaman-api = ["fastapi", "uvicorn", "arq", "motor", "starlette-exporter", "typer"]
 shaman-worker = ["arq", "prometheus-client", "httpx", "pydantic"]
+shaman-core = ["pydantic","httpx","pyyaml"]
 
 [tool.poetry.scripts]
 shaman-api = "shaman_api.cli:cli"
+shaman-install = "bb_wrapper.tunable_component.install_component:cli"
+shaman-optimize = "bb_wrapper.run_experiment:cli"
 
 [build-system]
 requires = ["poetry>=0.12"]

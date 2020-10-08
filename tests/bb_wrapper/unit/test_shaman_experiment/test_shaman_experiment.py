@@ -27,7 +27,6 @@ SBATCH = Path(__file__).parent / "test_sbatch" / "test_sbatch.sbatch"
 TEST_SLURMS = Path(__file__).parent / "test_slurm_outputs"
 SLURM_DIR = Path(__file__).resolve().parent / "slurm_save"
 SBATCH_DIR = Path(__file__).resolve().parent / "sbatch_save"
-COMPONENT_CONFIG = Path(__file__).parent / "test_config" / "component_config.yaml"
 
 # Class to test the POST and GET requests responses
 
@@ -42,22 +41,19 @@ class MockResponse:
 
 
 def mocked_requests_post(*args, **kwargs):
-    """Mocks the post requests.
-    """
+    """Mocks the post requests."""
     if args[0] == "experiments":
         return MockResponse({"id": "123"}, 200)
 
 
 def mocked_requests_post_fail(*args, **kwargs):
-    """Mocks the post requests.
-    """
+    """Mocks the post requests."""
     if args[0] == "experiments":
         return MockResponse({"id": "failed"}, 500)
 
 
 def mocked_requests_put(*args, **kwargs):
-    """Mocks the put request.
-    """
+    """Mocks the put request."""
     # Successful update
     if args[0] == "experiments/123/update":
         return MockResponse({"id": "ok"}, 200)
@@ -86,6 +82,124 @@ def mocked_requests_put(*args, **kwargs):
         return MockResponse({"id": "ok"}, 500)
 
 
+def mocked_requests_get(*args, **kwargs):
+    """Mock the get requests containing the data of the experiment."""
+    if args[0] == "http://api:5000/components":
+        mock_components = {
+            "components": {
+                "component_1": {
+                    "plugin": "example_1",
+                    "header": "example_header",
+                    "command": "example_cmd",
+                    "ld_preload": "example_lib",
+                    "parameters": {
+                        "param_1": {
+                            "type": "int",
+                            "default": 1,
+                            "optional": False,
+                            "env_var": True,
+                            "description": None,
+                            "cmd_var": None,
+                            "flag": None,
+                        },
+                        "param_2": {
+                            "type": "str",
+                            "default": "/home/",
+                            "optional": False,
+                            "env_var": None,
+                            "description": None,
+                            "cmd_var": "True",
+                            "flag": "folder",
+                        },
+                    },
+                    "custom_component": None,
+                },
+                "component_2": {
+                    "plugin": "example_2",
+                    "header": "example_header",
+                    "command": "example_cmd",
+                    "ld_preload": "example_lib",
+                    "parameters": {
+                        "param_1": {
+                            "type": "int",
+                            "default": 1,
+                            "optional": False,
+                            "env_var": True,
+                            "description": None,
+                            "cmd_var": None,
+                            "flag": None,
+                        },
+                        "param_2": {
+                            "type": "str",
+                            "default": "/home/",
+                            "optional": False,
+                            "env_var": None,
+                            "description": None,
+                            "cmd_var": "True",
+                            "flag": "folder",
+                        },
+                        "param_3": {
+                            "type": "str",
+                            "default": None,
+                            "optional": False,
+                            "env_var": None,
+                            "description": None,
+                            "cmd_var": "True",
+                            "flag": "f",
+                        },
+                    },
+                    "custom_component": None,
+                },
+                "component_3": {
+                    "plugin": "example_3",
+                    "header": "example_header",
+                    "command": None,
+                    "ld_preload": "example_lib",
+                    "parameters": {
+                        "param_1": {
+                            "type": "int",
+                            "default": None,
+                            "optional": False,
+                            "env_var": True,
+                            "description": None,
+                            "cmd_var": None,
+                            "flag": None,
+                        },
+                        "param_2": {
+                            "type": "int",
+                            "default": 2,
+                            "optional": False,
+                            "env_var": True,
+                            "description": None,
+                            "cmd_var": None,
+                            "flag": None,
+                        },
+                    },
+                    "custom_component": None,
+                },
+                "component_4": {
+                    "plugin": "example_4",
+                    "header": "example_header",
+                    "command": "example_cmd",
+                    "ld_preload": "example_lib",
+                    "parameters": {
+                        "xxx": {
+                            "type": "int",
+                            "default": None,
+                            "optional": True,
+                            "env_var": True,
+                            "description": None,
+                            "cmd_var": None,
+                            "flag": None,
+                        }
+                    },
+                    "custom_component": None,
+                },
+            }
+        }
+        return MockResponse(mock_components, 200)
+
+
 class TestSHAManExperiment(unittest.TestCase):
     """ TestCase used to test the 'SHAManExperiment' class. """
 
@@ -96,7 +210,8 @@ class TestSHAManExperiment(unittest.TestCase):
             for file_ in os.listdir(TEST_SLURMS)
         ]
 
-    def test_init(self):
+    @patch("httpx.get", side_effect=mocked_requests_get)
+    def test_init(self, mocked_get):
         """ Test the attribute of the class 'SHAManExperiment' are properly set. """
         se = SHAManExperiment(
             component_name="component_1",
@@ -120,9 +235,9 @@ class TestSHAManExperiment(unittest.TestCase):
         self.assertIsInstance(se.bb_wrapper, BBWrapper)
         self.assertIsInstance(se.bb_optimizer, BBOptimizer)
 
-    def test_init_noisereduction(self):
-        """Tests the proper initialization of the class when using a noise reduction strategy.
-        """
+    @patch("httpx.get", side_effect=mocked_requests_get)
+    def test_init_noisereduction(self, mocked_requests_get):
+        """Tests the proper initialization of the class when using a noise reduction strategy."""
         se = SHAManExperiment(
             component_name="component_1",
             nbr_iteration=3,
@@ -134,8 +249,9 @@ class TestSHAManExperiment(unittest.TestCase):
         )
         assert se.configuration.noise_reduction
 
-    def test_init_assert(self):
-        """ Test the AssertionError is raised if the component name is not valid.
+    @patch("httpx.get", side_effect=mocked_requests_get)
+    def test_init_assert(self, mocked_requests_get):
+        """Test the AssertionError is raised if the component name is not valid.
         In this test, the component does not exist."""
         self.assertRaises(
             KeyError,
@@ -147,7 +263,8 @@ class TestSHAManExperiment(unittest.TestCase):
             configuration_file=CONFIG,
         )
 
-    def test_init_except(self):
+    @patch("httpx.get", side_effect=mocked_requests_get)
+    def test_init_except(self, mocked_requests_get):
         """Test the FileNotFoundError is raised if the sbatch file is not reachable.
         In this test, sbatch_file does not exist."""
         self.assertRaises(
@@ -160,9 +277,9 @@ class TestSHAManExperiment(unittest.TestCase):
             configuration_file=CONFIG,
         )
 
-    def test_init_no_path_sbatch(self):
-        """Tests that the initialization works as expected when given a path as a string as sbatch_dir.
-        """
+    @patch("httpx.get", side_effect=mocked_requests_get)
+    def test_init_no_path_sbatch(self, mocked_requests_get):
+        """Tests that the initialization works as expected when given a path as a string as sbatch_dir."""
         se = SHAManExperiment(
             component_name="component_1",
             nbr_iteration=3,
@@ -174,9 +291,9 @@ class TestSHAManExperiment(unittest.TestCase):
         )
         self.assertTrue(isinstance(se.sbatch_dir, Path))
 
-    def test_init_no_path_slurm(self):
-        """Tests that the initialization works as expected when given a path as a string as slurm_dir.
-        """
+    @patch("httpx.get", side_effect=mocked_requests_get)
+    def test_init_no_path_slurm(self, mocked_requests_get):
+        """Tests that the initialization works as expected when given a path as a string as slurm_dir."""
         se = SHAManExperiment(
             component_name="component_1",
             nbr_iteration=3,
@@ -188,7 +305,8 @@ class TestSHAManExperiment(unittest.TestCase):
         )
         self.assertTrue(isinstance(se.slurm_dir, Path))
 
-    def test_keep_slurm_outputs(self):
+    @patch("httpx.get", side_effect=mocked_requests_get)
+    def test_keep_slurm_outputs(self, mocked_requests_get):
         """Tests that if there is a value for the slurm output, the outputs are kept in the proper folder."""
         se = SHAManExperiment(
             component_name="component_1",
@@ -214,7 +332,8 @@ class TestSHAManExperiment(unittest.TestCase):
             "Remaining slurm file in current working directory.",
         )
 
-    def test_remove_slurm_outputs(self):
+    @patch("httpx.get", side_effect=mocked_requests_get)
+    def test_remove_slurm_outputs(self, mocked_requests_get):
         """Tests that if there is no value for the slurm outputs, the working directory is kept clean."""
         se = SHAManExperiment(
             component_name="component_1",
@@ -234,7 +353,8 @@ class TestSHAManExperiment(unittest.TestCase):
             "Remaining slurm file in current working directory.",
         )
 
-    def test_write_sbatch_in_directory_and_keep(self):
+    @patch("httpx.get", side_effect=mocked_requests_get)
+    def test_write_sbatch_in_directory_and_keep(self, mocked_requests_get):
         """Tests that if another directory is specified, the sbatch is written in this directory and not removed"""
         se = SHAManExperiment(
             component_name="component_1",
@@ -252,7 +372,8 @@ class TestSHAManExperiment(unittest.TestCase):
         self.assertTrue(SBATCH_DIR.is_dir())
         self.assertTrue(list(SBATCH_DIR.glob("*")), ["test_sbatch_shaman.sbatch"])
 
-    def test_write_sbatch_remove(self):
+    @patch("httpx.get", side_effect=mocked_requests_get)
+    def test_write_sbatch_remove(self, mocked_requests_get):
         """Tests that if another directory is not specified, the folder containing the sbatch is deleted from the working directory."""
         se = SHAManExperiment(
             component_name="component_1",
@@ -268,9 +389,12 @@ class TestSHAManExperiment(unittest.TestCase):
         # Check that the sbatch file is deleted
         self.assertFalse("test_sbatch_shaman.sbatch" in os.listdir())
 
+    @patch("httpx.get", side_effect=mocked_requests_get)
     @patch("bb_wrapper.tunable_component.component.TunableComponent.submit_sbatch")
     @patch("bb_wrapper.bb_wrapper.BBWrapper._parse_slurm_times")
-    def test_setup_optimizer_async_default(self, mock_submit, mock_parse):
+    def test_setup_optimizer_async_default(
+        self, mock_submit, mock_parse, mocked_requests_get
+    ):
         """
         Tests that when running the optimization in asynchronous mode using default
         as max time, the max duration step of the black-box optimizer is properly setup.
@@ -283,21 +407,25 @@ class TestSHAManExperiment(unittest.TestCase):
             sbatch_file=SBATCH,
             experiment_name="test_experiment",
             configuration_file=CONFIG_ASYNC_DEFAULT,
-            component_config=COMPONENT_CONFIG,
         )
         se.bb_wrapper.run_default()
         se.setup_bb_optimizer()
         self.assertEqual(se.bb_optimizer.max_step_cost, 10)
 
+    @patch("httpx.get", side_effect=mocked_requests_get)
     @patch("httpx.Client.post", side_effect=mocked_requests_post)
     @patch("bb_wrapper.bb_wrapper.BBWrapper.run_default")
     @patch("bbo.optimizer.BBOptimizer.optimize")
     @patch("bb_wrapper.shaman_experiment.SHAManExperiment.summarize")
     def test_launch_experiment(
-        self, mock_summarize, mock_optimize, mock_default, mock_post
+        self,
+        mock_summarize,
+        mock_optimize,
+        mock_default,
+        mock_post,
+        mocked_requests_get,
     ):
-        """Tests the launch of an experiment.
-        """
+        """Tests the launch of an experiment."""
         mock_default.return_value = 10
         se = SHAManExperiment(
             component_name="component_1",
@@ -305,7 +433,6 @@ class TestSHAManExperiment(unittest.TestCase):
             sbatch_file=SBATCH,
             experiment_name="test_experiment",
             configuration_file=CONFIG,
-            component_config=COMPONENT_CONFIG,
             result_file="test_result.out",
         )
         se.launch()
@@ -314,9 +441,9 @@ class TestSHAManExperiment(unittest.TestCase):
         # Remove file
         Path("test_result.out").unlink()
 
-    def test_summarize(self):
-        """Tests that the summary of an experiment works as expected.
-        """
+    @patch("httpx.get", side_effect=mocked_requests_get)
+    def test_summarize(self, mocked_requests_get):
+        """Tests that the summary of an experiment works as expected."""
         fake_history = {
             "fitness": np.array([2, 2, 3]),
             "parameters": np.array([[1, 2], [2, 2], [1, 2]]),
@@ -330,7 +457,6 @@ class TestSHAManExperiment(unittest.TestCase):
             sbatch_file=SBATCH,
             experiment_name="test_experiment",
             configuration_file=CONFIG_ASYNC_DEFAULT,
-            component_config=COMPONENT_CONFIG,
         )
         se.bb_optimizer.history = fake_history
         se.bb_optimizer.best_parameters_in_grid = [2, 2]
@@ -366,7 +492,7 @@ None
 
     def tearDown(self):
         """Remove all slurm files from current dir.
-        Clean all new created files and directories: SLURM_DIR and SBATCH_DIR """
+        Clean all new created files and directories: SLURM_DIR and SBATCH_DIR"""
         for file_ in Path(__file__).glob("slurm*.out"):
             file_.unlink()
         if Path.is_dir(SLURM_DIR):
@@ -418,12 +544,12 @@ class TestSHAManExperimentStatic(unittest.TestCase):
 
 
 class TestSHAManAPI(unittest.TestCase):
-    """Unit tests for the integration of SHAMan with the REST API.
-    """
+    """Unit tests for the integration of SHAMan with the REST API."""
 
-    def test_api_url(self):
+    @patch("httpx.get", side_effect=mocked_requests_get)
+    def test_api_url(self, mocked_requests_get):
         """
-        Tests that the API url is properly built from the configuration.
+        Tests that the API url is properly built from the settings.
         """
         se = SHAManExperiment(
             component_name="component_1",
@@ -432,9 +558,10 @@ class TestSHAManAPI(unittest.TestCase):
             experiment_name="test_experiment",
             configuration_file=CONFIG,
         )
-        self.assertEqual(se.api_url, "http://localhost:5000")
+        self.assertEqual(se.api_url, "http://api:5000")
 
-    def test_start_experiment_dict_vanilla(self):
+    @patch("httpx.get", side_effect=mocked_requests_get)
+    def test_start_experiment_dict_vanilla(self, mocked_requests_get):
         """
         Tests that the dictionnary describing the experiment from its start works as expected.
         No pruning and no noise reduction.
@@ -467,9 +594,9 @@ class TestSHAManAPI(unittest.TestCase):
         }
         self.assertDictEqual(expected_dict, se.start_experiment_dict)
 
-    def test_start_experiment_dict_pruning(self):
-        """Tests that the experiment dict is as expected when pruning is enabled.
-        """
+    @patch("httpx.get", side_effect=mocked_requests_get)
+    def test_start_experiment_dict_pruning(self, mocked_requests_get):
+        """Tests that the experiment dict is as expected when pruning is enabled."""
         se = SHAManExperiment(
             component_name="component_1",
             nbr_iteration=3,
@@ -498,9 +625,9 @@ class TestSHAManAPI(unittest.TestCase):
         }
         self.assertDictEqual(se.start_experiment_dict, expected_dict)
 
-    def test_start_experiment_dict_noise_reduction(self):
-        """Tests that the experiment dict is as expected when noise reduction is enabled.
-        """
+    @patch("httpx.get", side_effect=mocked_requests_get)
+    def test_start_experiment_dict_noise_reduction(self, mocked_requests_get):
+        """Tests that the experiment dict is as expected when noise reduction is enabled."""
         se = SHAManExperiment(
             component_name="component_1",
             nbr_iteration=3,
@@ -534,8 +661,9 @@ class TestSHAManAPI(unittest.TestCase):
         }
         self.assertEqual(se.start_experiment_dict, expected_dict)
 
+    @patch("httpx.get", side_effect=mocked_requests_get)
     @patch("httpx.Client.post", side_effect=mocked_requests_post)
-    def test_create_experiment(self, mock_httpx):
+    def test_create_experiment(self, mock_httpx, mocked_requests_get):
         """
         Tests that the creation of the experiment behaves as expected, by adding the experiemnt_id
         as an attribute.
@@ -551,8 +679,9 @@ class TestSHAManAPI(unittest.TestCase):
         se.create_experiment()
         self.assertEqual(se.experiment_id, "123")
 
+    @patch("httpx.get", side_effect=mocked_requests_get)
     @patch("httpx.Client.post", side_effect=mocked_requests_post_fail)
-    def test_create_experiment_fail(self, mock_httpx):
+    def test_create_experiment_fail(self, mock_httpx, mocked_requests_get):
         """
         Tests that when the create experiment fails, an exception is raised.
         """
@@ -567,9 +696,9 @@ class TestSHAManAPI(unittest.TestCase):
         with self.assertRaises(Exception):
             se.create_experiment()
 
-    def test_best_time(self):
-        """Tests that the best time is properly computed.
-        """
+    @patch("httpx.get", side_effect=mocked_requests_get)
+    def test_best_time(self, mocked_requests_get):
+        """Tests that the best time is properly computed."""
         se = SHAManExperiment(
             component_name="component_1",
             nbr_iteration=3,
@@ -583,9 +712,9 @@ class TestSHAManAPI(unittest.TestCase):
         }
         self.assertEqual(se.best_time, 2)
 
-    def test_average_noise(self):
-        """Tests that the average noise is properly computed.
-        """
+    @patch("httpx.get", side_effect=mocked_requests_get)
+    def test_average_noise(self, mocked_requests_get):
+        """Tests that the average noise is properly computed."""
         se = SHAManExperiment(
             component_name="component_1",
             nbr_iteration=3,
@@ -599,11 +728,11 @@ class TestSHAManAPI(unittest.TestCase):
         }
         self.assertEqual(se.average_noise, 0.25)
 
+    @patch("httpx.get", side_effect=mocked_requests_get)
     @patch("bb_wrapper.tunable_component.component.TunableComponent.submit_sbatch")
     @patch("bb_wrapper.bb_wrapper.BBWrapper._parse_slurm_times")
-    def test_improvement_default(self, mock_submit, mock_parse):
-        """Tests that the improvement is properly computed.
-        """
+    def test_improvement_default(self, mock_submit, mock_parse, mocked_requests_get):
+        """Tests that the improvement is properly computed."""
         mock_submit.return_value = 10
         mock_parse.return_value = 10
         se = SHAManExperiment(
@@ -612,7 +741,6 @@ class TestSHAManAPI(unittest.TestCase):
             sbatch_file=SBATCH,
             experiment_name="test_experiment",
             configuration_file=CONFIG,
-            component_config=COMPONENT_CONFIG,
         )
         se.bb_wrapper.run_default()
         se.bb_optimizer.history = {
@@ -621,9 +749,10 @@ class TestSHAManAPI(unittest.TestCase):
         }
         self.assertEqual(se.improvement_default, 80)
 
+    @patch("httpx.get", side_effect=mocked_requests_get)
     @patch("bb_wrapper.tunable_component.component.TunableComponent.submit_sbatch")
     @patch("bb_wrapper.bb_wrapper.BBWrapper._parse_slurm_times")
-    def test_update_history_dict(self, mock_submit, mock_parse):
+    def test_update_history_dict(self, mock_submit, mock_parse, mocked_requests_get):
         """
         Tests that the update history dict is filled as expected.
         """
@@ -652,7 +781,6 @@ class TestSHAManAPI(unittest.TestCase):
             sbatch_file=SBATCH,
             experiment_name="test_experiment",
             configuration_file=CONFIG,
-            component_config=COMPONENT_CONFIG,
         )
         # Compute once to build the .component
         se.bb_wrapper.compute([1, 2])
@@ -661,10 +789,13 @@ class TestSHAManAPI(unittest.TestCase):
         se.bb_wrapper.run_default()
         self.assertEqual(se._updated_dict(fake_history), expected_dict)
 
+    @patch("httpx.get", side_effect=mocked_requests_get)
     @patch("bb_wrapper.tunable_component.component.TunableComponent.submit_sbatch")
     @patch("bb_wrapper.bb_wrapper.BBWrapper._parse_slurm_times")
     @patch("httpx.Client.put", side_effect=mocked_requests_put)
-    def test_update_history(self, mock_update, mock_parse, mock_submit):
+    def test_update_history(
+        self, mock_update, mock_parse, mock_submit, mocked_requests_get
+    ):
         """
         Tests that the update_history function works as expected.
         """
@@ -676,7 +807,6 @@ class TestSHAManAPI(unittest.TestCase):
             sbatch_file=SBATCH,
             experiment_name="test_experiment",
             configuration_file=CONFIG,
-            component_config=COMPONENT_CONFIG,
         )
         update_dict = {
             "jobids": 10,
@@ -704,10 +834,13 @@ class TestSHAManAPI(unittest.TestCase):
         se.bb_optimizer.history = fake_history
         se.update_history(fake_history)
 
+    @patch("httpx.get", side_effect=mocked_requests_get)
     @patch("bb_wrapper.tunable_component.component.TunableComponent.submit_sbatch")
     @patch("bb_wrapper.bb_wrapper.BBWrapper._parse_slurm_times")
     @patch("httpx.Client.put", side_effect=mocked_requests_put)
-    def test_update_history_fail(self, mock_update, mock_parse, mock_submit):
+    def test_update_history_fail(
+        self, mock_update, mock_parse, mock_submit, mocked_requests_get
+    ):
         """
         Tests that the update_history function works as expected when there is a failure.
         """
@@ -719,7 +852,6 @@ class TestSHAManAPI(unittest.TestCase):
             sbatch_file=SBATCH,
             experiment_name="test_experiment",
             configuration_file=CONFIG,
-            component_config=COMPONENT_CONFIG,
         )
         update_dict = {
             "jobids": 10,
@@ -747,11 +879,12 @@ class TestSHAManAPI(unittest.TestCase):
         with self.assertRaises(Exception):
             se.update_history(fake_history)
 
+    @patch("httpx.get", side_effect=mocked_requests_get)
     @patch("bb_wrapper.tunable_component.component.TunableComponent.submit_sbatch")
     @patch("bb_wrapper.bb_wrapper.BBWrapper._parse_slurm_times")
-    def test_end_dict(self, mock_parse, mock_submit):
-        """Tests that the improvement is properly computed.
-        """
+    def test_end_dict(self, mock_parse, mock_submit, mocked_requests_get):
+        """Tests that the improvement is properly computed."""
+        self.maxDiff = None
         mock_submit.return_value = 10
         mock_parse.return_value = 10
         se = SHAManExperiment(
@@ -760,7 +893,6 @@ class TestSHAManAPI(unittest.TestCase):
             sbatch_file=SBATCH,
             experiment_name="test_experiment",
             configuration_file=CONFIG,
-            component_config=COMPONENT_CONFIG,
         )
         se.bb_wrapper.run_default()
         fake_history = {
@@ -775,7 +907,7 @@ class TestSHAManAPI(unittest.TestCase):
             "averaged_execution_time": [2.0, 2.0, 3.0],
             "min_execution_time": [2.0, 2.0, 3.0],
             "max_execution_time": [2.0, 2.0, 3.0],
-            "std_execution_time": 0.25,
+            "std_execution_time": [0.5, 0.0],
             "resampled_nbr": [1.0, 1.0, 1.0],
             "improvement_default": 80.0,
             "elapsed_time": 0,
@@ -789,10 +921,11 @@ class TestSHAManAPI(unittest.TestCase):
         }
         self.assertDictEqual(expected_dict, se.end_dict)
 
+    @patch("httpx.get", side_effect=mocked_requests_get)
     @patch("bb_wrapper.tunable_component.component.TunableComponent.submit_sbatch")
     @patch("bb_wrapper.bb_wrapper.BBWrapper._parse_slurm_times")
     @patch("httpx.Client.put", side_effect=mocked_requests_put)
-    def test_end(self, mock_put, mock_parse, mock_submit):
+    def test_end(self, mock_put, mock_parse, mock_submit, mocked_requests_get):
         """
         Tests that calling the end endpoint works as expected.
         """
@@ -804,7 +937,6 @@ class TestSHAManAPI(unittest.TestCase):
             sbatch_file=SBATCH,
             experiment_name="test_experiment",
             configuration_file=CONFIG,
-            component_config=COMPONENT_CONFIG,
         )
         se.experiment_id = "123"
         se.bb_wrapper.run_default()
@@ -818,10 +950,11 @@ class TestSHAManAPI(unittest.TestCase):
         se.bb_optimizer.history = fake_history
         se.end()
 
+    @patch("httpx.get", side_effect=mocked_requests_get)
     @patch("bb_wrapper.tunable_component.component.TunableComponent.submit_sbatch")
     @patch("bb_wrapper.bb_wrapper.BBWrapper._parse_slurm_times")
     @patch("httpx.Client.put", side_effect=mocked_requests_put)
-    def test_end_fail(self, mock_put, mock_parse, mock_submit):
+    def test_end_fail(self, mock_put, mock_parse, mock_submit, mocked_requests_get):
         """
         Tests that calling the end endpoint works as expected when the api returns a 500 status
         code.
@@ -834,7 +967,6 @@ class TestSHAManAPI(unittest.TestCase):
             sbatch_file=SBATCH,
             experiment_name="test_experiment",
             configuration_file=CONFIG,
-            component_config=COMPONENT_CONFIG,
         )
         se.experiment_id = "321"
         se.bb_wrapper.run_default()
@@ -849,48 +981,45 @@ class TestSHAManAPI(unittest.TestCase):
         with self.assertRaises(Exception):
             se.end()
 
+    @patch("httpx.get", side_effect=mocked_requests_get)
     @patch("httpx.Client.put", side_effect=mocked_requests_put)
-    def test_fail_fail(self, mock_put):
-        """Tests the right error code is returned when the submitted experiment fails.
-        """
+    def test_fail_fail(self, mock_put, mocked_requests_get):
+        """Tests the right error code is returned when the submitted experiment fails."""
         se = SHAManExperiment(
             component_name="component_1",
             nbr_iteration=3,
             sbatch_file=SBATCH,
             experiment_name="test_experiment",
             configuration_file=CONFIG,
-            component_config=COMPONENT_CONFIG,
         )
         se.experiment_id = "322"
         with self.assertRaises(Exception):
             se.fail()
 
+    @patch("httpx.get", side_effect=mocked_requests_get)
     @patch("httpx.Client.put", side_effect=mocked_requests_put)
-    def test_stop(self, mock_put):
-        """Tests that stopping the experiment works as expected.
-        """
+    def test_stop(self, mock_put, mocked_requests_get):
+        """Tests that stopping the experiment works as expected."""
         se = SHAManExperiment(
             component_name="component_1",
             nbr_iteration=3,
             sbatch_file=SBATCH,
             experiment_name="test_experiment",
             configuration_file=CONFIG,
-            component_config=COMPONENT_CONFIG,
         )
         se.experiment_id = "123"
         se.stop()
 
+    @patch("httpx.get", side_effect=mocked_requests_get)
     @patch("httpx.Client.put", side_effect=mocked_requests_put)
-    def test_stop_fail(self, mock_put):
-        """Tests that stopping the experiment works as expected when failing.
-        """
+    def test_stop_fail(self, mock_put, mocked_requests_get):
+        """Tests that stopping the experiment works as expected when failing."""
         se = SHAManExperiment(
             component_name="component_1",
             nbr_iteration=3,
             sbatch_file=SBATCH,
             experiment_name="test_experiment",
             configuration_file=CONFIG,
-            component_config=COMPONENT_CONFIG,
         )
         se.experiment_id = "321"
         with self.assertRaises(Exception):

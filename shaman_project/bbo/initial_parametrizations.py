@@ -7,14 +7,9 @@ literature and for now only two of the most common are available in the BBO pack
 properties of designs (there is no duplicate on any dimension).
 """
 
-__copyright__ = """
-Copyright (C) 2020 Bull S. A. S. - All rights reserved
-Bull, Rue Jean Jaures, B.P.68, 78340, Les Clayes-sous-Bois, France
-This is not Free or Open Source software.
-Please contact Bull S. A. S. for details about its license.
-"""
 
 import numpy as np
+from devtools import debug
 
 
 def uniform_random_draw(number_of_parameters, parameter_space):
@@ -101,12 +96,14 @@ def hybrid_lhs_uniform_sampling(number_of_parameters, parameter_space):
         numpy array of numpy arrays: an array of size number_of_parameters *
             number_of_axis containing the parameters.
     """
+    debug(f"Number of parameters: {number_of_parameters}")
     n_lhs_param = number_of_parameters
     smallest_size = np.min([len(arr) for arr in parameter_space])
     if smallest_size < number_of_parameters:
         n_lhs_param = smallest_size
-
+    debug(f"Drawing {n_lhs_param} from LHD")
     lhs_draw = latin_hypercube_sampling(n_lhs_param, parameter_space)
+    debug(f"Drawing {number_of_parameters - n_lhs_param} from uniform distribution")
     ur_draw = uniform_random_draw(
         max(number_of_parameters - n_lhs_param, 0), parameter_space
     )

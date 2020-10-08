@@ -876,6 +876,7 @@ class TestOptimizer(unittest.TestCase):
             ),
             "truncated": np.array([True, True, True, True, True, True]),
             "resampled": np.array([True, True, True, True, True, True]),
+            "initialization": np.array([True, True, True, True, True, True]),
         }
         parameter = bb_obj._select_next_parameters()
         np.testing.assert_array_equal(parameter, [1, 5, 3])
@@ -902,6 +903,7 @@ class TestOptimizer(unittest.TestCase):
             ),
             "truncated": np.array([True, True, True, True, True, True]),
             "resampled": np.array([True, True, True, True, True, True]),
+            "initialization": np.array([True, True, True, True, True, True]),
         }
         parameter = bb_obj._select_next_parameters()
         np.testing.assert_array_equal(parameter, [1, 3, 2])
@@ -950,6 +952,7 @@ class TestOptimizer(unittest.TestCase):
             ),
             "truncated": np.array([True, True, True, True, True, True]),
             "resampled": np.array([True, True, True, True, True, True]),
+            "initialization": np.array([True, True, True, True, True, True]),
         }
         aggregated_history = bb_obj.fitness_aggregation.transform(bb_obj.history)
         np.testing.assert_array_equal(

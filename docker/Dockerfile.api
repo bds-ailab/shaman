@@ -1,27 +1,19 @@
 #TODO: multistage docker
 # Dockerfile containing the FastAPI library
-FROM centos/python-36-centos7
+FROM python:3.8-slim
 
-# Upgrade pip and whell
-RUN pip install --upgrade pip &&\
-    pip install --upgrade wheel
+# Install poetry
+RUN python3 -m pip install poetry
 
-# Copy API files
-COPY api/ /api
+WORKDIR /shaman_project
 
-# TODO: very ugly workaround (temporary until redis network is enabled)
-COPY optimization_engine /optimization_engine
-WORKDIR /optimization_engine/little_shaman
-RUN pip install ../bbo/ && \
-    pip install ../iomodules_handler && \
-    pip install .	
+# Copy project toml and tasks file
+COPY pyproject.toml .
+COPY poetry.lock .
+COPY tasks.py .
+COPY shaman_project /shaman_project/shaman_project
 
-# Build package using setup
-WORKDIR /api
-
-RUN pip install .
-
-# Create run directory for SHAMan
-WORKDIR /shaman_rundir
-
-CMD ["shaman-api", "prod"]
+ENV PATH="/root/.local/bin/:$PATH"
+# Install required dependencies
+RUN poetry config virtualenvs.create false && \
+    poetry install -E shaman-api -E shaman-core

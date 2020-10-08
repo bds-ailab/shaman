@@ -1,15 +1,6 @@
 form_options:
-  with_ioi:
-    section: experiment
-    varname: with_ioi
-    vmodel: false
-    type: checkbox
-    label: 'Use with IOI ?'
-
   kill_too_long:
-    section: experiment
-    varname: kill_too_long
-    vmodel: false
+    section: pruning_strategy
     type: checkbox
     label: 'Stop unpromising trials ?'
     derived_options:
@@ -43,16 +34,16 @@ form_options:
             label: 'Simple fitness aggregation'
             options:
               estimator:
-                label: "Estimator"
+                label: 'Estimator'
                 type: radio
                 varname: estimator
                 options:
                   mean:
                     varname: numpy.mean
-                    label: "Mean"
+                    label: 'Mean'
                   median:
                     varname: numpy.median
-                    label: "Median"
+                    label: 'Median'
 
       resampling_policy:
         label: 'Resampling policy'
@@ -69,7 +60,6 @@ form_options:
                 type: number
                 options:
                   nbr_resamples:
-                    min: 0
                     varname: nbr_resamples
                     min: 0
                     max: 100
@@ -84,7 +74,6 @@ form_options:
                 type: number
                 options:
                   percentage:
-                    min: 0
                     varname: percentage
                     min: 0
                     max: 10
@@ -118,27 +107,27 @@ form_options:
                 type: radio
                 options:
                   tournament_pick:
-                    varname: tournament_pick
+                    varname: bbo.heuristics.genetic_algorithm.selections.tournament_pick
                     label: 'Tournament pick'
                   probabilistic_pick:
-                    varname: probabilistic_pick
+                    varname: bbo.heuristics.genetic_algorithm.selections.probabilistic_pick
                     label: 'Probabilistic pick'
               crossover_method:
                 label: 'Combination method'
                 type: radio
                 options:
                   one_point_crossover:
-                    varname: one_point_crossover
+                    varname: bbo.heuristics.genetic_algorithm.crossover.single_point_crossover
                     label: 'One point crossover'
                   two_point_crossover:
-                    varname: two_point_crossovers
+                    varname: bbo.heuristics.genetic_algorithm.crossover.double_point_crossover
                     label: 'Two point crossovers'
               mutation_method:
                 label: 'Mutation method'
                 type: radio
                 options:
                   mutate_neighbor:
-                    varname: mutate_neighbor
+                    varname: bbo.heuristics.genetic_algorithm.mutations.mutate_chromosome_to_neighbor
                     label: 'Mutate into neighbor'
               mutation_rate:
                 label: 'Mutation rate'
@@ -178,26 +167,42 @@ form_options:
             label: 'Simulated annealing'
             vmodel: false
             options:
-              cooling_schedule:
+              cooldown_function:
                 label: 'Cooling schedule'
                 type: 'radio'
                 options:
                   logarithmic:
                     label: 'Logarithmic'
-                    varname: 'logarithmic'
+                    varname: bbo.heuristics.simulated_annealing.cooldown_functions.logarithmic_schedule
                   exponential:
                     label: 'Exponential'
-                    varname: 'exponential'
+                    varname: bbo.heuristics.simulated_annealing.cooldown_functions.exponential_schedule
                   multiplicative:
                     label: 'Multiplicative'
-                    varname: 'multiplicative'
+                    varname: bbo.heuristics.simulated_annealing.cooldown_functions.multiplicative_schedule
               restart:
                 label: 'Restart strategy'
                 type: 'radio'
                 options:
                   threshold:
                     label: 'Threshold'
-                    varname: 'threshold'
+                    varname: bbo.heuristics.simulated_annealing.restart_functions.threshold_restart
                   random:
                     label: 'Random'
-                    varname: 'random'
+                    varname: bbo.heuristics.simulated_annealing.restart_functions.random_restart
+              neighbor_function:
+                label: 'Neighbor functions'
+                type: 'radio'
+                options:
+                  hop_to_next_value:
+                    label: 'Move to neighbor'
+                    varname: bbo.heuristics.simulated_annealing.neighbor_functions.hop_to_next_value
+              temperature:
+                label: "Initial temperature"
+                type: number
+                options:
+                  initial_temperature:
+                    varname: initial_temperature
+                    min: 0
+                    max: 1000
+                    step: 1

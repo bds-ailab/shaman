@@ -7,14 +7,14 @@ import numpy
 from numpy.testing import assert_array_equal
 from pydantic import ValidationError
 
-from bb_wrapper.shaman_config_model import SHAManConfig, PruningParameters
+from shaman_core.models.shaman_config_model import SHAManConfig, PruningParameters
 
 from bbo.optimizer import BBOptimizer
 from bbo.heuristics.genetic_algorithm.selections import tournament_pick
 from bbo.heuristics.genetic_algorithm.crossover import single_point_crossover
 from bbo.heuristics.genetic_algorithm.mutations import mutate_chromosome_to_neighbor
 
-TEST_DATA = Path(__file__).parent / "test_config"
+TEST_DATA = Path(__file__).parent / "test_shaman_config"
 # Test config component
 
 VANILLA_CONFIG = TEST_DATA / "vanilla.yaml"

@@ -3,10 +3,7 @@
 The SHAMan project is the result of my research works during my PhD on the auto-tuning of I/O accelerators.
 Its an optimization framework to find the optimum parametrization of an I/O accelerator for HPC applications.
 
-It is composed of three modules:
-    - **bbo**: Contains the black-box optimization.
-    - **iomodules_handler**: A Python interface for manipulating I/O accelerators.
-    - **little_shaman**: The Python module which performs the optimization of I/O accelerators.
+It is composed of three modules: - **bbo**: Contains the black-box optimization. - **iomodules_handler**: A Python interface for manipulating I/O accelerators. - **little_shaman**: The Python module which performs the optimization of I/O accelerators.
 
 ## Installing the different modules
 

@@ -18,6 +18,7 @@ import time
 import contextlib
 from concurrent.futures import ThreadPoolExecutor
 import numpy as np
+from devtools import debug
 
 from bbo.heuristics.surrogate_models.surrogate_models import SurrogateModel
 from bbo.heuristics.simulated_annealing.simulated_annealing import SimulatedAnnealing
@@ -445,8 +446,10 @@ class BBOptimizer:
         Returns:
             None, but applies the callback on the history attribute of the class
         """
+        debug(f"Evaluating performance of parametrization {parameter}")
         # evaluate the value of the newly selected parameters
         perf = self.compute_result(parameter)
+        debug(f"Corresponding performance: {perf}")
         # store the new parameters
         self._append_parameters(parameter)
         # store the new performance
@@ -459,10 +462,13 @@ class BBOptimizer:
         Initalizes the black-box algorithm using the selected strategy and the
         number of initial data points.
         """
+        debug("Initializing parameter space")
+        debug(f"Parameter space: {self.parameter_space}")
         # Draw parameters according to the initialization method and compute fitness value
         initial_parameters = self.initial_selection(
             self.initial_sample_size, self.parameter_space
         )
+        debug("Selected parameter space: {initial_parameters}")
         step = 0
         while step < self.initial_sample_size:
             # Perform optimization step using the initial parametrization
@@ -486,12 +492,16 @@ class BBOptimizer:
         """
         # Transform history
         transformed_history = self.fitness_aggregation.transform(self.history)
-        # Sort according to best performance (eg: minimal fitness)
-        sorted_perf_idx = transformed_history["fitness"].argsort()
-        sorted_perf = transformed_history["fitness"][sorted_perf_idx[::-1]]
-        sorted_parameters = transformed_history["parameters"][sorted_perf_idx[::-1]]
-        # Return the last parameters which corresponds to the best performance
-        return sorted_parameters[-1], sorted_perf[-1]
+        # Sort according to best performance (eg: minimal fitness), if at least two elements
+        if len(transformed_history["fitness"]) > 1:
+            sorted_perf_idx = transformed_history["fitness"].argsort()
+            sorted_perf = transformed_history["fitness"][sorted_perf_idx[::-1]]
+            sorted_parameters = transformed_history["parameters"][sorted_perf_idx[::-1]]
+            # Return the last parameters which corresponds to the best performance
+            return sorted_parameters[-1], sorted_perf[-1]
+        # Else, return the unsorted parameter and history
+        else:
+            return transformed_history["parameters"], transformed_history["fitness"][0]
 
     @staticmethod
     def closest_parameters(parameters, parametric_space):
@@ -709,19 +719,24 @@ class BBOptimizer:
         noise_measurement = list()
         fitness_array = np.array(self.history["fitness"])
         parameters_array = np.array(self.history["parameters"])
-        # Get the index of the unique parametrization
-        # You have to use the index else the array gets sorted and this is problematic
-        # for space location dependent heuristics
-        for parametrization in np.unique(parameters_array, axis=0):
-            noise_measurement.append(
-                float(
-                    np.std(
-                        fitness_array[
-                            np.all(parameters_array == parametrization, axis=1)
-                        ]
+        # If the length is at least one
+        if len(fitness_array) > 1:
+            # Get the index of the unique parametrization
+            # You have to use the index else the array gets sorted and this is problematic
+            # for space location dependent heuristics
+            for parametrization in np.unique(parameters_array, axis=0):
+                noise_measurement.append(
+                    float(
+                        np.std(
+                            fitness_array[
+                                np.all(parameters_array == parametrization, axis=1)
+                            ]
+                        )
                     )
                 )
-            )
+        # Else: there is only 1 parametrization, set average noise to 0
+        else:
+            noise_measurement = [0]
         return noise_measurement
 
     @property

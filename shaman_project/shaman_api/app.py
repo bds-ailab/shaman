@@ -1,13 +1,8 @@
 from fastapi import FastAPI
-from .routers import experiment_router
+from .routers import experiment_router, component_router
 
 from fastapi.middleware.cors import CORSMiddleware
-
-
-# origins = [
-#     "http://localhost:3000",
-#     "https://localhost:3000",
-# ]
+from starlette_exporter import PrometheusMiddleware, handle_metrics
 
 
 app = FastAPI(
@@ -18,6 +13,7 @@ app = FastAPI(
 
 
 app.include_router(experiment_router, prefix="/experiments", tags=["Experiments"])
+app.include_router(component_router, prefix="/components", tags=["Components"])
 
 app.add_middleware(
     CORSMiddleware,

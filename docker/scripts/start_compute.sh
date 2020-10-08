@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 # TODO: #20 ugly workaround of forcing munge to run as root ... check later
 # Run munge deamon

@@ -6,7 +6,7 @@ from unittest.mock import patch
 from pathlib import Path
 
 from pydantic import ValidationError
-from bb_wrapper.tunable_component.component_model import (
+from shaman_core.models.component_model import (
     TunableComponentModel,
     TunableParameter,
     TunableComponentsModel,

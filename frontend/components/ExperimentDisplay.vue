@@ -35,20 +35,18 @@
         <div class="mb-4">
           <li v-for="(value, key) in experimentParameters" :key="key">
             <span>
-              <b>{{ key }} </b> {{ value.split('.').slice(-1)[0] }}</span
+              <b>{{ key }} </b> {{ value }}</span
             >
           </li>
         </div>
       </AccordionText>
 
       <AccordionText id="noiseParam" title="Noise reduction">
-        <div>
-          <li v-for="(value, key) in noiseReductionParameters" :key="key">
-            <span>
-              <b>{{ key }} </b> {{ value.split('.').slice(-1)[0] }}</span
-            >
-          </li>
-        </div>
+        <li v-for="(value, key) in noiseReductionParameters" :key="key">
+          <span>
+            <b>{{ key }} </b> {{ value }}</span
+          >
+        </li>
       </AccordionText>
       <AccordionText id="sbatch" title="Sbatch">
         <div>
@@ -63,7 +61,7 @@
         <div>
           <li v-for="(value, key) in pruningStrategyParameters" :key="key">
             <span>
-              <b>{{ key }} </b> {{ value.split('.').slice(-1)[0] }}</span
+              <b>{{ key }} </b> {{ value }}</span
             >
           </li>
         </div>
@@ -132,8 +130,7 @@ export default {
   },
   data() {
     return {
-      experiment: {},
-      ioDurations: {}
+      experiment: {}
     }
   },
   computed: {
@@ -233,8 +230,8 @@ export default {
       if (this.experiment) {
         return [
           {
-            description: 'Optimized accelerator',
-            value: this.experiment.accelerator,
+            description: 'Optimized component',
+            value: this.experiment.component,
             tooltip: 'The name of the optimized component'
           },
           {
@@ -286,16 +283,22 @@ export default {
     resampledNbr() {
       return this.experiment.resampled_nbr
     },
-    acceleratorName() {
-      return this.experiment.accelerator
+    componentName() {
+      return this.experiment.component
     },
     experimentParameters() {
       return this.experiment.experiment_parameters
     },
     noiseReductionParameters() {
-      return this.experiment.noise_reduction_strategy
-        ? this.experiment.noise_reduction_strategy
-        : { '': 'Noise reduction disabled for this experiment' }
+      if (this.experiment.noise_reduction_strategy) {
+        if (Object.keys(this.experiment.noise_reduction_strategy).length > 0) {
+          return this.experiment.noise_reduction_strategy
+        } else {
+          return { '': 'Noise reduction disabled for this experiment' }
+        }
+      } else {
+        return { '': 'Noise reduction disabled for this experiment' }
+      }
     },
     pruningStrategyParameters() {
       return this.experiment.pruning_strategy
@@ -344,31 +347,7 @@ export default {
           {
             data: this.experiment.max_execution_time,
             name: 'Max execution time'
-          } //,
-          // {
-          //   data: this.ioDurations.min_duration_read,
-          //   name: 'Min duration read'
-          // },
-          // {
-          //   data: this.ioDurations.average_duration_read,
-          //   name: 'Average duration read'
-          // },
-          // {
-          //   data: this.ioDurations.max_duration_read,
-          //   name: 'Max duration read'
-          // },
-          // {
-          //   data: this.ioDurations.min_duration_write,
-          //   name: 'Min duration write'
-          // },
-          // {
-          //   data: this.ioDurations.average_duration_read,
-          //   name: 'Average duration write'
-          // },
-          // {
-          //   data: this.ioDurations.max_duration_read,
-          //   name: 'Max duration write'
-          // }
+          }
         ]
       } else {
         return [
@@ -382,24 +361,29 @@ export default {
   },
   mounted() {
     axios
-      .all([axios.get('/experiments/' + this.objectid)])
-      .then(
-        axios.spread((experimentResponse, ioDurationResponse) => {
-          this.experiment = experimentResponse.data
-        })
-      )
+      .get('/experiments/' + this.objectid)
+      .then((response) => {
+        this.experiment = response.data
+        console.log(this.experiment)
+      })
       .catch((e) => console.log(e))
     // Listen to websocket
     this.ws = new WebSocket(
-      'ws://localhost:5000/experiments/' + this.objectid + '/stream'
+      'ws://mimsy.farm:5000/experiments/' + this.objectid + '/stream'
     )
     this.ws.onmessage = (event) => {
       const expUpdate = JSON.parse(event.data)
       this.$set(this.experiment, 'parameters', expUpdate.parameters)
       this.$set(this.experiment, 'execution_time', expUpdate.execution_time)
+      this.$set(
+        this.experiment,
+        'improvement_default',
+        expUpdate.improvement_default
+      )
+      this.$set(this.experiment, 'average_noise', expUpdate.average_noise)
     }
   },
-  beforeDestroy() {
+  destroyed() {
     this.ws.close()
   }
 }

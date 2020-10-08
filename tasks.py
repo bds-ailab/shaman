@@ -1,4 +1,5 @@
 """ Tasks for shaman_worker project. """
+import os
 from pathlib import Path
 from shutil import rmtree
 
@@ -139,13 +140,9 @@ def api(
     dry_run=False,
 ):
     """Start the SHAMan API in foreground. The API listens on host localhost and port 5000 with hot-reload enabled by default."""
-    cmd = (
-        f"PYTHONASYNCIODEBUG=1 "
-        f"shaman_mongodb_host={mongo_host} "
-        f"shaman_mongodb_port={mongo_port} "
-        f"jaeger_host={jaeger_host} "
-        f"uvicorn shaman_api:app {'--reload' if reload else ''}"
-    )
+    if asyncio_debug:
+        os.environ["PYTHONASYNCIODEBUG"] = "1"
+    cmd = f"uvicorn shaman_api:app {'--reload' if reload else ''} --host {host} --port {port}"
     if dry_run:
         print(cmd)
         return
@@ -164,7 +161,9 @@ def api(
 )
 def worker(c, watch=True, asyncio_debug=True, dry_run=False):
     """Start the SHAMan Worker in foreground with hot-reload enabled by default."""
-    cmd = "PYTHONASYNCIODEBUG=1 arq "
+    cmd = "arq "
+    if asyncio_debug:
+        os.environ["PYTHONASYNCIODEBUG"] = "1"
     if watch:
         cmd += f"--watch {str(SRC_DIR / 'shaman_worker')} "
     cmd += "shaman_worker.Settings"
@@ -249,3 +248,12 @@ def mongo(
         print(cmd)
         return
     c.run(cmd)
+
+
+@task
+def compose(c, tty=True, build=False):
+    """Run the development docker-compose."""
+    c.run(
+        f"docker-compose -f docker-compose-test.yml up {'-d' if not tty else ''} {'--build' if build else '' }"
+    )
+
