@@ -145,7 +145,7 @@ export default {
       default_fields: [
         { key: 'experiment_name', sortable: true },
         { key: 'experiment_start', sortable: true, sortDirection: 'asc' },
-        { key: 'accelerator', sortable: true },
+        { key: 'component', sortable: true },
         { key: 'status', sortable: false }
       ],
       reduced_fields: [

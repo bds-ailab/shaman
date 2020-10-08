@@ -3,8 +3,7 @@ Rest API endpoints related to SHAman are defined in this module
 """
 from typing import List, Optional
 from starlette.responses import Response
-from fastapi import HTTPException, WebSocket
-from .experiment_router import ExperimentRouter, ExperimentDatabase
+from fastapi import HTTPException, WebSocket, WebSocketDisconnect
 from shaman_core.models.experiment_models import (
     Experiment,
     WebSocketExperiment,
@@ -15,6 +14,7 @@ from shaman_core.models.experiment_models import (
     InitExperiment,
     ExperimentForm,
 )
+from .experiment_router import ExperimentRouter, ExperimentDatabase
 
 
 router = ExperimentRouter()
@@ -107,9 +107,12 @@ async def update_shaman_experiment(experiment_id: str, result: IntermediateResul
 async def websocket_endpoint(websocket: WebSocket):
     # Get experiment status
     await websocket.accept()
-    async for insert in router.db.watch_experiments():
-        experiment = Experiment(**insert)
-        await websocket.send_text(experiment.json())
+    try:
+        async for insert in router.db.watch_experiments():
+            experiment = Experiment(**insert)
+            await websocket.send_text(experiment.json())
+    except WebSocketDisconnect:
+        print("Disconnected websocket.")
 
 
 @router.websocket("/{experiment_id}/stream")
@@ -117,11 +120,14 @@ async def websocket_endpoint(experiment_id: str, websocket: WebSocket):
     # Get experiment status
     status = await router.db.get_experiment_status(experiment_id)
     if not status == "finished":
-        await websocket.accept()
-        print("Accepted connection to websocket")
-        async for update in router.db.watch_experiment(experiment_id):
-            experiment = DetailedExperiment(**update)
-            await websocket.send_text(experiment.json())
+        try:
+            await websocket.accept()
+            print("Accepted connection to websocket")
+            async for update in router.db.watch_experiment(experiment_id):
+                experiment = DetailedExperiment(**update)
+                await websocket.send_text(experiment.json())
+        except WebSocketDisconnect:
+            print(f"Disconnected websocket to experiment {experiment_id}.")
 
 
 @router.put(

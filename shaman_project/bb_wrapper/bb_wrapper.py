@@ -120,7 +120,7 @@ class BBWrapper:
             parameters (Iterable): The parameters to setup the component with.
 
         Returns:
-            None: only setsup the attribute.
+            None: only sets-up the attribute.
         """
         parameter_dict = dict(zip(self.parameter_names, parameters))
         debug(

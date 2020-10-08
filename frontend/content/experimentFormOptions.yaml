@@ -167,26 +167,42 @@ form_options:
             label: 'Simulated annealing'
             vmodel: false
             options:
-              cooling_schedule:
+              cooldown_function:
                 label: 'Cooling schedule'
                 type: 'radio'
                 options:
                   logarithmic:
                     label: 'Logarithmic'
-                    varname: 'logarithmic'
+                    varname: bbo.heuristics.simulated_annealing.cooldown_functions.logarithmic_schedule
                   exponential:
                     label: 'Exponential'
-                    varname: 'exponential'
+                    varname: bbo.heuristics.simulated_annealing.cooldown_functions.exponential_schedule
                   multiplicative:
                     label: 'Multiplicative'
-                    varname: 'multiplicative'
+                    varname: bbo.heuristics.simulated_annealing.cooldown_functions.multiplicative_schedule
               restart:
                 label: 'Restart strategy'
                 type: 'radio'
                 options:
                   threshold:
                     label: 'Threshold'
-                    varname: 'threshold'
+                    varname: bbo.heuristics.simulated_annealing.restart_functions.threshold_restart
                   random:
                     label: 'Random'
-                    varname: 'random'
+                    varname: bbo.heuristics.simulated_annealing.restart_functions.random_restart
+              neighbor_function:
+                label: 'Neighbor functions'
+                type: 'radio'
+                options:
+                  hop_to_next_value:
+                    label: 'Move to neighbor'
+                    varname: bbo.heuristics.simulated_annealing.neighbor_functions.hop_to_next_value
+              temperature:
+                label: "Initial temperature"
+                type: number
+                options:
+                  initial_temperature:
+                    varname: initial_temperature
+                    min: 0
+                    max: 1000
+                    step: 1
