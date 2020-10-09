@@ -13,7 +13,7 @@ import yaml
 
 
 class BaseConfiguration:
-    """Base class to load YAML and from API.
+    """Base class to load YAML.
     """
 
     @classmethod

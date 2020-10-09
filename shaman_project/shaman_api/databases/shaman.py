@@ -191,7 +191,8 @@ class ExperimentDatabase:
     # Components related functions
     async def get_components(self) -> List:
         """List all the available components."""
-        all_components = self.components_collection.find({}, projection={"_id": 0})
+        all_components = self.components_collection.find(
+            {}, projection={"_id": 0})
         return await all_components.to_list(length=1)
 
     async def update_components(self, component) -> UpdateResult:
@@ -211,4 +212,3 @@ class ExperimentDatabase:
             }
         else:
             {"": []}
-

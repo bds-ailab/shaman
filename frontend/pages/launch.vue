@@ -2,10 +2,12 @@
   <div>
     <form ref="form" @submit.prevent="submitExperiment" v-if="componentsName">
       <!-- Row for the experiment -->
-      <div class="flex flex-row mb-12 justify-center">
+      <div class="flex flex-wrap justify-center">
         <!-- Experiment parameters -->
-        <div class="mx-auto w-1/3">
-          <p class="text-2xl">Select experiment parameters</p>
+        <div class="w-full md:w-1/3 lg:w-1/3 mx-auto">
+          <div>
+            <p class="text-2xl">Select experiment parameters</p>
+          </div>
 
           <div class="border-b-2 p-4">
             <label for="experiment_name" class="font-bold text-xl"
@@ -147,7 +149,7 @@
 
         <!-- Configuration form -->
 
-        <div class="mx-auto w-1/3">
+        <div class="w-full md:w-1/3 lg:w-1/3 mx-auto">
           <p class="text-2xl">Build the configuration</p>
 
           <ExperimentForm :options="formOptions"></ExperimentForm>

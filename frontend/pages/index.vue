@@ -52,7 +52,7 @@ export default {
         },
         {
           icon: 'molecules.png',
-          title: 'Related publications',
+          title: 'Related works',
           text: 'Read different publications about the SHAMan project',
           link: '/relatedworks'
         }

@@ -37,7 +37,7 @@ export default {
         { path: '/', text: 'HOME', icon: 'fas fa-home' },
         {
           path: '/browse',
-          text: 'BROWSE',
+          text: 'EXPLORE',
           icon: 'fas fa-microscope'
         },
         {

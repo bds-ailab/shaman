@@ -82,17 +82,17 @@ services:
       --host mongo
       --eval 'rs.initiate({_id: "rs0", members: [{_id: 0, host : "mongo:27017"}]})'
 
-  # ui:
-  #   build:
-  #     context: .
-  #     dockerfile: docker/Dockerfile.ui
-  #   image: sphrbthyk/shaman_project:ui
-  #   container_name: ui
-  #   privileged: true
-  #   hostname: ui
-  #   command: npm run start
-  #   ports:
-  #     - "3000:3000"
+  ui:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.ui
+    image: sphrbthyk/shaman_project:ui
+    container_name: ui
+    privileged: true
+    hostname: ui
+    command: npm run start
+    ports:
+      - "3000:3000"
 
   api:
     build:

@@ -30,9 +30,9 @@
       <b-col md="2"><b>Experiment name:</b> {{ experimentName }}</b-col>
     </b-row>
     <!--Start of KPI row. -->
-    <div class="flex flex-row justify-center mt-2">
+    <div class="flex flex-wrap justify-center mt-2">
       <AccordionText id="expParam" title="Optimizer">
-        <div class="mb-4">
+        <div>
           <li v-for="(value, key) in experimentParameters" :key="key">
             <span>
               <b>{{ key }} </b> {{ value }}</span
