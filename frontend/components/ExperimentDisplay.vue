@@ -68,11 +68,20 @@
       </AccordionText>
       <!-- Each element of the row is a KPIBox component -->
     </div>
-    <!-- End of KPI row -->
-    <b-row>
+    <div class="flex flex-row justify-center">
       <!-- Chart div is inside a flex and takes 3/4 of width -->
-      <b-col md="9">
-        <!-- <canvas id="executionTimes" class="w-full"></canvas> -->
+      <div class="w-2/3">
+        <div class="text-left">
+          <input
+            type="checkbox"
+            id="rawDataCheckbox"
+            v-model="rawData"
+            class="form-checkbox h-6 w-6 text-pink-600 border-gray-900"
+          />
+          <label class="text-xl font-semibold" for="checkbox"
+            >Plot raw data</label
+          >
+        </div>
         <div id="wrapper">
           <div id="time-chart">
             <apexchart
@@ -95,19 +104,21 @@
             ></apexchart>
           </div>
         </div>
-      </b-col>
+      </div>
       <!-- Results are inside a column because they are positioned vertically -->
-      <b-col md="3">
-        <KPIBox
-          v-for="kpi in kpiInfo"
-          :key="kpi.description"
-          :value="kpi.value"
-          :description="kpi.description"
-          :tooltip="kpi.tooltip"
-          class="mx-auto"
-        ></KPIBox>
-      </b-col>
-    </b-row>
+      <div class="w-1/3">
+        <div class="flex flex-col">
+          <KPIBox
+            v-for="kpi in kpiInfo"
+            :key="kpi.description"
+            :value="kpi.value"
+            :description="kpi.description"
+            :tooltip="kpi.tooltip"
+            class="mx-auto"
+          ></KPIBox>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -130,7 +141,8 @@ export default {
   },
   data() {
     return {
-      experiment: {}
+      experiment: {},
+      rawData: true
     }
   },
   computed: {
@@ -334,7 +346,7 @@ export default {
     },
     executionTimes() {
       // Format the data for apex chart formatting
-      if (this.experimentStatus === 'finished') {
+      if ((this.experimentStatus === 'finished') & !this.rawData) {
         return [
           {
             data: this.experiment.averaged_execution_time,

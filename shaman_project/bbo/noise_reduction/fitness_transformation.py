@@ -60,7 +60,8 @@ class SimpleFitnessTransformation(FitnessTransformation):
         Args:
             estimator (function): The function to use for aggregating the fitness.
         """
-        super(SimpleFitnessTransformation, self).__init__(estimator, *args, **kwargs)
+        super(SimpleFitnessTransformation, self).__init__(
+            estimator, *args, **kwargs)
         self.estimator = estimator
 
     def transform(self, history):
@@ -72,27 +73,32 @@ class SimpleFitnessTransformation(FitnessTransformation):
         new_fitness = list()
         fitness_array = np.array(history["fitness"])
         parameters_array = np.array(history["parameters"])
-        # Get the index of the unique parametrization
-        # You have to use the index else the array gets sorted and this is problematic
-        # for space location dependent heuristics
-        unique_parameterization_indexes = np.unique(
-            parameters_array, axis=0, return_index=True
-        )[1]
-        unique_unsorted_parameterization = [
-            parameters_array[index, :]
-            for index in sorted(unique_parameterization_indexes)
-        ]
-        for parametrization in unique_unsorted_parameterization:
-            new_parameters.append(parametrization)
-            new_fitness.append(
-                self.estimator(
-                    fitness_array[np.all(parameters_array == parametrization, axis=1)]
+        # Check that there is at least two elements
+        if len(fitness_array) < 2:
+            return history
+        else:
+            # Get the index of the unique parametrization
+            # You have to use the index else the array gets sorted and this is problematic
+            # for space location dependent heuristics
+            unique_parameterization_indexes = np.unique(
+                parameters_array, axis=0, return_index=True
+            )[1]
+            unique_unsorted_parameterization = [
+                parameters_array[index, :]
+                for index in sorted(unique_parameterization_indexes)
+            ]
+            for parametrization in unique_unsorted_parameterization:
+                new_parameters.append(parametrization)
+                new_fitness.append(
+                    self.estimator(
+                        fitness_array[np.all(
+                            parameters_array == parametrization, axis=1)]
+                    )
                 )
-            )
-        return {
-            "parameters": np.array(new_parameters),
-            "fitness": np.array(new_fitness),
-            "truncated": history["truncated"],
-            "initialization": history["initialization"],
-            "resampled": history["resampled"],
-        }
+            return {
+                "parameters": np.array(new_parameters),
+                "fitness": np.array(new_fitness),
+                "truncated": history["truncated"],
+                "initialization": history["initialization"],
+                "resampled": history["resampled"],
+            }
