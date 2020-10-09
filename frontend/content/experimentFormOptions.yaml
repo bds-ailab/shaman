@@ -31,10 +31,6 @@ form_options:
         label: 'Fitness aggregation'
         description: 'Transformation to apply to the data before selecting the next parametrization to evaluate.'
         options:
-          none:
-            varname: None
-            label: 'No aggregation'
-            description: 'Do not perform any aggregation.'
           simple_fitness_aggregation:
             varname: simple_fitness_aggregation
             label: 'Simple fitness aggregation'

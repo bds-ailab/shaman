@@ -1,5 +1,5 @@
 # Image for compute node
-FROM slurm-base
+FROM sphrbthyk/shaman_project:slurm-base
 
 # Setup proper configuration for slurm
 RUN  touch /var/log/slurmd.log &&\
@@ -11,7 +11,7 @@ RUN chmod +x /start_compute
 
 # Install python and dependencies
 RUN yum install -y python36 \
-#TODO: figure out why pip36 is not working for install
+    #TODO: figure out why pip36 is not working for install
     python38-pip &&\
     python3 -m pip install --upgrade pip &&\
     python3 -m pip install --upgrade wheel
