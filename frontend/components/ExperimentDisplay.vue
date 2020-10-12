@@ -6,10 +6,9 @@
     <!-- Start of execution results row.
       NOTE: It is a row because its elements are positioned horinzontally
     -->
-    <b-row class="content-left">
-      <b-col md="2"><b>Experiment step:</b> {{ experimentStep }}</b-col>
-
-      <b-col md="1">
+    <div class="flex flex-wrap justify-around">
+      <div>
+        <b>Experiment step:</b> {{ experimentStep }}
         <p v-if="experimentStatus === 'created'" key="created">
           <i class="fas fa-sync text-blue-600"></i>
         </p>
@@ -25,63 +24,62 @@
         <p v-if="experimentStatus === 'stopped'" key="stopped">
           <i class="fas fa-square text-purple-600"></i>
         </p>
-      </b-col>
-      <b-col md="2"><b>Experiment start:</b> {{ experimentStart }}</b-col>
-      <b-col md="2"><b>Experiment name:</b> {{ experimentName }}</b-col>
-    </b-row>
-    <!--Start of KPI row. -->
-    <div class="flex flex-wrap justify-center mt-2">
-      <AccordionText id="expParam" title="Optimizer">
-        <div>
-          <li v-for="(value, key) in experimentParameters" :key="key">
-            <span>
-              <b>{{ key }} </b> {{ value }}</span
-            >
-          </li>
-        </div>
-      </AccordionText>
-
-      <AccordionText id="noiseParam" title="Noise reduction">
-        <li v-for="(value, key) in noiseReductionParameters" :key="key">
-          <span>
-            <b>{{ key }} </b> {{ value }}</span
-          >
-        </li>
-      </AccordionText>
-      <AccordionText id="sbatch" title="Sbatch">
-        <div>
-          <pre v-highlightjs>
-            <code class="bash">
-            {{ sbatch }}
-            </code>
-            </pre>
-        </div>
-      </AccordionText>
-      <AccordionText id="censoring" title="Pruning strategy">
-        <div>
-          <li v-for="(value, key) in pruningStrategyParameters" :key="key">
-            <span>
-              <b>{{ key }} </b> {{ value }}</span
-            >
-          </li>
-        </div>
-      </AccordionText>
-      <!-- Each element of the row is a KPIBox component -->
+      </div>
+      <div md="2"><b>Experiment start:</b> {{ experimentStart }}</div>
+      <div md="2"><b>Experiment name:</b> {{ experimentName }}</div>
     </div>
-    <div class="flex flex-row justify-center">
-      <!-- Chart div is inside a flex and takes 3/4 of width -->
-      <div class="w-2/3">
-        <div class="text-left">
+
+    <div class="flex flex-wrap justify-center">
+      <!--Start of KPI row. -->
+      <div class="flex flex-wrap justify-left mt-2 ">
+        <div class="w-full lg:w-1/5 xl:w-1/5">
           <input
             type="checkbox"
             id="rawDataCheckbox"
             v-model="rawData"
             class="form-checkbox h-6 w-6 text-pink-600 border-gray-900"
           />
-          <label class="text-xl font-semibold" for="checkbox"
+          <label class="text-xl font-semibold pt-3" for="checkbox"
             >Plot raw data</label
           >
         </div>
+        <AccordionText id="expParam" title="Optimizer">
+          <div>
+            <li v-for="(value, key) in experimentParameters" :key="key">
+              <span>
+                <b>{{ key }} </b> {{ value }}</span
+              >
+            </li>
+          </div>
+        </AccordionText>
+
+        <AccordionText id="noiseParam" title="Noise reduction">
+          <li v-for="(value, key) in noiseReductionParameters" :key="key">
+            <span>
+              <b>{{ key }} </b> {{ value }}</span
+            >
+          </li>
+        </AccordionText>
+        <AccordionText id="sbatch" title="Sbatch">
+          <div>
+            <pre v-highlightjs>
+            <code class="bash">
+            {{ sbatch }}
+            </code>
+            </pre>
+          </div>
+        </AccordionText>
+        <AccordionText id="censoring" title="Pruning strategy">
+          <div>
+            <li v-for="(value, key) in pruningStrategyParameters" :key="key">
+              <span>
+                <b>{{ key }} </b> {{ value }}</span
+              >
+            </li>
+          </div>
+        </AccordionText>
+      </div>
+      <div class="w-full xl:w-5/6 lg:w-5/6">
         <div id="wrapper">
           <div id="time-chart">
             <apexchart
@@ -106,7 +104,7 @@
         </div>
       </div>
       <!-- Results are inside a column because they are positioned vertically -->
-      <div class="w-1/3">
+      <div class="w-full lg:w-1/6 xl:w-1/6">
         <div class="flex flex-col">
           <KPIBox
             v-for="kpi in kpiInfo"
@@ -243,7 +241,7 @@ export default {
         return [
           {
             description: 'Optimized component',
-            value: this.experiment.component,
+            value: this.experiment.accelerator,
             tooltip: 'The name of the optimized component'
           },
           {
@@ -255,12 +253,12 @@ export default {
           },
           {
             description: 'Average noise',
-            value: parseFloat(this.experiment.average_noise).toFixed(3),
+            value: parseFloat(this.experiment.average_noise).toFixed(3) + 's',
             tooltip: 'Standard error within each tested parametrization'
           },
           {
             description: '% of explored space',
-            value: parseFloat(this.experiment.explored_space).toFixed(3),
+            value: parseFloat(this.experiment.explored_space).toFixed(3) + '%',
             tooltip:
               'Ratio of different tested parametrization compared to the total of possible parametrizations'
           }

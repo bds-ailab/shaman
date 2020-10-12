@@ -96,12 +96,12 @@
           <div class="flex flex-row justify-between mb-4">
             <!-- Button for full view of experiment through sidebar -->
             <div v-b-toggle.experimentSidebar>
-              <i class="fas fa-arrow-alt-circle-right fa-lg"></i> Browse
+              <i class="fas fa-arrow-alt-circle-right fa-lg text-xl"></i> Browse
               experiments
             </div>
             <button @click="showExperiment(false)">
               Back to full view
-              <i class="fas fa-arrow-alt-circle-left fa-lg"></i>
+              <i class="fas fa-arrow-alt-circle-left fa-lg text-xl"></i>
             </button>
           </div>
           <div class="w-full">

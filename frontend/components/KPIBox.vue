@@ -4,7 +4,7 @@
   <b-col>
     <div
       v-tooltip.right="tooltip"
-      class="kpi shadow-xl rounded-md px-3 py-3 mt-4 bg-pink-100 border-2 border-pink-700"
+      class="kpi shadow-xl rounded-md px-3 py-3 mt-4 text-center bg-pink-100 border-2 border-pink-700"
     >
       <div class="text-2xl font-bold tracking-widest pt-2 pb-1">
         {{ value }}

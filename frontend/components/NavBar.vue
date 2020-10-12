@@ -3,7 +3,7 @@
     <b-button v-b-toggle.sidebar-1 class="bg-pink-700"
       ><i class="fas fa-bars"></i
     ></b-button>
-    <b-sidebar id="sidebar-1" title="" shadow>
+    <b-sidebar id="sidebar-1" title="" shadow backdrop width="500px">
       <div class="flex flex-col justify-items-center">
         <div class="mb-4">
           <logo />
@@ -14,7 +14,7 @@
             :key="link.path"
             class="mx-auto mb-4 menu"
           >
-            <nuxt-link :to="link.path" class="text-xl"
+            <nuxt-link :to="link.path" class="text-xl xl:text-3xl"
               ><i :class="link.icon" class="mr-4"></i>{{ link.text }}</nuxt-link
             >
           </div>
