@@ -32,7 +32,7 @@
     <div class="flex flex-wrap justify-center">
       <!--Start of KPI row. -->
       <div class="flex flex-wrap justify-left mt-2 ">
-        <div class="w-full lg:w-1/5 xl:w-1/5">
+        <div class="w-full lg:w-1/6 xl:w-1/6">
           <input
             type="checkbox"
             id="rawDataCheckbox"
