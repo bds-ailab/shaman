@@ -97,6 +97,7 @@ class DetailedExperiment(Experiment):
     experiment_name: str = None
     explored_space: float = None
     noise_reduction_strategy: dict = None
+    pruning_strategy: dict = None
     status: str = None
     experiment_budget: int = None
     sbatch: str = None

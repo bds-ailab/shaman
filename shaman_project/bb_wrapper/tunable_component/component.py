@@ -12,13 +12,15 @@ Of course, a child class can add any wanted new methods specific to the tunable 
 import os
 
 import pty
+import builtins
 import subprocess
 from shlex import split
 from pathlib import Path
 from collections import OrderedDict
 
+from devtools import debug
 
-from shaman_core.models.component_model import TunableComponentsModel
+from shaman_core.models.component_model import TunableComponentsModel, TunableParameter
 
 # Save current environment as variable
 ENV = os.environ.copy()
@@ -93,6 +95,32 @@ class TunableComponent:
         self.submitted_jobids = list()
         # List of the jobs that have been submitted using the accelerator
 
+    def build_cmd_line(self, param: str) -> str:
+        """
+        Build a command line variable given a parameter and its different attributes (suffix, flag).
+        
+        Args:
+            param (str): The name of the parameter to use.
+        """
+        param_value = self.parameters_description[param]
+        cmd_line = ""
+        # If there is a value for the parameter
+        if self.parameters.get(param):
+            # If there is a suffix, assign it, else use empty string
+            suffix = param_value.suffix if param_value.suffix else ""
+            # If there is a string value
+            # If the string for the flag is bigger than 1, use --
+            if param_value.flag:
+                if len(param_value.flag) > 1:
+                    cmd_line += f" --{param_value.flag} {self.parameters.get(param)}"
+                else:
+                    cmd_line += f" -{param_value.flag} {self.parameters.get(param)}"
+            else:
+                cmd_line += f"{param}={self.parameters.get(param)}"
+            # Add suffix at the end of the command variable
+            cmd_line += f"{suffix} "
+        return cmd_line
+
     @property
     def cmd_line(self) -> str:
         """Collects all the parameters with a flag and a value and arrange them in order
@@ -108,16 +136,8 @@ class TunableComponent:
             cmd_line = ""
             # Iterate over each parameter
             for param, param_value in self.parameters_description.items():
-                if param_value.cmd_var and self.parameters.get(param):
-                    # If the string for the flag is bigger than 1, use --
-                    if len(param_value.flag) > 1:
-                        cmd_line += (
-                            f" --{param_value.flag} {self.parameters.get(param)} "
-                        )
-                    else:
-                        cmd_line += (
-                            f" -{param_value.flag} {self.parameters.get(param)} "
-                        )
+                if param_value.cmd_var:
+                    cmd_line += self.build_cmd_line(param)
             return self.description.command + " " + " ".join(cmd_line.split())
 
     def add_header_sbatch(self, sbatch_file: str) -> str:
@@ -154,6 +174,7 @@ class TunableComponent:
                             )
                         # Add the command line if exists
                         if self.cmd_line:
+                            debug(f"Writing command line: {self.cmd_line}")
                             copy_sbatch.write(self.cmd_line + "\n")
                         written = True
         copy_sbatch.close()
@@ -180,8 +201,16 @@ class TunableComponent:
         if self.description.plugin:
             plugin = f" --{self.description.plugin} "
 
+        # For variables that are cli based
+        cli_cmd = ""
+        for param, param_value in self.parameters_description.items():
+            if param_value.cli_var:
+                cli_cmd += self.build_cmd_line(param) + " "
+
         # Build the cmd line and strip double white spaces
-        cmd_line = " ".join(f"sbatch{wait_flag}{plugin} {sbatch_file}".split())
+        cmd_line = " ".join(
+            f"sbatch{wait_flag}{plugin} {cli_cmd} {sbatch_file}".split()
+        )
         return cmd_line
 
     def submit_sbatch(self, sbatch_file: str, wait: bool = True) -> int:
@@ -242,9 +271,10 @@ class TunableComponent:
 
     def sanitize_parameters(self, parameters: dict) -> dict:
         """
-        Get the parameter key argument in uppercase. Checks beforehand that the type of the
+        Checks beforehand that the type of the
         parameter argument is correct (dictionary or ordered dictionary).
         Get the default values from the description file.
+        Cast the type using the description file.
 
         Args:
              parameters (dict or OrderedDict): The raw parameters.
@@ -263,17 +293,23 @@ class TunableComponent:
         for param, param_value in self.parameters_description.items():
             # Get the description of this parameter
             # Check if the parameter exist in the parameter argument
-            if not parameters.get(param) and not param_value.optional:
-                # If the parameter is not optional
-                if param_value.default:
-                    # Check if there is a default value for this parameter
-                    # If the parameter is optional, do not take its value
-                    parameters[param] = param_value.default
-                else:
-                    # If the parameter is not in the parameters, there is no value,
-                    # and the parameter is not optional
-                    # raise a ValueError
-                    raise ValueError(f"No value for parameter {param}")
+            if not parameters.get(param):
+                if not param_value.optional:
+                    # If the parameter is not optional
+                    if param_value.default:
+                        # Check if there is a default value for this parameter
+                        # If the parameter is optional, do not take its value
+                        parameters[param] = param_value.default
+                    else:
+                        # If the parameter is not in the parameters, there is no value,
+                        # and the parameter is not optional
+                        # raise a ValueError
+                        raise ValueError(f"No value for parameter {param}")
+            # If the parameter exists, cast parameters to integer
+            # TODO: change in case of qualitative variables (dirty hack right now)
+            else:
+                if not param_value.type == "str":
+                    parameters[param] = int(float(parameters.get(param)))
         return parameters
 
     def setup_var_env(self):

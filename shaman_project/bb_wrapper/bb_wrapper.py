@@ -120,7 +120,7 @@ class BBWrapper:
             parameters (Iterable): The parameters to setup the component with.
 
         Returns:
-            None: only sets-up the attribute.
+            None: only setsup the attribute.
         """
         parameter_dict = dict(zip(self.parameter_names, parameters))
         debug(
@@ -158,12 +158,15 @@ class BBWrapper:
         """Launch the black-box with the default parameters, as specified in the IOModules
         configuration file.
         """
-        # Log the output
-        debug(f"Launching {self.component_name} black-box with default parametrization")
         # Submit the sbatch using the accelerator
         self.default_component = TunableComponent(
             self.component_name, self.component_configuration
         )
+        # Log the output
+        debug(
+            f"Launching {self.component_name} black-box with default parametrization {self.default_component.parameters}"
+        )
+
         job_id = self.default_component.submit_sbatch(self.sbatch_file, wait=True)
         # Store the id of the default job
         self.default_jobid = job_id
@@ -272,6 +275,6 @@ class BBWrapper:
             split(f"scancel {job_id}"), stdout=subprocess.PIPE, stderr=subprocess.PIPE
         )
         if sub_ps.returncode == 0:
-            print(f"Successfully cancelled {job_id}")
+            debug(f"Successfully cancelled {job_id}")
         else:
-            print(f"Could not stop {job_id}")
+            debug(f"Could not stop {job_id}")

@@ -63,7 +63,7 @@ services:
     hostname: mongo
     volumes:
       # tochange
-      - mongo_data:/data/db
+      - /shaman/mongo_data:/data/db
     restart: on-failure
     ports:
       - "27017:27017"

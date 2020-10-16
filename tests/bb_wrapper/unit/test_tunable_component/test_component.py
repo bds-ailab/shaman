@@ -96,6 +96,24 @@ def mocked_requests_get(*args, **kwargs):
                             "cmd_var": "True",
                             "flag": "f",
                         },
+                        "param_4": {
+                            "type": "str",
+                            "default": None,
+                            "optional": False,
+                            "env_var": None,
+                            "description": None,
+                            "cmd_var": "True",
+                        },
+                        "param_5": {
+                            "type": "str",
+                            "default": None,
+                            "optional": False,
+                            "env_var": None,
+                            "description": None,
+                            "cmd_var": "True",
+                            "flag": "s",
+                            "suffix": "K",
+                        },
                     },
                     "custom_component": None,
                 },
@@ -180,7 +198,6 @@ class TestTunableComponent(unittest.TestCase):
         component = TunableComponent(
             name="component_1", module_configuration="http://mock_api:5000/components"
         )
-        print(component.description)
 
     def test_configuration_unknown_name(self):
         """Check that a key error is raised when calling a component with an unknown name.
@@ -191,20 +208,27 @@ class TestTunableComponent(unittest.TestCase):
             )
 
     def test_build_cmdline(self):
-        """Tests that the command line is correctly built"""
+        """Tests that the command line is correctly built, when:
+            - There is a flag longer than 1 in length
+            - There is a flag of size 1
+            - There is no flag
+            - There is a suffix
+        """
         tunable_component = TunableComponent(
             name="component_2",
             module_configuration=TEST_COMPONENT_CONFIG,
-            parameters={"param_3": "/home/"},
+            parameters={"param_3": "/home/", "param_4": "5", "param_5": "6"},
         )
-        expected_cmdline = "example_cmd --folder /home/ -f /home/"
+        expected_cmdline = "example_cmd --folder /home/ -f /home/ param_4=5 -s 6K"
         self.assertEqual(tunable_component.cmd_line, expected_cmdline)
 
     def test_cmd_line_empty(self):
         """Tests that when the command line does not exist in the configuration file, an empty
         string is returned.
         """
-        tunable_component = TunableComponent("component_3", TEST_COMPONENT_CONFIG)
+        tunable_component = TunableComponent(
+            "component_3", TEST_COMPONENT_CONFIG, parameters={}
+        )
         self.assertEqual(tunable_component.cmd_line, "")
 
     def test_wrong_parameters_format(self):
@@ -222,17 +246,34 @@ class TestTunableComponent(unittest.TestCase):
         tunable_component = TunableComponent(
             "component_2", TEST_COMPONENT_CONFIG, {"param_3": "/home/"}
         )
-        expected_parameters = {"param_1": 1, "param_2": "/home/", "param_3": "/home/"}
+        expected_parameters = {
+            "param_1": 1,
+            "param_2": "/home/",
+            "param_3": "/home/",
+            "param_4": "4",
+            "param_5": "5",
+        }
         self.assertDictEqual(tunable_component.parameters, expected_parameters)
 
     def test_overide_default_parameters(self):
         """Tests that the default parameters are properly overriden when specified out of the
         configuration file."""
-        parameters = {"param_1": 10, "param_3": "/home/"}
+        parameters = {
+            "param_1": 10,
+            "param_3": "/home/",
+            "param_4": "8",
+            "param_5": "7",
+        }
         tunable_component = TunableComponent(
             "component_2", TEST_COMPONENT_CONFIG, parameters
         )
-        expected_parameters = {"param_1": 10, "param_2": "/home/", "param_3": "/home/"}
+        expected_parameters = {
+            "param_1": 10,
+            "param_2": "/home/",
+            "param_3": "/home/",
+            "param_4": "8",
+            "param_5": "7",
+        }
         self.assertDictEqual(tunable_component.parameters, expected_parameters)
 
     def test_missing_parameters(self):
@@ -240,7 +281,7 @@ class TestTunableComponent(unittest.TestCase):
         file is missing, has no default and is not optional."""
         parameters_missing = {"param_2": 5}
         with self.assertRaises(ValueError):
-            TunableComponent("component_3", TEST_COMPONENT_CONFIG, parameters_missing)
+            TunableComponent("component_2", TEST_COMPONENT_CONFIG, parameters_missing)
 
     def test_setup_var_env_default(self):
         """Tests that the environment variables are properly setup using default values."""
@@ -310,6 +351,27 @@ class TestTunableComponent(unittest.TestCase):
             cmd_line_wait,
             expected_cmd_line_wait,
             "Problem with building command line building with wait mode activated.",
+        )
+
+    def test_cmd_line_flag(self):
+        """Tests that the command line is correctly builts when there are cli vars.
+        """
+        tunable_component_flag = TunableComponent(
+            "component_5", TEST_COMPONENT_CONFIG, parameters={}
+        )
+        # Command line with full length flag
+        # Command line with abbreviated flag
+        # Command line with a suffix
+        cmd_line_cli_var = tunable_component_flag._build_sbatch_cmd_line(
+            TEST_SBATCH, wait=False
+        )
+        cmd_line_cli_var_expected = (
+            f"sbatch --example_5 --folder /home/ -s 5 param_3=4K {TEST_SBATCH}"
+        )
+        self.assertEqual(
+            cmd_line_cli_var,
+            cmd_line_cli_var_expected,
+            "Problem with building command line building with cli vars activated.",
         )
 
 

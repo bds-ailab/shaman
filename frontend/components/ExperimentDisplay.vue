@@ -10,7 +10,7 @@
       <div>
         <b>Experiment step:</b> {{ experimentStep }}
         <p v-if="experimentStatus === 'created'" key="created">
-          <i class="fas fa-sync text-blue-600"></i>
+          <i class="fas fa-sync text-blue-600"></i>Staging the experiment
         </p>
         <p v-if="experimentStatus === 'running'" key="running">
           <i class="fas fa-sync fa-spin text-orange-600"></i>
@@ -79,7 +79,28 @@
           </div>
         </AccordionText>
       </div>
+
       <div class="w-full xl:w-5/6 lg:w-5/6">
+        <div class="flex flex-row items-center">
+          <div class="ml-2 flex flex-row">
+            <b>Optimal parameters:</b>
+            <div
+              class="ml-2 flex flex-row"
+              v-for="bestParam in bestParameters"
+              :key="bestParam"
+            >
+              <div class="ml-2" v-for="(param, name) in bestParam" :key="param">
+                <b>{{ name }}</b
+                >: {{ param }}
+              </div>
+            </div>
+          </div>
+          <div class="ml-6 flex flex-row">
+            <b>Optimal performance</b>
+            <div class="ml-2">{{ bestTime }}</div>
+          </div>
+        </div>
+
         <div id="wrapper">
           <div id="time-chart">
             <apexchart
@@ -179,28 +200,35 @@ export default {
         yaxis: {
           labels: {
             minWidth: 40,
-            formatter: (value) => value.toFixed(2)
+            formatter: (value) => value.toFixed(3)
           }
         },
-        // tooltip: {
-        //   custom: (series) => {
-        //     let resampledNbr = 1
-        //     if (this.experimentStatus === 'finished') {
-        //       resampledNbr = this.resampledNbr[series.dataPointIndex]
-        //     }
-        //     return (
-        //       '<div class="arrow_box">' +
-        //       '<span>' +
-        //       '<b>Elapsed time </b>' +
-        //       series.series[series.seriesIndex][series.dataPointIndex] +
-        //       '<span>' +
-        //       '<b>Number of resamples:</b>' +
-        //       resampledNbr +
-        //       '</span>' +
-        //       '</div>'
-        //     )
-        //   }
-        // },
+        tooltip: {
+          shared: true,
+          custom: (series) => {
+            let resampledNbr = 1
+            let truncatedNbr = 0
+            if (this.experimentStatus === 'finished' && !this.rawData) {
+              resampledNbr = this.resampledNbr[series.dataPointIndex]
+            }
+            truncatedNbr = this.truncated[series.dataPointIndex]
+            return (
+              '<div class="arrow_box">' +
+              '<span>' +
+              '<b>Elapsed time:   </b>' +
+              series.series[series.seriesIndex][series.dataPointIndex] +
+              '<span> <br/>' +
+              '<b>Number of resamples:  </b>' +
+              resampledNbr +
+              '</span> <br/>' +
+              '<span>' +
+              '<b>Pruned:  </b>' +
+              truncatedNbr +
+              '</span>' +
+              '</div>'
+            )
+          }
+        },
         stroke: {
           curve: 'smooth'
         }
@@ -241,7 +269,7 @@ export default {
         return [
           {
             description: 'Optimized component',
-            value: this.experiment.accelerator,
+            value: this.experiment.component,
             tooltip: 'The name of the optimized component'
           },
           {
@@ -257,7 +285,7 @@ export default {
             tooltip: 'Standard error within each tested parametrization'
           },
           {
-            description: '% of explored space',
+            description: 'Explored space',
             value: parseFloat(this.experiment.explored_space).toFixed(3) + '%',
             tooltip:
               'Ratio of different tested parametrization compared to the total of possible parametrizations'
@@ -293,8 +321,17 @@ export default {
     resampledNbr() {
       return this.experiment.resampled_nbr
     },
+    truncated() {
+      return this.experiment.truncated
+    },
     componentName() {
       return this.experiment.component
+    },
+    bestParameters() {
+      return this.experiment.best_parameters
+    },
+    bestTime() {
+      return this.experiment.best_fitness
     },
     experimentParameters() {
       return this.experiment.experiment_parameters
@@ -374,12 +411,11 @@ export default {
       .get('/experiments/' + this.objectid)
       .then((response) => {
         this.experiment = response.data
-        console.log(this.experiment)
       })
       .catch((e) => console.log(e))
     // Listen to websocket
     this.ws = new WebSocket(
-      'ws://mimsy.farm:5000/experiments/' + this.objectid + '/stream'
+      'ws://localhost:5000/experiments/' + this.objectid + '/stream'
     )
     this.ws.onmessage = (event) => {
       const expUpdate = JSON.parse(event.data)
@@ -391,6 +427,15 @@ export default {
         expUpdate.improvement_default
       )
       this.$set(this.experiment, 'average_noise', expUpdate.average_noise)
+      this.$set(this.experiment, 'explored_space', expUpdate.explored_space)
+      this.$set(this.experiment, 'best_parameters', expUpdate.best_parameters)
+      this.$set(this.experiment, 'best_fitness', expUpdate.best_fitness)
+
+      this.$set(this.experiment, 'status', expUpdate.status)
+      if (expUpdate.status === 'finished') {
+        this.experiment = expUpdate
+        this.ws.close()
+      }
     }
   },
   destroyed() {

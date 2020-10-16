@@ -76,7 +76,7 @@ class TestSHAManModelVanilla(unittest.TestCase):
         """Tests that the parameter space is properly parsed."""
         shaman_config = SHAManConfig.from_yaml(VANILLA_CONFIG, "component_1")
         expected_parameter_space = numpy.array(
-            [numpy.array([1, 2, 1]), numpy.array([1, 3, 1])]
+            [numpy.array([1, 2]), numpy.array([1, 2, 3])]
         )
         assert_array_equal(
             expected_parameter_space[0], shaman_config.component_parameter_space[0]

@@ -158,7 +158,6 @@ class SHAManExperiment:
         self.create_experiment()
         if self.configuration.experiment.default_first:
             # Launch a run using default parameterization of the component
-            debug("Running default parametrization")
             self.bb_wrapper.run_default()
         # Setup the optimizer
         self.setup_bb_optimizer()
@@ -214,7 +213,9 @@ class SHAManExperiment:
                 if self.configuration.noise_reduction
                 else dict(),
                 "pruning_strategy": {
-                    "pruning_strategy": self.configuration.pruning.max_step_duration
+                    "pruning_strategy": str(
+                        self.configuration.pruning.max_step_duration
+                    )
                     if self.configuration.pruning
                     else self.configuration.pruning
                 },
@@ -232,15 +233,14 @@ class SHAManExperiment:
         self.experiment_id = request.json()["id"]
 
     @property
-    def best_time(self) -> float:
+    def best_performance(self) -> float:
         """
         Returns the current best noise.
 
         Returns:
             float: The best time.
         """
-        _, best_time = self.bb_optimizer._get_best_performance()
-        return best_time
+        return self.bb_optimizer._get_best_performance()
 
     @property
     def improvement_default(self) -> float:
@@ -250,9 +250,10 @@ class SHAManExperiment:
         Returns:
             float: The improvement compared to the default parametrization.
         """
+        _, best_time = self.best_performance
         return float(
             round(
-                (self.bb_wrapper.default_execution_time - self.best_time)
+                (self.bb_wrapper.default_execution_time - best_time)
                 / self.bb_wrapper.default_execution_time,
                 2,
             )
@@ -279,6 +280,9 @@ class SHAManExperiment:
             Dict: The updated dict to add to the POST request.
         """
         debug(history)
+        best_parameters, best_fitness = self.best_performance
+        print(best_parameters)
+        print(best_fitness)
         return IntermediateResult(
             **{
                 "jobids": self.bb_wrapper.component.submitted_jobids[-1],
@@ -292,6 +296,12 @@ class SHAManExperiment:
                 "initialization": bool(list(history["initialization"])[-1]),
                 "improvement_default": self.improvement_default,
                 "average_noise": self.average_noise,
+                "explored_space": float(self.bb_optimizer.size_explored_space[0]),
+                "best_parameters": self.build_parameter_dict(
+                    self.configuration.component_parameter_names,
+                    best_parameters.tolist(),
+                ),
+                "best_fitness": best_fitness,
             }
         ).dict()
 
@@ -319,6 +329,7 @@ class SHAManExperiment:
         Returns:
             Dict: The dictionary to send to the API.
         """
+        best_parameters, best_fitness = self.best_performance
         return FinalResult(
             **{
                 "averaged_execution_time": self.bb_optimizer.averaged_fitness,
@@ -335,6 +346,11 @@ class SHAManExperiment:
                 },
                 "average_noise": self.average_noise,
                 "explored_space": float(self.bb_optimizer.size_explored_space[0]),
+                "best_fitness": best_fitness,
+                "best_parameters": self.build_parameter_dict(
+                    self.configuration.component_parameter_names,
+                    best_parameters.tolist(),
+                ),
             }
         ).dict()
 
