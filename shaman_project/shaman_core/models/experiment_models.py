@@ -71,6 +71,8 @@ class FinalResult(MongoModel):
     improvement_default: float
     elapsed_time: float
     explored_space: float
+    best_fitness: float
+    best_parameters: List[Dict]
 
 
 class DetailedExperiment(Experiment):
@@ -97,9 +99,12 @@ class DetailedExperiment(Experiment):
     experiment_name: str = None
     explored_space: float = None
     noise_reduction_strategy: dict = None
+    pruning_strategy: dict = None
     status: str = None
     experiment_budget: int = None
     sbatch: str = None
+    best_parameters: List[Dict] = None
+    best_fitness: float = None
 
 
 class IntermediateResult(MongoModel):
@@ -115,6 +120,9 @@ class IntermediateResult(MongoModel):
     initialization: bool
     improvement_default: float
     average_noise: float
+    explored_space: float
+    best_parameters: List[Dict]
+    best_fitness: float
 
 
 class ExperimentForm(MongoModel):

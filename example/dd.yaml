@@ -1,0 +1,13 @@
+components:
+  dd:
+    command: dd if=/dev/zero of=file.test
+    parameters:
+      bs:
+        cmd_var: True
+        type: int
+        default: 1000
+        suffix: "M"
+      count:
+        cmd_var: True
+        type: int
+        default: 5

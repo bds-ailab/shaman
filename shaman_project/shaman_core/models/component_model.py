@@ -51,7 +51,9 @@ class TunableParameter(BaseModel):
     env_var: Optional[bool] = None
     description: Optional[str] = None
     cmd_var: Optional[str] = None
+    cli_var: Optional[bool] = None
     flag: Optional[str] = None
+    suffix: Optional[str] = None
 
     @root_validator(pre=True)
     def check_env_cmd(cls, values):
@@ -67,18 +69,14 @@ class TunableParameter(BaseModel):
             raise TypeError("Default does not match the parameter type")
 
         # Check that either cmd_var or env_var are defined
-        if (not "cmd_var" in values) and (not "env_var" in values):
+        if (
+            (not "cmd_var" in values)
+            and (not "env_var" in values)
+            and (not "cli_var" in values)
+        ):
             raise ValueError(
-                "Variable must either be a command line variable or an environment variable."
+                "Variable must either be a command line variable, an environment variable or a CLI variable."
             )
-
-        # Check that flag is defined when cmd_var is defined
-        if "cmd_var" in values:
-            if not "flag" in values:
-                raise ValueError(
-                    "No specification of the flag for a command line parameter."
-                )
-
         return values
 
 

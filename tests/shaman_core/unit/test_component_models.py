@@ -29,6 +29,25 @@ TEST_PARAMETERS_UNKNOWN_TYPE = {
     "param_1": {"type": "toto", "default": 1, "optional": True, "env_var": True}
 }
 
+TEST_PARAMETERS_SUFFIX = {
+    "param_1": {
+        "type": "int",
+        "default": 1,
+        "optional": True,
+        "env_var": True,
+        "suffix": "K",
+    }
+}
+
+TEST_PARAMETERS_CLI_VAR = {
+    "param_1": {
+        "type": "int",
+        "default": 1,
+        "optional": True,
+        "cli_var": True,
+        "suffix": "K",
+    }
+}
 
 TEST_PARAMETERS_CMD_NO_FLAG = {
     "param_1": {
@@ -203,13 +222,19 @@ class TestComponentModels(unittest.TestCase):
         TEST_MODEL.update({"parameters": TEST_PARAMETERS_OK})
         tunable_component = TunableComponentModel(**TEST_MODEL)
 
-    def test_cmd_no_flag(self):
-        """Tests that when a parameter is specified as a command line argument without any flag; an
-        error is raised.
+    def test_parameters_suffix(self):
+        """Tests that when there is a suffix, everything is ok.
         """
-        TEST_MODEL.update({"parameters": TEST_PARAMETERS_CMD_NO_FLAG})
-        with self.assertRaises(ValueError):
-            TunableComponentModel(**TEST_MODEL)
+        TEST_MODEL.update({"parameters": TEST_PARAMETERS_SUFFIX})
+        tunable_component = TunableComponentModel(**TEST_MODEL)
+        self.assertEqual(tunable_component.parameters["param_1"].suffix, "K")
+
+    def test_parameters_cli_var(self):
+        """Tests that when a variable is a CLI variable, everything is ok.
+        """
+        TEST_MODEL.update({"parameters": TEST_PARAMETERS_CLI_VAR})
+        tunable_component = TunableComponentModel(**TEST_MODEL)
+        self.assertEqual(tunable_component.parameters["param_1"].cli_var, True)
 
     def test_no_cmd_no_env(self):
         """Tests that when a parameter is not specified to be either a environment variable or a

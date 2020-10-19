@@ -486,6 +486,7 @@ class BBOptimizer:
     def _get_best_performance(self):
         """
         Get the best performance of a given history.
+        # TODO: deal with truncated data
 
         Returns:
             tuple: the best parameter and the corresponding best performance
@@ -497,6 +498,9 @@ class BBOptimizer:
             sorted_perf_idx = transformed_history["fitness"].argsort()
             sorted_perf = transformed_history["fitness"][sorted_perf_idx[::-1]]
             sorted_parameters = transformed_history["parameters"][sorted_perf_idx[::-1]]
+            debug(f"Sorted history: {sorted_parameters}, {sorted_perf}")
+            print(f"best fitness: {sorted_perf[-1]}")
+            print(f"params: {sorted_parameters[-1]}")
             # Return the last parameters which corresponds to the best performance
             return sorted_parameters[-1], sorted_perf[-1]
         # Else, return the unsorted parameter and history

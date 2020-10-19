@@ -88,7 +88,7 @@ class ParameterRange(BaseModel):
         """
         Creates a parameter range given the grid information.
         """
-        return np.arange(self.min, self.max, self.step)
+        return np.arange(self.min, self.max + 1, self.step)
 
 
 @dataclass

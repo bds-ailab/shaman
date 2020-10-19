@@ -4,7 +4,7 @@ a collection containing the available components.
 from httpx import Client
 from typer import Typer, Argument
 
-from .component_model import TunableComponentsModel
+from shaman_core.models.component_model import TunableComponentsModel
 from ..shaman_settings import SHAManSettings
 
 cli = Typer(add_completion=False)

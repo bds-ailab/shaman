@@ -473,7 +473,7 @@ Number of iterations: 2
 Elapsed time: 0
 Best parameters: [2, 2]
 Best fitness value: 2
-Percentage of explored space: 22.22222222222222
+Percentage of explored space: 33.33333333333333
 Percentage of static moves: 33.33333333333333
 Cost of global exploration: 1
 Mean fitness gain per iteration: 0.5
@@ -620,7 +620,7 @@ class TestSHAManAPI(unittest.TestCase):
                 "elitism": False,
             },
             "noise_reduction_strategy": {},
-            "pruning_strategy": {"pruning_strategy": 5},
+            "pruning_strategy": {"pruning_strategy": "5"},
             "sbatch": "#!/bin/bash\n#SBATCH --job-name=TestJob\n#SBATCH --ntasks=3\nhostname",
         }
         self.assertDictEqual(se.start_experiment_dict, expected_dict)
@@ -646,6 +646,10 @@ class TestSHAManAPI(unittest.TestCase):
                 "selection_method": "bbo.heuristics.genetic_algorithm.selections.tournament_pick",
                 "crossover_method": "bbo.heuristics.genetic_algorithm.crossover.single_point_crossover",
                 "mutation_method": "bbo.heuristics.genetic_algorithm.mutations.mutate_chromosome_to_neighbor",
+                "estimator": "numpy.median",
+                "fitness_aggregation": "simple_fitness_aggregation",
+                "nbr_resamples": 3,
+                "resampling_policy": "simple_resampling",
                 "pool_size": 5,
                 "mutation_rate": 0.4,
                 "elitism": False,
@@ -710,7 +714,8 @@ class TestSHAManAPI(unittest.TestCase):
             "fitness": np.array([2, 2, 3]),
             "parameters": np.array([[1, 2], [2, 2], [1, 2]]),
         }
-        self.assertEqual(se.best_time, 2)
+        best_parameters, best_time = se.best_performance
+        self.assertEqual(best_time, 2)
 
     @patch("httpx.get", side_effect=mocked_requests_get)
     def test_average_noise(self, mocked_requests_get):
@@ -758,22 +763,26 @@ class TestSHAManAPI(unittest.TestCase):
         """
         mock_parse.return_value = 10
         mock_submit.return_value = 10
+        self.maxDiff = None
         fake_history = {
-            "fitness": np.array([2, 2, 3]),
-            "parameters": np.array([[1, 2], [2, 2], [1, 2]]),
+            "fitness": np.array([2, 2, 3, 1]),
+            "parameters": np.array([[1, 2], [2, 2], [1, 2], [3, 4]]),
             "truncated": np.array([True, True, False]),
             "resampled": np.array([False, False, False]),
             "initialization": np.array([False, False, False]),
         }
         expected_dict = {
             "jobids": 10,
-            "execution_time": 3,
-            "parameters": {"param_1": 1, "param_2": 2},
+            "execution_time": 1.0,
+            "parameters": {"param_1": 3, "param_2": 4},
             "truncated": False,
             "resampled": False,
             "initialization": False,
-            "improvement_default": 80,
-            "average_noise": 0.25,
+            "improvement_default": 90.0,
+            "average_noise": 0.16666666666666666,
+            "explored_space": 50.0,
+            "best_fitness": 1.0,
+            "best_parameters": [{"param_1": 3, "param_2": 4}],
         }
         se = SHAManExperiment(
             component_name="component_1",
@@ -884,7 +893,6 @@ class TestSHAManAPI(unittest.TestCase):
     @patch("bb_wrapper.bb_wrapper.BBWrapper._parse_slurm_times")
     def test_end_dict(self, mock_parse, mock_submit, mocked_requests_get):
         """Tests that the improvement is properly computed."""
-        self.maxDiff = None
         mock_submit.return_value = 10
         mock_parse.return_value = 10
         se = SHAManExperiment(
@@ -908,16 +916,18 @@ class TestSHAManAPI(unittest.TestCase):
             "min_execution_time": [2.0, 2.0, 3.0],
             "max_execution_time": [2.0, 2.0, 3.0],
             "std_execution_time": [0.5, 0.0],
-            "resampled_nbr": [1.0, 1.0, 1.0],
+            "resampled_nbr": [1, 1, 1],
             "improvement_default": 80.0,
-            "elapsed_time": 0,
+            "elapsed_time": 0.0,
             "default_run": {
                 "execution_time": 10.0,
                 "job_id": 10,
                 "parameters": {"param_1": 1, "param_2": "/home/"},
             },
             "average_noise": 0.25,
-            "explored_space": 22.22222222222222,
+            "explored_space": 33.33333333333333,
+            "best_fitness": 2.0,
+            "best_parameters": [{"param_1": 1, "param_2": 2}],
         }
         self.assertDictEqual(expected_dict, se.end_dict)
 

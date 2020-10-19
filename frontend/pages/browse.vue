@@ -171,7 +171,7 @@ export default {
         this.fields = this.default_fields
         response.data.forEach((exp) => (this.experiments[exp._id] = exp))
         // Listen to websocket
-        this.ws = new WebSocket('ws://mimsy.farm:5000/experiments/stream')
+        this.ws = new WebSocket('ws://localhost:5000/experiments/stream')
         this.ws.onmessage = (event) => {
           const experimentUpdate = JSON.parse(event.data)
           experimentUpdate._id = experimentUpdate.id

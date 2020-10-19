@@ -34,6 +34,16 @@ components:
         cmd_var: True
         type: str
         flag: f
+      param_4:
+        cmd_var: True
+        type: str
+        default: "4"
+      param_5:
+        cmd_var: True
+        flag: s
+        suffix: K
+        type: str
+        default: "5"
 
   component_3:
     plugin: example_3
@@ -43,6 +53,7 @@ components:
       param_1:
         env_var: True
         type: int
+        default: 1
       param_2:
         env_var: True
         type: int
@@ -58,3 +69,22 @@ components:
         env_var: True
         type: int
         optional: True
+
+  component_5:
+    plugin: example_5
+    parameters:
+      param_1:
+        cli_var: True
+        type: str
+        default: "/home/"
+        flag: folder
+      param_2:
+        cli_var: True
+        type: int
+        default: 5
+        flag: s
+      param_3:
+        cli_var: True
+        type: int
+        default: 4
+        suffix: K

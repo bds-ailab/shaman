@@ -60,8 +60,7 @@ class SimpleFitnessTransformation(FitnessTransformation):
         Args:
             estimator (function): The function to use for aggregating the fitness.
         """
-        super(SimpleFitnessTransformation, self).__init__(
-            estimator, *args, **kwargs)
+        super(SimpleFitnessTransformation, self).__init__(estimator, *args, **kwargs)
         self.estimator = estimator
 
     def transform(self, history):
@@ -71,8 +70,10 @@ class SimpleFitnessTransformation(FitnessTransformation):
         """
         new_parameters = list()
         new_fitness = list()
+        new_truncated = list()
         fitness_array = np.array(history["fitness"])
         parameters_array = np.array(history["parameters"])
+        truncated_array = np.array(history["truncated"])
         # Check that there is at least two elements
         if len(fitness_array) < 2:
             return history
@@ -91,14 +92,23 @@ class SimpleFitnessTransformation(FitnessTransformation):
                 new_parameters.append(parametrization)
                 new_fitness.append(
                     self.estimator(
-                        fitness_array[np.all(
-                            parameters_array == parametrization, axis=1)]
+                        fitness_array[
+                            np.all(parameters_array == parametrization, axis=1)
+                        ]
                     )
                 )
+                new_truncated.append(
+                    self.estimator(
+                        truncated_array[
+                            np.all(parameters_array == parametrization, axis=1)
+                        ]
+                    )
+                )
+
             return {
                 "parameters": np.array(new_parameters),
                 "fitness": np.array(new_fitness),
-                "truncated": history["truncated"],
+                "truncated": np.array(new_truncated),
                 "initialization": history["initialization"],
                 "resampled": history["resampled"],
             }

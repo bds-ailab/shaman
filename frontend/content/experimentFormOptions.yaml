@@ -15,7 +15,7 @@ form_options:
             label: 'Default parametrization'
             description: 'Stop any step that take longer than the execution time of the default run.'
           median:
-            varname: median
+            varname: numpy.median
             label: 'Current median'
             description: 'Stop any step that take longer than the median currently measured on the execution time sample.'
 
