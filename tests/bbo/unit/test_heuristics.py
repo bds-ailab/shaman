@@ -434,5 +434,35 @@ class TestSurrogateModels(unittest.TestCase):
         print(bb_obj.history)
 
 
+class TestExhaustiveSearch(unittest.TestCase):
+    """Tests the exhaustive_search heuristic.
+    """
+
+    def setUp(self):
+        """
+        Sets up the testing procedure by initializing the parabola as the black-box function.
+        """
+        self.fake_black_box = Parabola()
+
+    def test_exhaustive_search(self):
+        """
+        Tests that the exhaustive search heuristic tests all the parametrization when the budget is
+        equal to the size of the parametric grid.
+        """
+        parametric_grid = np.array([np.arange(-5, 5, 1), np.arange(-6, 6, 1),]).T
+        bb_obj = BBOptimizer(
+            black_box=self.fake_black_box,
+            parameter_space=parametric_grid,
+            heuristic="exhaustive_search",
+            initial_sample_size=2,
+            max_iteration=120,
+        )
+        bb_obj.optimize()
+        exhaustive_grid = np.array(np.meshgrid(*parametric_grid)).T.reshape(
+            -1, len(parametric_grid)
+        )
+        np.testing.assert_array_equal(bb_obj.history["parameters"][2:], exhaustive_grid)
+
+
 if __name__ == "__main__":
     unittest.main()

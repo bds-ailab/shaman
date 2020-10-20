@@ -23,6 +23,7 @@ from devtools import debug
 from bbo.heuristics.surrogate_models.surrogate_models import SurrogateModel
 from bbo.heuristics.simulated_annealing.simulated_annealing import SimulatedAnnealing
 from bbo.heuristics.genetic_algorithm.genetic_algorithm import GeneticAlgorithm
+from bbo.heuristics.exhaustive_search.exhaustive_search import ExhaustiveSearch
 from bbo.initial_parametrizations import (
     uniform_random_draw,
     latin_hypercube_sampling,
@@ -51,6 +52,7 @@ class BBOptimizer:
         "surrogate_model": SurrogateModel,
         "simulated_annealing": SimulatedAnnealing,
         "genetic_algorithm": GeneticAlgorithm,
+        "exhaustive_search": ExhaustiveSearch,
     }
 
     # Dictionary of the different methods that can be used to sample the initial parameters
