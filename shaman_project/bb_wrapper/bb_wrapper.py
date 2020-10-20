@@ -3,7 +3,6 @@ The goal of this class is to provide an object which returns the execution time 
 parametrization and is compatible with the BBO standards by having a compute method.
 """
 
-import os
 from pathlib import Path
 import re
 from shutil import copyfile
@@ -11,10 +10,7 @@ import subprocess
 from shlex import split
 from typing import List, Iterable
 
-from devtools import debug
-
-# TODO: find a way to load global configuration
-# Solution: cp configuration file into folder
+from loguru import logger
 from .tunable_component.component import TunableComponent
 
 
@@ -83,12 +79,11 @@ class BBWrapper:
         # Check if file is already timed
         with open(sbatch_file, "r") as read_file:
             lines = read_file.readlines()
-            print("Writing new file")
             # For each line in the original sbatch
             for enum, line in enumerate(lines):
                 # If the line is timed already, break by copying the file
                 if line.startswith("time"):
-                    print("File is already timed, escaping")
+                    logger.debug(f"File {sbatch_file} is alread timed, escaping.")
                     direct_copy = True
                     break
                 # Write the current line and break
@@ -102,7 +97,7 @@ class BBWrapper:
                         copy_sbatch.write("time (" + "\n")
                         # Set time written to true
                         timed_written = True
-                        print("Wrote time in file")
+                        logger.debug(f"Added time command to file {new_path}")
             if direct_copy:
                 # Leave the started file and directly copy the original timed file
                 copy_sbatch.close()
@@ -123,7 +118,7 @@ class BBWrapper:
             None: only setsup the attribute.
         """
         parameter_dict = dict(zip(self.parameter_names, parameters))
-        debug(
+        logger.debug(
             f"Setting up {self.component_name} black-box with parametrization {parameter_dict}"
         )
         self.component = TunableComponent(
@@ -151,7 +146,7 @@ class BBWrapper:
         execution_time = float(
             self._parse_slurm_times(Path.cwd() / f"slurm-{job_id}.out")
         )
-        debug(f"Application elapsed time: {execution_time}")
+        logger.debug(f"Application elapsed time: {execution_time}")
         return execution_time
 
     def run_default(self) -> float:
@@ -163,7 +158,7 @@ class BBWrapper:
             self.component_name, self.component_configuration
         )
         # Log the output
-        debug(
+        logger.debug(
             f"Launching {self.component_name} black-box with default parametrization {self.default_component.parameters}"
         )
 
@@ -175,7 +170,7 @@ class BBWrapper:
         execution_time = float(
             self._parse_slurm_times(Path.cwd() / f"slurm-{job_id}.out")
         )
-        debug(f"Default application elapsed time: {execution_time}")
+        logger.debug(f"Default application elapsed time: {execution_time}")
         self.default_execution_time = execution_time
         return execution_time
 
@@ -275,6 +270,8 @@ class BBWrapper:
             split(f"scancel {job_id}"), stdout=subprocess.PIPE, stderr=subprocess.PIPE
         )
         if sub_ps.returncode == 0:
-            debug(f"Successfully cancelled {job_id}")
+            logger.debug(
+                f"Pruning strategy: Successfully cancelled slurm job with id {job_id}"
+            )
         else:
-            debug(f"Could not stop {job_id}")
+            logger.debug(f"Pruning strategy: Could not stop slurm job with id {job_id}")

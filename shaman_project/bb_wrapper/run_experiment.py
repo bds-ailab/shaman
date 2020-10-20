@@ -5,18 +5,12 @@ It ties together all the components required by the application.
 It defines a single function main which runs the experiment.
 """
 
-import os
-import sys
-import time
+
 from typer import Typer, Option
 from loguru import logger
 
-from shaman_core.logger import setup_logger_from_settings, LoggingSettings
 from .shaman_experiment import SHAManExperiment
 
-# Setup logger
-logging_setting = LoggingSettings(filepath="logs/shaman.log")
-setup_logger_from_settings(logging_setting)
 cli = Typer(add_completion=False)
 
 
