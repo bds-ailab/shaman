@@ -20,12 +20,13 @@ from shaman_core.models.experiment_models import (
     InitExperiment,
     IntermediateResult,
 )
+from shaman_core.config import APIConfig
+
 from .bb_wrapper import BBWrapper
-from .shaman_settings import SHAManSettings
 
 
 __CURRENT_DIR__ = Path.cwd()
-shaman_settings = SHAManSettings()
+api_settings = APIConfig()
 
 
 class SHAManExperiment:
@@ -113,7 +114,7 @@ class SHAManExperiment:
             sbatch_dir=self.sbatch_dir,
             component_configuration=self.api_url
             + "/"
-            + shaman_settings.component_endpoint,
+            + api_settings.component_endpoint,
         )
 
         # Setup black box optimizer using configuration information
@@ -199,7 +200,7 @@ class SHAManExperiment:
         """
         Returns as a string the URL to the API using the data in the configuration file.
         """
-        return f"http://{shaman_settings.api_host}:{shaman_settings.api_port}"
+        return f"http://{api_settings.api_host}:{api_settings.api_port}"
 
     @property
     def start_experiment_dict(self) -> Dict:

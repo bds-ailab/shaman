@@ -2,7 +2,6 @@ from fastapi import FastAPI
 from .routers import experiment_router, component_router
 
 from fastapi.middleware.cors import CORSMiddleware
-from starlette_exporter import PrometheusMiddleware, handle_metrics
 
 
 app = FastAPI(
