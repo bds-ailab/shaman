@@ -56,7 +56,6 @@ class TestShamanExperiment(unittest.TestCase):
         ]
         result = runner.invoke(cli, args_list)
         assert result.exit_code == 0
-        assert "experiment test_experiment" in result.stdout
         assert not list(Path.cwd().glob("slurm*.out"))
         assert not list(Path.cwd().glob("*_shaman.sbatch"))
 

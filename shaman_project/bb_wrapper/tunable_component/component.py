@@ -12,14 +12,12 @@ Of course, a child class can add any wanted new methods specific to the tunable 
 import os
 
 import pty
-import builtins
 import subprocess
 from shlex import split
 from pathlib import Path
 from collections import OrderedDict
 
-from devtools import debug
-
+from loguru import logger
 from shaman_core.models.component_model import TunableComponentsModel, TunableParameter
 
 # Save current environment as variable
@@ -166,15 +164,23 @@ class TunableComponent:
                     if not following_line.startswith("#"):
                         # Add the header at the beginning of the script if exists
                         if self.description.header:
+                            logger.info(
+                                f"Writing header on top of sbatch {self.description.header}"
+                            )
                             copy_sbatch.write(self.description.header + "\n")
                         # Add the ld preload at the beginning of the script if exists
                         if self.description.ld_preload:
+                            logger.info(
+                                f"Writing LD_PRELOAD on top of sbatch: LD_PRELOAD={self.description.ld_preload}"
+                            )
                             copy_sbatch.write(
                                 "LD_PRELOAD=" + self.description.ld_preload + "\n"
                             )
                         # Add the command line if exists
                         if self.cmd_line:
-                            debug(f"Writing command line: {self.cmd_line}")
+                            logger.info(
+                                f"Writing command line on top of sbatch: {self.cmd_line}"
+                            )
                             copy_sbatch.write(self.cmd_line + "\n")
                         written = True
         copy_sbatch.close()
@@ -237,6 +243,8 @@ class TunableComponent:
         cmd_line = self._build_sbatch_cmd_line(sbatch_file, wait)
         # Run the script using subprocess
         master, slave = pty.openpty()
+        logger.info(f"Submitting sbatch with command line {cmd_line}")
+        logger.debug(f"Submitting sbatch with environment variables {self.var_env}")
         sub_ps = subprocess.Popen(
             split(cmd_line), stdout=slave, stderr=slave, env=self.var_env
         )
@@ -244,14 +252,17 @@ class TunableComponent:
             try:
                 # Get job id in second line if the submission has been a success
                 job_id = int(stdout.readline().split()[-1])
+                logger.info(f"Submitted slurm job with id {job_id}")
                 self.submitted_jobids.append(job_id)
             except ValueError:
                 # Try again because Slurm acts weird with its output and skipping two lines
                 # can do the trick
                 job_id = int(stdout.readline().split()[-1])
+                logger.info(f"Submitted slurm job with id {job_id}")
                 self.submitted_jobids.append(job_id)
             except ValueError:
                 job_id = int(stdout.readline().split()[-1])
+                logger.info(f"Submitted slurm job with id {job_id}")
                 self.submitted_jobids.append(job_id)
             # Else, raise an error
             except (IndexError, ValueError) as err_msg:
@@ -265,8 +276,9 @@ class TunableComponent:
             # If the slurm submission step is blocking (i.e. wait is enabled)
             # The sub_ps retuning a succes code means that the job was successfully run
             if wait:
-                print("Successfully ran jobid %s", job_id)
+                logger.info(f"Successfully ran jobid {job_id}")
             return job_id
+        logger.critical(f"Could not run job {job_id}: \n stderr: {output_stderr}")
         raise Exception(f"Could not run job {job_id}: \n stderr: {output_stderr}")
 
     def sanitize_parameters(self, parameters: dict) -> dict:

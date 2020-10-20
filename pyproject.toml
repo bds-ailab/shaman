@@ -29,6 +29,7 @@ scikit-learn = { optional = true, version = "^0.23.2" }
 cma = { optional = true, version = "^3.0.3" }
 scipy = { optional = true, version = "^1.5.2" }
 pandas = { optional = true, version = "^1.1.2" }
+loguru = "^0.5.3"
 
 [tool.poetry.dev-dependencies]
 black = "^19.10b0"

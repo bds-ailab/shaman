@@ -15,10 +15,9 @@ the available initialization in __initial_parametrization__.
 """
 
 import time
-import contextlib
 from concurrent.futures import ThreadPoolExecutor
 import numpy as np
-from devtools import debug
+from loguru import logger
 
 from bbo.heuristics.surrogate_models.surrogate_models import SurrogateModel
 from bbo.heuristics.simulated_annealing.simulated_annealing import SimulatedAnnealing
@@ -448,10 +447,10 @@ class BBOptimizer:
         Returns:
             None, but applies the callback on the history attribute of the class
         """
-        debug(f"Evaluating performance of parametrization {parameter}")
+        logger.debug(f"Evaluating performance of parametrization {parameter}")
         # evaluate the value of the newly selected parameters
         perf = self.compute_result(parameter)
-        debug(f"Corresponding performance: {perf}")
+        logger.debug(f"Corresponding performance: {perf}")
         # store the new parameters
         self._append_parameters(parameter)
         # store the new performance
@@ -464,13 +463,13 @@ class BBOptimizer:
         Initalizes the black-box algorithm using the selected strategy and the
         number of initial data points.
         """
-        debug("Initializing parameter space")
-        debug(f"Parameter space: {self.parameter_space}")
+        logger.debug("Initializing parameter space")
+        logger.debug(f"Parameter space given by user: {self.parameter_space}")
         # Draw parameters according to the initialization method and compute fitness value
         initial_parameters = self.initial_selection(
             self.initial_sample_size, self.parameter_space
         )
-        debug("Selected parameter space: {initial_parameters}")
+        logger.debug("Selected initial parameter space: {initial_parameters}")
         step = 0
         while step < self.initial_sample_size:
             # Perform optimization step using the initial parametrization
@@ -500,9 +499,6 @@ class BBOptimizer:
             sorted_perf_idx = transformed_history["fitness"].argsort()
             sorted_perf = transformed_history["fitness"][sorted_perf_idx[::-1]]
             sorted_parameters = transformed_history["parameters"][sorted_perf_idx[::-1]]
-            debug(f"Sorted history: {sorted_parameters}, {sorted_perf}")
-            print(f"best fitness: {sorted_perf[-1]}")
-            print(f"params: {sorted_parameters[-1]}")
             # Return the last parameters which corresponds to the best performance
             return sorted_parameters[-1], sorted_perf[-1]
         # Else, return the unsorted parameter and history
