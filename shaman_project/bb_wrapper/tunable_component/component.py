@@ -11,7 +11,7 @@ Of course, a child class can add any wanted new methods specific to the tunable 
 """
 import os
 
-import pty
+# import pty
 import builtins
 import subprocess
 from shlex import split

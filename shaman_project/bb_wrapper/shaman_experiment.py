@@ -11,6 +11,7 @@ from shutil import move
 import numpy as np
 from httpx import Client
 from typing import Dict, List
+from loguru import logger
 
 from bbo.optimizer import BBOptimizer
 from shaman_core.models.shaman_config_model import SHAManConfig
@@ -153,16 +154,18 @@ class SHAManExperiment:
         """
         Launches the tuning experiment
         """
-        debug("Launching experiment !")
+        logger.debug("Creating experiment.")
         # Create the experiment through API request
         self.create_experiment()
         if self.configuration.experiment.default_first:
             # Launch a run using default parameterization of the component
+            logger.info("Running application with default parametrization.")
             self.bb_wrapper.run_default()
         # Setup the optimizer
+        logger.debug("Initializing black box optimizer.")
         self.setup_bb_optimizer()
         # Launch the optimization
-        debug("Optimizing")
+        logger.debug("Launching optimization.")
         self.bb_optimizer.optimize(callbacks=[self.update_history])
         # Summarize the optimization
         # If there is a result file, write the output in it
@@ -279,10 +282,10 @@ class SHAManExperiment:
         Returns:
             Dict: The updated dict to add to the POST request.
         """
-        debug(history)
+        logger.debug(f"Current optimization history: {history}")
         best_parameters, best_fitness = self.best_performance
-        print(best_parameters)
-        print(best_fitness)
+        logger.debug(f"Best parameters so far: {best_parameters}")
+        logger.debug(f"Best performance so far: {best_fitness}")
         return IntermediateResult(
             **{
                 "jobids": self.bb_wrapper.component.submitted_jobids[-1],

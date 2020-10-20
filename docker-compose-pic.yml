@@ -1,0 +1,64 @@
+version: "3.1"
+
+services:
+  mongo:
+    image: mongo:4.0
+    container_name: mongo
+    hostname: mongo
+    volumes:
+      # tochange
+      - mongo_data:/data/db
+    restart: on-failure
+    ports:
+      - "27017:27017"
+    expose:
+      - 27017
+    command: mongod --bind_ip 0.0.0.0 --replSet rs0
+
+  mongo_init:
+    image: mongo:4.0
+    container_name: mongo_init
+    restart: on-failure
+    depends_on:
+      - mongo
+    command: >
+      mongo
+      --host mongo
+      --eval 'rs.initiate({_id: "rs0", members: [{_id: 0, host : "mongo:27017"}]})'
+
+  ui:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.ui
+    image: sphrbthyk/shaman_project:ui
+    container_name: ui
+    privileged: true
+    hostname: ui
+    command: npm run start
+    ports:
+      - "3000:3000"
+
+  api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    image: sphrbthyk/shaman_project:api
+    container_name: api
+    privileged: true
+    hostname: api
+    command: uvicorn shaman_api:app --port 5000 --host 0.0.0.0
+    ports:
+      - "5000:5000"
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    hostname: redis
+    restart: on-failure
+    ports:
+      - "6379:6379"
+    expose:
+      - 6379
+
+volumes:
+  mongo_data:

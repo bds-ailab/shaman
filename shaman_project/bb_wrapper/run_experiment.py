@@ -6,11 +6,17 @@ It defines a single function main which runs the experiment.
 """
 
 import os
+import sys
 import time
 from typer import Typer, Option
+from loguru import logger
 
+from shaman_core.logger import setup_logger_from_settings, LoggingSettings
 from .shaman_experiment import SHAManExperiment
 
+# Setup logger
+logging_setting = LoggingSettings(filepath="logs/shaman.log")
+setup_logger_from_settings(logging_setting)
 cli = Typer(add_completion=False)
 
 
@@ -39,19 +45,37 @@ def run(
         configuration_file=configuration_file,
     )
     # Log the beginning of the experiment
-    print(f"Lauching experiment {experiment_name}")
+    logger.info(f"Running experiment {experiment_name}")
+    logger.debug(
+        f"Experiment parametrization: Component name {component_name} | \
+        Nbr iteration {nbr_iteration} | \
+        Sbatch file {sbatch_file} | \
+        Sbatch dir {sbatch_dir} | \
+        Slurm dir {slurm_dir} | \
+        Result file {result_file} | \
+        Configuration file {configuration_file}"
+    )
     # Catch possible keyyboard interrupt
     try:
+        logger.info(f"Launching experiment {experiment_name}")
         # Launch the experiment
         experiment.launch()
+        logger.debug(f"Successful ending for experiment {experiment_name}")
         # Save the experiment
         experiment.end()
+        logger.debug(f"Cleaning data for experiment {experiment_name}")
         # Clean up the experiment
         experiment.clean()
+        logger.debug(f"Experiment {experiment_name} was run successfully.")
     except KeyboardInterrupt:
+        logger.info(
+            f"Stopping experiment {experiment_name} through keyboard interrupt."
+        )
         experiment.stop()
     except Exception as e:
-        print(e)
+        logger.critical(
+            f"Encountered exception while launching experiment {experiment_name}: {e}"
+        )
         experiment.fail()
 
 
