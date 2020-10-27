@@ -162,6 +162,12 @@ class TunableComponent:
                     following_line = lines[enum + 1]
                     # And not the following one
                     if not following_line.startswith("#"):
+                        # Add the command line if exists
+                        if self.cmd_line:
+                            logger.info(
+                                f"Writing command line on top of sbatch: {self.cmd_line}"
+                            )
+                            copy_sbatch.write(self.cmd_line + "\n")
                         # Add the header at the beginning of the script if exists
                         if self.description.header:
                             logger.info(
@@ -176,12 +182,7 @@ class TunableComponent:
                             copy_sbatch.write(
                                 "LD_PRELOAD=" + self.description.ld_preload + "\n"
                             )
-                        # Add the command line if exists
-                        if self.cmd_line:
-                            logger.info(
-                                f"Writing command line on top of sbatch: {self.cmd_line}"
-                            )
-                            copy_sbatch.write(self.cmd_line + "\n")
+
                         written = True
         copy_sbatch.close()
         return copy_sbatch_path
@@ -249,35 +250,36 @@ class TunableComponent:
             split(cmd_line), stdout=slave, stderr=slave, env=self.var_env
         )
         with os.fdopen(master, "r") as stdout:
+            # TODO: make it less disgusting with all these iterations
             try:
-                # Get job id in second line if the submission has been a success
-                job_id = int(stdout.readline().split()[-1])
-                logger.info(f"Submitted slurm job with id {job_id}")
-                self.submitted_jobids.append(job_id)
-            except ValueError:
-                # Try again because Slurm acts weird with its output and skipping two lines
-                # can do the trick
-                job_id = int(stdout.readline().split()[-1])
-                logger.info(f"Submitted slurm job with id {job_id}")
-                self.submitted_jobids.append(job_id)
-            except ValueError:
-                job_id = int(stdout.readline().split()[-1])
-                logger.info(f"Submitted slurm job with id {job_id}")
-                self.submitted_jobids.append(job_id)
+                for ix in range(10):
+                    try:
+                        # Get job id in second line if the submission has been a success
+                        job_id = int(stdout.readline().split()[-1])
+                        logger.info(f"Submitted slurm job with id {job_id}")
+                        self.submitted_jobids.append(job_id)
+                        break
+                    except ValueError:
+                        logger.debug(
+                            f"Parsing of jobid through stdout tentative {ix} failed. Retrying again."
+                        )
+                        # Try again because Slurm acts weird with its output and skipping two lines
+                        # can do the trick
+                        continue
             # Else, raise an error
             except (IndexError, ValueError) as err_msg:
-                raise Exception("Could not submit job.")
+                raise Exception(f"Could not submit job. {err_msg}")
 
         # Wait until the process is over to get entire stdout and stderr
         sub_ps.wait()
         output_stdout, output_stderr = sub_ps.communicate()
-
-        if sub_ps.returncode == 0:
-            # If the slurm submission step is blocking (i.e. wait is enabled)
-            # The sub_ps retuning a succes code means that the job was successfully run
-            if wait:
-                logger.info(f"Successfully ran jobid {job_id}")
-            return job_id
+        logger.debug(f"Return code for job submission subprocess: {sub_ps.returncode}")
+        # if sub_ps.returncode == 0:
+        # If the slurm submission step is blocking (i.e. wait is enabled)
+        # The sub_ps retuning a succes code means that the job was successfully run
+        if wait:
+            logger.info(f"Successfully ran jobid {job_id}")
+        return job_id
         logger.critical(f"Could not run job {job_id}: \n stderr: {output_stderr}")
         raise Exception(f"Could not run job {job_id}: \n stderr: {output_stderr}")
 

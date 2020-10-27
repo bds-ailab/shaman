@@ -5,6 +5,7 @@ parametrization and is compatible with the BBO standards by having a compute met
 
 from pathlib import Path
 import re
+from time import sleep
 from shutil import copyfile
 import subprocess
 from shlex import split
@@ -199,15 +200,24 @@ class BBWrapper:
         """
         real_time = None
         try:
+            logger.debug(f"Parsing file {out_file}")
+            logger.debug(f"Waiting 10 seconds to wait for .out to be written")
+            sleep(10)
             with open(out_file, "r") as file:
                 lines = file.readlines()
                 for line in lines:
+                    logger.debug(f"Line content: {line}")
                     if line.startswith("real"):
+                        logger.debug(f"Parsing line containing time {line}")
                         time = re.split("\t", line)[-1].strip()
+                        logger.debug(f"Parsing time string {time}")
                         real_time = self.parse_milliseconds(time)
-            if real_time:
-                return real_time
-            raise ValueError(f"Slurm command was not timed !")
+                        logger.debug(f"Found time: {real_time}")
+                        if real_time:
+                            return real_time
+            raise ValueError(
+                f"Could not parse time of slurm output, content set to {real_time} !"
+            )
         except FileNotFoundError:
             raise FileNotFoundError("Slurm output was not generated.")
 

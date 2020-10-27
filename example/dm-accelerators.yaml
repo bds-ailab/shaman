@@ -1,0 +1,221 @@
+components:
+  fastio-ioi:
+    plugin: fastio=yes --ioi=yes
+    parameters:
+      SRO_SEQUENCE_LENGTH:
+        env_var: True
+        type: int
+        default: 100
+      SRO_DSC_BINSIZE:
+        env_var: True
+        type: int
+        default: 1048576
+      SRO_CLUSTER_THRESHOLD:
+        env_var: True
+        type: int
+        default: 2
+      SRO_PREFETCH_SIZE:
+        env_var: True
+        type: int
+        default: 20971520
+  sbb_small_io_10:
+    command: "#SBB targets=/fs1/roberts flavor=ram_10 trash-data=1"
+    parameters:
+      worker-threads:
+        cmd_var: True
+        type: int
+        default: 2
+      ram-destagers:
+        cmd_var: True
+        type: int
+        default: 2
+      ram-cache-threshold:
+        cmd_var: True
+        type: int
+        default: 10
+      rdma-cq-polling-threads:
+        cmd_var: True
+        type: int
+        default: 1
+  sbb_small_io_20:
+    command: "#SBB targets=/fs1/roberts flavor=ram_20 trash-data=1"
+    parameters:
+      worker-threads:
+        cmd_var: True
+        type: int
+        default: 2
+      ram-destagers:
+        cmd_var: True
+        type: int
+        default: 2
+      ram-cache-threshold:
+        cmd_var: True
+        type: int
+        default: 10
+      rdma-cq-polling-threads:
+        cmd_var: True
+        type: int
+        default: 1
+  sbb_small_io_30:
+    command: "#SBB targets=/fs1/roberts flavor=ram_30 trash-data=1"
+    parameters:
+      worker-threads:
+        cmd_var: True
+        type: int
+        default: 2
+      ram-destagers:
+        cmd_var: True
+        type: int
+        default: 2
+      ram-cache-threshold:
+        cmd_var: True
+        type: int
+        default: 10
+      rdma-cq-polling-threads:
+        cmd_var: True
+        type: int
+        default: 1
+  sbb_small_io_40:
+    command: "#SBB targets=/fs1/roberts flavor=ram_40 trash-data=1"
+    parameters:
+      worker-threads:
+        cmd_var: True
+        type: int
+        default: 2
+      ram-destagers:
+        cmd_var: True
+        type: int
+        default: 2
+      ram-cache-threshold:
+        cmd_var: True
+        type: int
+        default: 10
+      rdma-cq-polling-threads:
+        cmd_var: True
+        type: int
+        default: 1
+  sbb_small_io_50:
+    command: "#SBB targets=/fs1/roberts flavor=ram_50 trash-data=1"
+    parameters:
+      worker-threads:
+        cmd_var: True
+        type: int
+        default: 2
+      ram-destagers:
+        cmd_var: True
+        type: int
+        default: 2
+      ram-cache-threshold:
+        cmd_var: True
+        type: int
+        default: 10
+      rdma-cq-polling-threads:
+        cmd_var: True
+        type: int
+        default: 1
+  sbb_small_io_60:
+    command: "#SBB targets=/fs1/roberts flavor=ram_60 trash-data=1"
+    parameters:
+      worker-threads:
+        cmd_var: True
+        type: int
+        default: 2
+      ram-destagers:
+        cmd_var: True
+        type: int
+        default: 2
+      ram-cache-threshold:
+        cmd_var: True
+        type: int
+        default: 10
+      rdma-cq-polling-threads:
+        cmd_var: True
+        type: int
+        default: 1
+  sbb_small_io_70:
+    command: "#SBB targets=/fs1/roberts flavor=ram_70 trash-data=1"
+    parameters:
+      worker-threads:
+        cmd_var: True
+        type: int
+        default: 2
+      ram-destagers:
+        cmd_var: True
+        type: int
+        default: 2
+      ram-cache-threshold:
+        cmd_var: True
+        type: int
+        default: 10
+      rdma-cq-polling-threads:
+        cmd_var: True
+        type: int
+        default: 1
+  sbb_small_io_80:
+    command: "#SBB targets=/fs1/roberts flavor=ram_80 trash-data=1"
+    parameters:
+      worker-threads:
+        cmd_var: True
+        type: int
+        default: 2
+      ram-destagers:
+        cmd_var: True
+        type: int
+        default: 2
+      ram-cache-threshold:
+        cmd_var: True
+        type: int
+        default: 10
+      rdma-cq-polling-threads:
+        cmd_var: True
+        type: int
+        default: 1
+  sbb_small_io:
+    command: "#SBB targets=/fs1/roberts/ccpe_sbb/outputfiles/ "
+    header: "#SBB trash-data=all"
+    parameters:
+      flavor:
+        cmd_var: True
+        type: int
+        default: 10
+      worker-threads:
+        cmd_var: True
+        type: int
+        default: 2
+      ram-destagers:
+        cmd_var: True
+        type: int
+        default: 2
+      ram-cache-threshold:
+        cmd_var: True
+        type: int
+        default: 10
+      rdma-cq-polling-threads:
+        cmd_var: True
+        type: int
+        default: 1
+
+  sbb_big_io:
+    command: "#SBB flavor=big_io_lustre_flavor targets=/fs2/roberts"
+    header: "#SBB trash-data=all"
+    parameters:
+      worker-threads:
+        cmd_var: True
+        type: int
+        default: 2
+      ram-destagers:
+        cmd_var: True
+        type: int
+        default: 2
+      ram-cache-threshold:
+        cmd_var: True
+        type: int
+        default: 1
+      flash-cache-threshold:
+        cmd_var: True
+        type: int
+        default: 1
+      flash-destagers:
+        cmd_var: True
+        type: int
+        default: 2

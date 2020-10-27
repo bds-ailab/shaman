@@ -1,5 +1,5 @@
-import os
 from typing import Optional, List, Dict
+from loguru import logger
 
 from bson.objectid import ObjectId
 from motor.motor_asyncio import (
@@ -9,12 +9,13 @@ from motor.motor_asyncio import (
 )
 from pymongo.results import UpdateResult
 
-from ..models import Experiment, IntermediateResult, FinalResult, InitExperiment
-from ..config import AppConfig
-from ..logger import get_logger
-
-
-logger = get_logger("experiments_database")
+from shaman_core.models.experiment_models import (
+    Experiment,
+    IntermediateResult,
+    FinalResult,
+    InitExperiment,
+)
+from shaman_core.config import DatabaseConfig
 
 
 class ExperimentDatabase:
@@ -25,15 +26,18 @@ class ExperimentDatabase:
         self.components_collection: Optional[AsyncIOMotorCollection] = None
         self.server_info: Optional[dict] = None
 
-    async def connect(self, config: AppConfig = None):
+    async def connect(self, config: DatabaseConfig = None):
         # Parse config from environment if not provided
         if config is None:
-            config = AppConfig()
+            config = DatabaseConfig()
+        logger.info(
+            f"Connecting to Mongo database on host {config.mongodb_host}:{config.mongodb_port}"
+        )
         # Create asynchronous Mongo client
         self.async_client = AsyncIOMotorClient(
-            host=config.shaman_mongodb_host, port=config.shaman_mongodb_port
+            host=config.mongodb_host, port=config.mongodb_port
         )
-        self.async_db = self.async_client[config.shaman_mongodb_database]
+        self.async_db = self.async_client[config.mongodb_database]
         self.experiments_collection = self.async_db["experiments"]
         self.components_collection = self.async_db["components"]
         self.server_info = await self.async_client.server_info()
@@ -90,7 +94,7 @@ class ExperimentDatabase:
                     "average_noise": result["average_noise"],
                     "explored_space": result["explored_space"],
                     "best_parameters": result["best_parameters"],
-                    "best_fitness": result["best_fitness"]
+                    "best_fitness": result["best_fitness"],
                 },
                 "$push": {
                     "jobids": result["jobids"],

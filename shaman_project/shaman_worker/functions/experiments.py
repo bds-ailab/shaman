@@ -4,8 +4,7 @@ This module defines the function that will launch a SHAMan experiment.
 import pathlib
 
 # SHAMan dependency
-from typing import Dict, Optional
-from pydantic import BaseModel
+from typing import Dict
 from loguru import logger
 from ..shaman_config import SHAManConfigBuilder, SHAMAN_CONFIG_TEMPLATE
 from bb_wrapper.run_experiment import run

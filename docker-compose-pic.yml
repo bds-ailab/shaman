@@ -7,10 +7,10 @@ services:
     hostname: mongo
     volumes:
       # tochange
-      - mongo_data:/data/db
+      - /shaman/mongo_data:/data/db
     restart: on-failure
     ports:
-      - "27017:27017"
+      - "27020:27017"
     expose:
       - 27017
     command: mongod --bind_ip 0.0.0.0 --replSet rs0
@@ -48,7 +48,7 @@ services:
     hostname: api
     command: uvicorn shaman_api:app --port 5000 --host 0.0.0.0
     ports:
-      - "5000:5000"
+      - "5001:5000"
 
   redis:
     image: redis:latest

@@ -1,10 +1,7 @@
 from typing import Any, Callable, get_type_hints
+from loguru import logger
 from fastapi import APIRouter
 from ..databases.shaman import ExperimentDatabase
-from ..logger import get_logger
-
-
-logger = get_logger("component_router")
 
 
 class ComponentRouter(APIRouter):

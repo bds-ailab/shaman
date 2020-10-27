@@ -5,28 +5,6 @@ configuration.
 from typing import Dict
 import yaml
 from pathlib import Path
-import os
-from pydantic import BaseSettings, validator
-
-from devtools import debug
-
-
-class SHAManSettings(BaseSettings):
-    """Class to get settings of shaman engine."""
-
-    directory: Path = "/slurm_fs"
-
-    def chdir(self) -> None:
-        self.directory.mkdir(exist_ok=True, parents=True)
-        os.chdir(self.directory)
-
-    def join_path(self, other: str) -> Path:
-        p = self.directory / other
-        return p.resolve()
-
-    class Config:
-        env_prefix = "shaman_"
-        case_sensitive = False
 
 
 class SHAManConfigBuilder:

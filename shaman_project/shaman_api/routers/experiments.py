@@ -6,7 +6,6 @@ from starlette.responses import Response
 from fastapi import HTTPException, WebSocket, WebSocketDisconnect
 from shaman_core.models.experiment_models import (
     Experiment,
-    WebSocketExperiment,
     DetailedExperiment,
     IntermediateResult,
     FinalResult,
