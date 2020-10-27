@@ -3,7 +3,7 @@ a collection containing the available components.
 """
 from httpx import Client
 from typer import Typer, Argument
-
+from loguru import logger
 from shaman_core.models.component_model import TunableComponentsModel
 from shaman_core.config import APIConfig
 
@@ -27,8 +27,11 @@ def install_component(
         base_url=f"http://{api_settings.api_host}:{api_settings.api_port}", proxies={},
     )
     component = TunableComponentsModel.from_yaml(component_file)
+    logger.debug(
+        f"Sending component data {component.dict()} to endpoint http://{api_settings.api_host}:{api_settings.api_port}/{api_settings.component_endpoint}"
+    )
     request = api_client.post(api_settings.component_endpoint, json=component.dict())
-    print("Successfully registered components.")
+    logger.info("Successfully registered components.")
     if not 200 <= request.status_code < 400:
         raise Exception(
             f"Could not create component with status code {request.status_code}"

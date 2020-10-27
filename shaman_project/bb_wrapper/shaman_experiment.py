@@ -116,6 +116,7 @@ class SHAManExperiment:
             + "/"
             + api_settings.component_endpoint,
         )
+        logger.debug(self.api_url + "/" + api_settings.component_endpoint)
 
         # Setup black box optimizer using configuration information
         self.bb_optimizer = self.setup_bb_optimizer()

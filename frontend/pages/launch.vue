@@ -50,7 +50,7 @@
           </div>
           <div class="border-b-2 p-4">
             <p class="font-bold text-xl">Parametric space:</p>
-            <div class="flex flex-row justify-between">
+            <div class="flex flex-wrap justify-between">
               <div
                 v-for="(parameter, parameterName) in componentParameters"
                 :key="parameter"
@@ -115,7 +115,7 @@
               type="number"
               name="nbr_iteration"
               min="2"
-              max="20"
+              max="200"
               required
               class="h-6 w-12 font-bold border-pink-900 border-2 rounded-sm text-center text-pink-600"
             />

@@ -275,7 +275,11 @@ export default {
           {
             description: 'Gain compared to default',
             value:
-              parseFloat(this.experiment.improvement_default).toFixed(2) + '%',
+              parseFloat(this.experiment.improvement_default).toFixed(2) +
+              '%' +
+              '(Default time:' +
+              this.defaultTime +
+              's)',
             tooltip:
               'Time gain compared to the default parametrization, expressed in percentage.'
           },
@@ -335,6 +339,13 @@ export default {
     },
     experimentParameters() {
       return this.experiment.experiment_parameters
+    },
+    defaultTime() {
+      if (this.experiment.default_run) {
+        return this.experiment.default_run.execution_time
+      } else {
+        return 0
+      }
     },
     noiseReductionParameters() {
       if (this.experiment.noise_reduction_strategy) {

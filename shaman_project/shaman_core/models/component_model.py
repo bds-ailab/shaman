@@ -33,7 +33,7 @@ class BaseConfiguration:
         Args:
             url (str): The URL to reach the API resource.
         """
-        request = httpx.get(url)
+        request = httpx.get(url, proxies={})
         if 200 <= request.status_code < 400:
             return cls(**request.json())
         else:
