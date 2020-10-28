@@ -114,10 +114,10 @@ class TunableComponent:
             # If the string for the flag is bigger than 1, use --
             if param_value.flag:
                 if len(param_value.flag) > 1:
-                    cmd_line += f" --{param_value.flag}" \
+                    cmd_line += f" --{param_value.flag} " \
                         f"{self.parameters.get(param)}"
                 else:
-                    cmd_line += f" -{param_value.flag}" \
+                    cmd_line += f" -{param_value.flag} " \
                         f"{self.parameters.get(param)}"
             else:
                 cmd_line += f"{param}={self.parameters.get(param)}"
@@ -141,7 +141,7 @@ class TunableComponent:
             # Iterate over each parameter
             for param, param_value in self.parameters_description.items():
                 if param_value.cmd_var:
-                    cmd_line += self.build_cmd_line(param)
+                    cmd_line += self.build_cmd_line(param) + " "
             return self.description.command + " " + " ".join(cmd_line.split())
 
     def add_header_sbatch(self, sbatch_file: str) -> str:
