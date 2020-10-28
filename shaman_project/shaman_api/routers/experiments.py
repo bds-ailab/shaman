@@ -1,6 +1,4 @@
-"""
-Rest API endpoints related to SHAman are defined in this module
-"""
+"""Rest API endpoints related to SHAman are defined in this module."""
 from typing import List, Optional
 from starlette.responses import Response
 from fastapi import HTTPException, WebSocket, WebSocketDisconnect
@@ -13,7 +11,7 @@ from shaman_core.models.experiment_models import (
     InitExperiment,
     ExperimentForm,
 )
-from .experiment_router import ExperimentRouter, ExperimentDatabase
+from .experiment_router import ExperimentRouter
 
 
 router = ExperimentRouter()
@@ -23,14 +21,14 @@ router = ExperimentRouter()
 @router.post(
     "/",
     summary="Create a new experiment",
-    description="Create a new experiment and store experiment data inside SHAMAN MongoDB database",
+    description="Create a new experiment and store experiment"
+    "data inside SHAMAN MongoDB database",
     response_description="Successfully created experiment",
     status_code=202,
 )
 async def create_shaman_experiment(experiment: InitExperiment):
-    """
-    Receive experiment data inside POST request and store experiment inside SHAMAN MongoDB database.
-    """
+    """Receive experiment data inside POST request and store experiment inside
+    SHAMAN MongoDB database."""
     result = await router.db.create_experiment(experiment.dict())
     return {"id": str(result.inserted_id)}
 
@@ -45,9 +43,8 @@ async def create_shaman_experiment(experiment: InitExperiment):
 async def get_shaman_experiments(
     limit: int = 1000, offset: Optional[int] = None
 ) -> List[Experiment]:
-    """
-    Receive experiment data inside POST request and store experiment inside SHAMAN MongoDB database.
-    """
+    """Receive experiment data inside POST request and store experiment inside
+    SHAMAN MongoDB database."""
     return await router.db.get_experiments(limit=limit, offset=offset)
 
 
@@ -63,7 +60,8 @@ async def launch_shaman_experiment(experiment_form: ExperimentForm):
     """Given the data from the user, launch a SHAMan experiment.
 
     Args:
-        experiment_form (ExperimentForm): the data sent from the UI to describe an experiment.
+        experiment_form (ExperimentForm): the data sent from
+            the UI to describe an experiment.
     """
     await router.redis.enqueue_job("launch_experiment", experiment_form.dict())
     return Response(content=None, status_code=202)
@@ -77,10 +75,9 @@ async def launch_shaman_experiment(experiment_form: ExperimentForm):
     responses={404: {"model": Message}},
     status_code=200,
 )
-async def get_shaman_experiments(experiment_id: str) -> DetailedExperiment:
-    """
-    Receive experiment data inside POST request and store experiment inside SHAMAN MongoDB database
-    """
+async def get_shaman_experiment(experiment_id: str) -> DetailedExperiment:
+    """Receive experiment data inside POST request and store experiment inside
+    SHAMAN MongoDB database."""
     experiment = await router.db.get_experiment(experiment_id)
     if experiment is None:
         raise HTTPException(
@@ -92,12 +89,14 @@ async def get_shaman_experiments(experiment_id: str) -> DetailedExperiment:
 @router.put(
     "/{experiment_id}/update",
     summary="Update experiment with intermediate result",
-    description="Update experiment and store intermediate resul inside SHAMAN MongoDB database",
+    description="Update experiment and store intermediate result"
+    "inside SHAMAN MongoDB database",
     response_description="Successfully stored intermediate result",
     response_class=Response,
     status_code=202,
 )
-async def update_shaman_experiment(experiment_id: str, result: IntermediateResult):
+async def update_shaman_experiment(experiment_id: str,
+                                   result: IntermediateResult):
     await router.db.update_experiment(experiment_id, result.dict())
     return Response(content=None, status_code=202)
 
@@ -115,7 +114,8 @@ async def websocket_endpoint(websocket: WebSocket):
 
 
 @router.websocket("/{experiment_id}/stream")
-async def websocket_endpoint(experiment_id: str, websocket: WebSocket):
+async def websocket_endpoint_experiment(experiment_id: str,
+                                        websocket: WebSocket):
     # Get experiment status
     status = await router.db.get_experiment_status(experiment_id)
     if not status == "finished":

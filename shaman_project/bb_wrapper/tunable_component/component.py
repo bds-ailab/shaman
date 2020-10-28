@@ -1,13 +1,16 @@
-"""
-This module contains the abstraction of a tunable HPC component. It must be implemented in order
-to tune a component using the optimization engine. It provides three methods most common to setup HPC components:
+"""This module contains the abstraction of a tunable HPC component. It must be
+implemented in order to tune a component using the optimization engine. It
+provides three methods most common to setup HPC components:
+
 - Submit a sbatch using set environment variables
 - Edit a sbatch to add the wanted library and its parameters as a header
 - Submit the sbatch along with a specified slurm plugin to activate the module
 
-The name of the components and its parametrization must be indicated in a YAML file, befor instanciating the class.
+The name of the components and its parametrization must be indicated in a YAML
+file, before instanciating the class.
 
-Of course, a child class can add any wanted new methods specific to the tunable component.
+Of course, a child class can add any wanted new methods specific to the
+tunable component.
 """
 import os
 
@@ -18,7 +21,7 @@ from pathlib import Path
 from collections import OrderedDict
 
 from loguru import logger
-from shaman_core.models.component_model import TunableComponentsModel, TunableParameter
+from shaman_core.models.component_model import TunableComponentsModel
 
 # Save current environment as variable
 ENV = os.environ.copy()
@@ -27,9 +30,7 @@ ENV = os.environ.copy()
 
 
 class TunableComponent:
-    """
-    Abstract class representing a tunable component.
-    """
+    """Abstract class representing a tunable component."""
 
     def __init__(
         self, name: str, module_configuration: str, parameters: dict = dict()
@@ -38,8 +39,8 @@ class TunableComponent:
 
         Args:
             name (str): The name of the module to load from the configuration
-            module_configuration (str): The path to the configuration file of the component,
-                either as a YAML file or an URL.
+            module_configuration (str): The path to the configuration file of
+                the component, either as a YAML file or an URL.
             parameters (dict): The parameters to setup the component.
         """
         # Check if the configuration file is an URL and try loading
@@ -59,7 +60,8 @@ class TunableComponent:
                 # If the file can't be found, raise an error
                 else:
                     raise FileNotFoundError(
-                        "Module configuration can't be found. Please make sure this file exist."
+                        "Module configuration can't be found."
+                        "Please make sure this file exist."
                     )
             # If it's not a YAML, raise an error
             else:
@@ -68,7 +70,8 @@ class TunableComponent:
         try:
             self.description = possible_components[name]
         except KeyError:
-            # If the component name is wrong but there other components, list them
+            # If the component name is wrong but
+            # there other components, list them
             if possible_components:
                 error_message = "There are no registered components"
             else:
@@ -84,7 +87,8 @@ class TunableComponent:
         self.parameters_description = self.description.parameters
         # Extract the description of the parameters for the component
         self.parameters = self.sanitize_parameters(parameters)
-        # Sanitize parameters, by checking their type and replacing them with their default value
+        # Sanitize parameters, by checking their type and replacing
+        # them with their default value
         # if unspecified
 
         self.var_env = ENV
@@ -94,9 +98,9 @@ class TunableComponent:
         # List of the jobs that have been submitted using the accelerator
 
     def build_cmd_line(self, param: str) -> str:
-        """
-        Build a command line variable given a parameter and its different attributes (suffix, flag).
-        
+        """Build a command line variable given a parameter and its different
+        attributes (suffix, flag).
+
         Args:
             param (str): The name of the parameter to use.
         """
@@ -110,9 +114,11 @@ class TunableComponent:
             # If the string for the flag is bigger than 1, use --
             if param_value.flag:
                 if len(param_value.flag) > 1:
-                    cmd_line += f" --{param_value.flag} {self.parameters.get(param)}"
+                    cmd_line += f" --{param_value.flag}" \
+                        f"{self.parameters.get(param)}"
                 else:
-                    cmd_line += f" -{param_value.flag} {self.parameters.get(param)}"
+                    cmd_line += f" -{param_value.flag}" \
+                        f"{self.parameters.get(param)}"
             else:
                 cmd_line += f"{param}={self.parameters.get(param)}"
             # Add suffix at the end of the command variable
@@ -121,9 +127,9 @@ class TunableComponent:
 
     @property
     def cmd_line(self) -> str:
-        """Collects all the parameters with a flag and a value and arrange them in order
-        to build a command line that can be used to launch the component. If there is no
-        command, returns an empty.
+        """Collects all the parameters with a flag and a value and arrange them
+        in order to build a command line that can be used to launch the
+        component. If there is no command, returns an empty.
 
         Returns:
             str: the corresponding command line.
@@ -139,11 +145,13 @@ class TunableComponent:
             return self.description.command + " " + " ".join(cmd_line.split())
 
     def add_header_sbatch(self, sbatch_file: str) -> str:
-        """Adds the header, the LD_PRELOAD and the command line corresponding to the component to the sbatch file.
-        The header is added to the first line which doesn't start by #SBATCH.
+        """Adds the header, the LD_PRELOAD and the command line corresponding
+        to the component to the sbatch file. The header is added to the first
+        line which doesn't start by #SBATCH.
 
         Args:
-            sbatch_file (str): The path to the sbatch where the header should be added.
+            sbatch_file (str): The path to the sbatch where the header
+                should be added.
 
         Returns:
             str: the path to the newly created sbatch.
@@ -158,29 +166,36 @@ class TunableComponent:
                 # Write the current line and break
                 copy_sbatch.write(line)
                 # If the line starts with # and not at the end of file
-                if line.startswith("#") and enum < len(line) - 2 and not written:
+                if line.startswith("#") and enum < len(line) - 2 \
+                        and not written:
                     following_line = lines[enum + 1]
                     # And not the following one
                     if not following_line.startswith("#"):
                         # Add the command line if exists
                         if self.cmd_line:
                             logger.info(
-                                f"Writing command line on top of sbatch: {self.cmd_line}"
+                                "Writing command line on top of sbatch:"
+                                f"{self.cmd_line}"
                             )
                             copy_sbatch.write(self.cmd_line + "\n")
-                        # Add the header at the beginning of the script if exists
+                        # Add the header at the beginning of the
+                        # script if exists
                         if self.description.header:
                             logger.info(
-                                f"Writing header on top of sbatch {self.description.header}"
+                                "Writing header on top of sbatch"
+                                f"{self.description.header}"
                             )
                             copy_sbatch.write(self.description.header + "\n")
-                        # Add the ld preload at the beginning of the script if exists
+                        # Add the ld preload at the beginningof
+                        # the script if exists
                         if self.description.ld_preload:
                             logger.info(
-                                f"Writing LD_PRELOAD on top of sbatch: LD_PRELOAD={self.description.ld_preload}"
+                                "Writing LD_PRELOAD on top of sbatch:"
+                                f"LD_PRELOAD={self.description.ld_preload}"
                             )
                             copy_sbatch.write(
-                                "LD_PRELOAD=" + self.description.ld_preload + "\n"
+                                "LD_PRELOAD=" +
+                                self.description.ld_preload + "\n"
                             )
 
                         written = True
@@ -188,12 +203,14 @@ class TunableComponent:
         return copy_sbatch_path
 
     def _build_sbatch_cmd_line(self, sbatch_file: str, wait: bool) -> str:
-        """Builds the command line to submit an sbatch_file using the HPC component.
-        This command line can be used in wait mode (hangs until the sbatch is finished).
+        """Builds the command line to submit an sbatch_file using the HPC
+        component. This command line can be used in wait mode (hangs until the
+        sbatch is finished).
 
         Args:
             sbatch_file (str): The path to the sbatch file to run.
-            wait (bool, optional): Whether or not the process is blocking. Defaults to True.
+            wait (bool, optional): Whether or not the process is blocking.
+                Defaults to True.
 
         Returns:
             str: The command line to use as a string.
@@ -221,14 +238,15 @@ class TunableComponent:
         return cmd_line
 
     def submit_sbatch(self, sbatch_file: str, wait: bool = True) -> int:
-        """Submits the sbatch file contained at the path sbatch_file with the accelerator,
-        by calling the setup method and then submitting the sbatch to the queue.
-        If the accelerator has a header, a new sbatch with the header included is created as a
-        copy.
+        """Submits the sbatch file contained at the path sbatch_file with the
+        accelerator, by calling the setup method and then submitting the sbatch
+        to the queue. If the accelerator has a header, a new sbatch with the
+        header included is created as a copy.
 
         Args:
             sbatch_file (str): The path to the sbatch file to run.
-            wait (bool, optional): Whether or not the process is blocking. Defaults to True.
+            wait (bool, optional): Whether or not the process is blocking.
+                Defaults to True.
 
         Returns:
             int: the ID of the submitted slurm job.
@@ -245,7 +263,8 @@ class TunableComponent:
         # Run the script using subprocess
         master, slave = pty.openpty()
         logger.info(f"Submitting sbatch with command line {cmd_line}")
-        logger.debug(f"Submitting sbatch with environment variables {self.var_env}")
+        logger.debug(
+            f"Submitting sbatch with environment variables {self.var_env}")
         sub_ps = subprocess.Popen(
             split(cmd_line), stdout=slave, stderr=slave, env=self.var_env
         )
@@ -254,16 +273,19 @@ class TunableComponent:
             try:
                 for ix in range(10):
                     try:
-                        # Get job id in second line if the submission has been a success
+                        # Get job id in second line
+                        # if the submission has been a success
                         job_id = int(stdout.readline().split()[-1])
                         logger.info(f"Submitted slurm job with id {job_id}")
                         self.submitted_jobids.append(job_id)
                         break
                     except ValueError:
                         logger.debug(
-                            f"Parsing of jobid through stdout tentative {ix} failed. Retrying again."
+                            f"Parsing of jobid through stdout tentative {ix}"
+                            "failed. Retrying again."
                         )
-                        # Try again because Slurm acts weird with its output and skipping two lines
+                        # Try again because Slurm acts weird
+                        # with its output and skipping two lines
                         # can do the trick
                         continue
             # Else, raise an error
@@ -272,23 +294,26 @@ class TunableComponent:
 
         # Wait until the process is over to get entire stdout and stderr
         sub_ps.wait()
-        output_stdout, output_stderr = sub_ps.communicate()
-        logger.debug(f"Return code for job submission subprocess: {sub_ps.returncode}")
+        _, output_stderr = sub_ps.communicate()
+        logger.debug(
+            f"Return code for job submission subprocess: {sub_ps.returncode}")
         # if sub_ps.returncode == 0:
         # If the slurm submission step is blocking (i.e. wait is enabled)
-        # The sub_ps retuning a succes code means that the job was successfully run
+        # The sub_ps retuning a succes code means that the job was
+        # successfully run
+        if not sub_ps.returncode == 0:
+            logger.critical(
+                f"Could not run job {job_id}: \n stderr: {output_stderr}")
+            raise Exception(
+                f"Could not run job {job_id}: \n stderr: {output_stderr}")
         if wait:
             logger.info(f"Successfully ran jobid {job_id}")
         return job_id
-        logger.critical(f"Could not run job {job_id}: \n stderr: {output_stderr}")
-        raise Exception(f"Could not run job {job_id}: \n stderr: {output_stderr}")
 
     def sanitize_parameters(self, parameters: dict) -> dict:
-        """
-        Checks beforehand that the type of the
-        parameter argument is correct (dictionary or ordered dictionary).
-        Get the default values from the description file.
-        Cast the type using the description file.
+        """Checks beforehand that the type of the parameter argument is correct
+        (dictionary or ordered dictionary). Get the default values from the
+        description file. Cast the type using the description file.
 
         Args:
              parameters (dict or OrderedDict): The raw parameters.
@@ -301,7 +326,8 @@ class TunableComponent:
             not isinstance(parameters, OrderedDict)
         ):
             raise TypeError("Parameters must be dicts or ordered dicts")
-        # From the description file, loads the parameter description associated with the
+        # From the description file, loads the parameter description
+        # associated with the
         # iomodules' name
         # Iterate over the description of the parameters
         for param, param_value in self.parameters_description.items():
@@ -315,22 +341,26 @@ class TunableComponent:
                         # If the parameter is optional, do not take its value
                         parameters[param] = param_value.default
                     else:
-                        # If the parameter is not in the parameters, there is no value,
+                        # If the parameter is not in the parameters, there is
+                        # no value,
                         # and the parameter is not optional
                         # raise a ValueError
                         raise ValueError(f"No value for parameter {param}")
             # If the parameter exists, cast parameters to integer
-            # TODO: change in case of qualitative variables (dirty hack right now)
+            # TODO: change in case of qualitative variables
+            # (dirty hack right now)
             else:
                 if not param_value.type == "str":
                     parameters[param] = int(float(parameters.get(param)))
         return parameters
 
     def setup_var_env(self):
-        """
-        Sets up the environment variables needed for the execution of the accelerator.
-        For each of the variable in the configuration file with a flag env_var set to True,
-        matches the environment variable with the corresponding parameter.
+        """Sets up the environment variables needed for the execution of the
+        accelerator.
+
+        For each of the variable in the configuration file with a flag
+        env_var set to True, matches the environment variable with the
+        corresponding parameter.
         """
         # Iterate over each parameter
         for param, param_value in self.parameters_description.items():

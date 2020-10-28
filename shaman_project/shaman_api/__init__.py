@@ -1,5 +1,4 @@
-"""
-Shaman API package.
+"""Shaman API package.
 
 Rest API written in Python using FastAPI framework
 """

@@ -1,5 +1,4 @@
 from typing import Any, Callable, get_type_hints
-from loguru import logger
 from fastapi import APIRouter
 from ..databases.shaman import ExperimentDatabase
 
@@ -21,9 +20,8 @@ class ComponentRouter(APIRouter):
     def add_api_route(
         self, path: str, endpoint: Callable[..., Any], **kwargs: Any
     ) -> None:
-        """
-        Overrides the route decorator logic to use the annotated return type as the `response_model` if unspecified.
-        """
+        """Overrides the route decorator logic to use the annotated return type
+        as the `response_model` if unspecified."""
         if kwargs.get("response_model") is None:
             kwargs["response_model"] = get_type_hints(endpoint).get("return")
         return super().add_api_route(path, endpoint, **kwargs)

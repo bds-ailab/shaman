@@ -1,10 +1,13 @@
-"""
-This module contains different functions that sample some data points from a parameter grid using
-different strategies for a smart selection. Many techniques and implementations exist from the
-literature and for now only two of the most common are available in the BBO package:
-- Random sampling, which simply consist in randomly drawing some parameter from the grid.
-- Latin Hypercube Sampling, which consist in finding a design that respect the "non collapse"
-properties of designs (there is no duplicate on any dimension).
+"""This module contains different functions that sample some data points from a
+parameter grid using different strategies for a smart selection. Many
+techniques and implementations exist from the literature and for now only two
+of the most common are available in the BBO package:
+
+- Random sampling, which simply consist in randomly drawing some parameter
+    from the grid.
+- Latin Hypercube Sampling, which consist in finding a design that respect
+    the "non collapse" properties of designs (there is no duplicate on any
+    dimension).
 """
 
 
@@ -13,13 +16,12 @@ from loguru import logger
 
 
 def uniform_random_draw(number_of_parameters, parameter_space):
-    """
-    Draws randomly number_of_parameters among the parameter_space.
+    """Draws randomly number_of_parameters among the parameter_space.
 
     Args:
         number_of_parameters (int): The number of parameters to draw.
-        parameter_space (numpy array of numpy arrays): The parameter space, each array
-            representing a dimension.
+        parameter_space (numpy array of numpy arrays): The parameter space,
+            each array representing a dimension.
 
     Returns:
         numpy array of numpy arrays: an array of size number_of_parameters *
@@ -37,24 +39,25 @@ def uniform_random_draw(number_of_parameters, parameter_space):
 
 
 def latin_hypercube_sampling(number_of_parameters, parameter_space):
-    """
-    Given a parameter space and a number of parameters to draw, draws number_of_parameters
-    parameter that respect the Latin Hypercube Sampling rule (no parameter have the same
-    dimension on any axis). The parameters are randomly drawn.
+    """Given a parameter space and a number of parameters to draw, draws
+    number_of_parameters parameter that respect the Latin Hypercube Sampling
+    rule (no parameter have the same dimension on any axis).
+    The parameters are randomly drawn.
 
     Note that in order to respect this condition, there must be no more
     sampled points than the smallest dimension of the parameter space.
 
     Args:
         number_of_parameters (int): The number of parameters to draw.
-        parameter_space (numpy array of numpy arrays): The parameter space, each array
-            representing a dimension.
+        parameter_space (numpy array of numpy arrays): The parameter space,
+            each array representing a dimension.
 
     Returns:
         numpy array of numpy arrays: an array of size number_of_parameters *
             number_of_axis containing the parameters.
     """
-    # assert that the number of parameters is inferior to the maximum size of the parameter space
+    # assert that the number of parameters is inferior to the maximum size of
+    # the parameter space
     smallest_size = np.min([len(arr) for arr in parameter_space])
     assert number_of_parameters <= smallest_size, (
         "The number of parameters to be drawn can't be "
@@ -70,7 +73,8 @@ def latin_hypercube_sampling(number_of_parameters, parameter_space):
         # for each dimension
         for idx, dimension in enumerate(parameter_space):
             # randomly draw the first coordinate
-            random_coordinate = np.random.choice(dimension, 1, replace=False).tolist()
+            random_coordinate = np.random.choice(
+                dimension, 1, replace=False).tolist()
             # while the coordinate is already taken
             while random_coordinate in random_draw[:, idx]:
                 random_coordinate = np.random.choice(
@@ -82,21 +86,21 @@ def latin_hypercube_sampling(number_of_parameters, parameter_space):
 
 
 def hybrid_lhs_uniform_sampling(number_of_parameters, parameter_space):
-    """
-    Draws number_of_parameters parameter that respect the Latin Hypercube Sampling rule while the
-    number of parameter does not exceed the number value in the smallest sample. Beyond, a uniform
-    random sampling is applied
+    """Draws number_of_parameters parameter that respect the Latin Hypercube
+    Sampling rule while the number of parameter does not exceed the number
+    value in the smallest sample. Beyond, a uniform random sampling is applied.
 
     Args:
         number_of_parameters (int): The number of parameters to draw.
-        parameter_space (numpy array of numpy arrays): The parameter space, each array
-            representing a dimension.
+        parameter_space (numpy array of numpy arrays): The parameter space,
+            each array representing a dimension.
 
     Returns:
         numpy array of numpy arrays: an array of size number_of_parameters *
             number_of_axis containing the parameters.
     """
-    logger.debug(f"Selected number of initial parameters: {number_of_parameters}")
+    logger.debug(
+        f"Selected number of initial parameters: {number_of_parameters}")
     n_lhs_param = number_of_parameters
     smallest_size = np.min([len(arr) for arr in parameter_space])
     if smallest_size < number_of_parameters:

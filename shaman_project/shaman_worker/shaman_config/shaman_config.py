@@ -1,15 +1,13 @@
-"""
-Given data sent by the user from the Web Interface, builds the corresponding experiment
-configuration.
-"""
+"""Given data sent by the user from the Web Interface, builds the corresponding
+experiment configuration."""
 from typing import Dict
 import yaml
 from pathlib import Path
 
 
 class SHAManConfigBuilder:
-    """Class to build a shaman configuration file from the data sent by the user.
-    """
+    """Class to build a shaman configuration file from the data sent by the
+    user."""
 
     CONFIGURATION_KEYS = {
         "experiment": ["default_first"],
@@ -37,8 +35,8 @@ class SHAManConfigBuilder:
     }
 
     def __init__(self, default_file: Path, output_file: Path) -> None:
-        """Initialize an object of class SHAManConfig, by using a default file and creating an
-        output file.
+        """Initialize an object of class SHAManConfig, by using a default file
+        and creating an output file.
 
         Args:
             default_file (Path): The path to the default file.
@@ -53,7 +51,8 @@ class SHAManConfigBuilder:
     @staticmethod
     def build_parametric_space(post_data: Dict) -> Dict:
         """
-        Builds the part of the configuration file that will contain the parametric space description.
+        Builds the part of the configuration file that will contain the
+        parametric space description.
         {
             param_1: {min: 1, max: 2, step: 1},
             ...
@@ -78,6 +77,7 @@ class SHAManConfigBuilder:
 
     def filter_post_data(self, post_data: Dict) -> Dict:
         """Separate the post_data into a nested with four top level keys:
+
             - experiment: parameters concerning the experiment
             - bbo_parameters: parameters concerning the BBO package
             - pruning_strategy: parameters concerning the pruning strategy.
@@ -85,8 +85,8 @@ class SHAManConfigBuilder:
             - components: the parameters and their range
 
         Args:
-            post_data (dict): the data sent by the user containing the different configuration
-                parameters.
+            post_data (dict): the data sent by the user containing the
+                different configuration parameters.
 
         Returns:
             dict: a filtered dictionary.
@@ -106,7 +106,8 @@ class SHAManConfigBuilder:
         return filtered_data
 
     def update_section(self, section_name: str, update_dict: Dict) -> None:
-        """Update the section 'section_name' with the data contained in update_dict.
+        """Update the section 'section_name' with the data contained in
+        update_dict.
 
         Args:
             section_name (str): The name of the section to update
@@ -128,13 +129,16 @@ class SHAManConfigBuilder:
                 self.config.pop(section_name)
 
     def build_configuration(self, post_data: Dict) -> None:
-        """Build the configuration from a default file by filling out the different values using the
-        data contained in the dictionary 'post_data'.
+        """Build the configuration from a default file by filling out the
+        different values using the data contained in the dictionary
+        'post_data'.
 
         Args:
-            post_data (dict): Dictionary containing the parameters of the experiment
+            post_data (dict): Dictionary containing the parameters of the
+            experiment
         """
-        # Separate the data into the three possible sections of the CFG, filtering on the fields
+        # Separate the data into the three possible sections of the CFG,
+        # filtering on the fields
         config_dicts = self.filter_post_data(post_data)
         # Update each section of the configuration
         self.update_section("bbo", config_dicts["bbo"])
@@ -146,8 +150,8 @@ class SHAManConfigBuilder:
         self.save_configuration()
 
     def save_configuration(self) -> None:
-        """Save the configuration file in the location indicated by the attribute output file.
-        """
+        """Save the configuration file in the location indicated by the
+        attribute output file."""
         with open(self.output_file, "w") as configfile:
             yaml.dump(self.config, configfile)
             print(f"Dumped configuration file at {self.output_file}")

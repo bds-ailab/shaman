@@ -1,6 +1,6 @@
-"""This script is the entrypoint for little-shaman, by defining a main function which launches the
-exploration process.
-It ties together all the components required by the application.
+"""This script is the entrypoint for little-shaman, by defining a main function
+which launches the exploration process. It ties together all the components
+required by the application.
 
 It defines a single function main which runs the experiment.
 """
@@ -15,15 +15,18 @@ cli = Typer(add_completion=False)
 
 
 def run(
-    component_name: str = Option(..., help="The name of the component to tune"),
+    component_name: str = Option(...,
+                                 help="The name of the component to tune"),
     nbr_iteration: int = Option(
         ..., help="The maximal number of iterations to run the experiment for."
     ),
     sbatch_file: str = Option(..., help="The path to the sbatch file"),
     experiment_name: str = Option(..., help="The name to give the experiment"),
-    configuration_file: str = Option(..., help="The path to the configuration file"),
+    configuration_file: str = Option(
+        ..., help="The path to the configuration file"),
     sbatch_dir: str = Option(None, help="The directory to store the sbatch"),
-    slurm_dir: str = Option(None, help="The directory to write the slurm outputs"),
+    slurm_dir: str = Option(
+        None, help="The directory to write the slurm outputs"),
     result_file: str = Option(None, help="The path to the result file."),
 ) -> None:
     """Run an optimization experiment."""
@@ -63,12 +66,14 @@ def run(
         logger.debug(f"Experiment {experiment_name} was run successfully.")
     except KeyboardInterrupt:
         logger.info(
-            f"Stopping experiment {experiment_name} through keyboard interrupt."
+            f"Stopping experiment {experiment_name} through keyboard"
+            "interrupt."
         )
         experiment.stop()
     except Exception as e:
         logger.critical(
-            f"Encountered exception while launching experiment {experiment_name}: {e}"
+            "Encountered exception while launching experiment"
+            f"{experiment_name}: {e}"
         )
         experiment.fail()
 

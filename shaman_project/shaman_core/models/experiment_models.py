@@ -9,8 +9,7 @@ class MongoModel(BaseModel):
 
 
 class DefaultRun(MongoModel):
-    """Schema for the default run of an experiment.
-    """
+    """Schema for the default run of an experiment."""
 
     execution_time: float
     job_id: int
@@ -18,9 +17,7 @@ class DefaultRun(MongoModel):
 
 
 class InitExperiment(MongoModel):
-    """
-    A model describing an experiment upon initialization.
-    """
+    """A model describing an experiment upon initialization."""
 
     experiment_name: str
     experiment_start: str
@@ -33,9 +30,7 @@ class InitExperiment(MongoModel):
 
 
 class Experiment(MongoModel):
-    """
-    A model describing an experiment once it has finished running.
-    """
+    """A model describing an experiment once it has finished running."""
 
     id: str = Field(..., alias="_id")
     experiment_name: str = None
@@ -49,17 +44,13 @@ class Experiment(MongoModel):
 
 
 class WebSocketExperiment(Experiment):
-    """
-    A model describing an experiment once it has finished running.
-    """
+    """A model describing an experiment once it has finished running."""
 
     send_type: str
 
 
 class FinalResult(MongoModel):
-    """
-    Data to push at the end of an experiment.
-    """
+    """Data to push at the end of an experiment."""
 
     average_noise: float
     default_run: DefaultRun
@@ -76,8 +67,7 @@ class FinalResult(MongoModel):
 
 
 class DetailedExperiment(Experiment):
-    """Detailed experiment model.
-    """
+    """Detailed experiment model."""
 
     jobids: List[int] = None
     parameters: List[dict] = None
@@ -108,9 +98,7 @@ class DetailedExperiment(Experiment):
 
 
 class IntermediateResult(MongoModel):
-    """
-    A model describing an intermediate result of an experiment
-    """
+    """A model describing an intermediate result of an experiment."""
 
     jobids: int
     parameters: Dict
@@ -126,8 +114,8 @@ class IntermediateResult(MongoModel):
 
 
 class ExperimentForm(MongoModel):
-    """A model describing the data received from the client to launch the experiment.
-    """
+    """A model describing the data received from the client to launch the
+    experiment."""
 
     component_name: str
     nbr_iteration: int
@@ -150,8 +138,7 @@ class ExperimentForm(MongoModel):
     restart: Optional[str]
 
     class Config:
-        """Ignore extra fields because of unknown name of parameters.
-        """
+        """Ignore extra fields because of unknown name of parameters."""
 
         extra = "allow"
 

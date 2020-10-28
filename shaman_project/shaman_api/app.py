@@ -11,8 +11,12 @@ app = FastAPI(
 )
 
 
-app.include_router(experiment_router, prefix="/experiments", tags=["Experiments"])
-app.include_router(component_router, prefix="/components", tags=["Components"])
+app.include_router(experiment_router,
+                   prefix="/experiments",
+                   tags=["Experiments"])
+app.include_router(component_router,
+                   prefix="/components",
+                   tags=["Components"])
 
 app.add_middleware(
     CORSMiddleware,
