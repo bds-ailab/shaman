@@ -43,8 +43,3 @@ jobs:
       - name: Run unit tests
         run: |
           pytest --ignore=tests/bb_wrapper/integration --ignore=tests/api/ --ignore=tests/shaman_worker/ --cov=shaman_project/bb_wrapper/ --cov=shaman_project/shaman_core/ --cov=shaman_project/bbo/
-
-      # Generate coverage badge
-      - name: Generate coverage badge
-        run: |
-          coverage-badge -o badges/coverage.svg -f

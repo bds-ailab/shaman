@@ -46,6 +46,7 @@ jobs:
           context: .
           file: ./docker/Dockerfile.slurm.compute
       - name: Build and push Slurm optimization worker
+        uses: docker/build-push-action@v2
         with:
           push: true
           tags: sphrbthyk/shaman-slurm-optimization:latest
