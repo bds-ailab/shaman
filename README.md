@@ -1,4 +1,5 @@
 <img src="https://github.com/SphRbtHyk/shaman_project/blob/next/frontend/assets/little_shaman.png" width="130">
+
 # The SHAMan application
 
 ![Tests](https://github.com/SphRbtHyk/shaman_project/workflows/Unittests/badge.svg)
