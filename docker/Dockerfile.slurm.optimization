@@ -24,7 +24,7 @@ WORKDIR /shaman_project
 # Copy project toml and tasks file
 COPY pyproject.toml .
 COPY poetry.lock .
-COPY tasks.py .
+# COPY tasks.py .
 COPY shaman_project /shaman_project/shaman_project
 
 # Set correct locale
