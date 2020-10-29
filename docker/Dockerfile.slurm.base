@@ -1,4 +1,4 @@
-FROM slurm-dependencies
+FROM sphrbthyk/slurm-dependencies:latest
 
 # Copy the configuration file
 COPY docker/config/slurm.conf /etc/slurm/
