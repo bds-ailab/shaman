@@ -19,42 +19,37 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Build and push SHAMan ui
         id: docker_build_ui
-        uses: docker/build-push-action@v1
+        uses: docker/build-push-action@v2
         with:
           push: true
-          repository: sphrbthyk/shaman-ui:latest
-          path: .
-          file: docker/Dockerfile.ui
-          tags: latest
+          tags: sphrbthyk/shaman-ui:latest
+          context: .
+          file: ./docker/Dockerfile.ui
       - name: Build and push SHAMan API
-        uses: docker/build-push-action@v1
+        uses: docker/build-push-action@v2
         with:
           push: true
-          repository: sphrbthyk/shaman-api:latest
-          path: .
-          file: docker/Dockerfile.api
-          tags: latest
+          tags: sphrbthyk/shaman-api:latest
+          context: .
+          file: ./docker/Dockerfile.api
       - name: Build and push Slurm controller node
-        uses: docker/build-push-action@v1
+        uses: docker/build-push-action@v2
         with:
           push: true
-          repository: sphrbthyk/shaman-slurm-controller:latest
-          path: .
-          file: docker/Dockerfile.slurm.controller
-          tags: latest
+          tags: sphrbthyk/shaman-slurm-controller:latest
+          context: .
+          file: ./docker/Dockerfile.slurm.controller
       - name: Build and push Slurm compute node
-        uses: docker/build-push-action@v1
+        uses: docker/build-push-action@v2
         with:
           push: true
-          repository: sphrbthyk/shaman-slurm-compute:latest
-          path: .
-          file: docker/Dockerfile.slurm.compute
-          tags: latest
+          tags: sphrbthyk/shaman-slurm-compute:latest
+          context: .
+          file: ./docker/Dockerfile.slurm.compute
       - name: Build and push Slurm optimization worker
-        uses: docker/build-push-action@v1
+        uses: docker/build-push-action@v2
         with:
           push: true
-          repository: sphrbthyk/shaman-slurm-optimization:latest
-          path: .
-          file: docker/Dockerfile.slurm.optimization
-          tags: latest
+          tags: sphrbthyk/shaman-slurm-optimization:latest
+          context: .
+          file: ./docker/Dockerfile.slurm.optimization
