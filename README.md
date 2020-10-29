@@ -1,7 +1,7 @@
 # The SHAMan project
 
-![Tests](https://github.com/SphRbtHyk/shaman_project/workflows/unittests/badge.svg)
-![flake-8](https://github.com/SphRbtHyk/shaman_project/workflows/flake8/badge.svg)
+![Tests](https://github.com/SphRbtHyk/shaman_project/workflows/Unittests/badge.svg)
+![flake-8](https://github.com/SphRbtHyk/shaman_project/workflows/Flake8/badge.svg)
 ![Docker builds](https://github.com/SphRbtHyk/shaman_project/workflows/Docker%20builds/badge.svg)
 
 The SHAMan project is the result of my research works during my PhD on the auto-tuning of I/O accelerators.
