@@ -1,20 +1,44 @@
-# The SHAMan project
+# The SHAMan application
 
 ![Tests](https://github.com/SphRbtHyk/shaman_project/workflows/Unittests/badge.svg)
 ![flake-8](https://github.com/SphRbtHyk/shaman_project/workflows/Flake8/badge.svg)
 ![Docker builds](https://github.com/SphRbtHyk/shaman_project/workflows/Docker%20builds/badge.svg)
 
-The SHAMan project is the result of my research works during my PhD on the auto-tuning of I/O accelerators.
-Its an optimization framework to find the optimum parametrization of an I/O accelerator for HPC applications.
+# Main goal and features
 
-It is composed of three modules: - **bbo**: Contains the black-box optimization. - **iomodules_handler**: A Python interface for manipulating I/O accelerators. - **little_shaman**: The Python module which performs the optimization of I/O accelerators.
+SHAMan is an out-of-the-box Web application to perform black-box auto-tuning of custom computer components running on a distributed system, for an application submitted by a user. This framework integrates three state-of-art heuristics, as well as noise reduction strategies to deal with the possible interference of shared resources for large scale HPC systems, and pruning strategies to limit the time spent by the optimization process.
 
-## Installing the different modules
+Compared to already existing softwares, it provides these main advantages:
 
-Each module comes with a <code>setup.py</code> file, and can be installed running <code>python setup.py install</code> in the corresponding folder.
-An easier way to proceed is to rely on the Makefile. You can call the command <code>make install-{packagename}</code>, which creates a virtualenv where the package is installed. All you have to do to source the environment: <code>source .venv/bin/activate</code>
+:rocket: **Accessibility**: the optimization engine is accessible either through a Web Interface or a CLI
 
-## Continuous integration
+:rocket: **Easy to extend**: the optimization engine uses a plug-in architecture and the development of the heuristic is thus the only development cost
 
-For now, there is no continuous integration pipeline associated with the project and the projects different stats are not available on a dashboard.
-To mitigate this problem and to make reviewing easy, the package comes with a Makefile and a <code>ci</code> target. All you have to do is clone the repository, then call <code>make ci</code> in the main folder. This will run the unit tests, compute their coverages and return the Pylint scores of the project.
+:rocket: **Integrated within the HPC ecosystem**: the framework relies on the Slurmworkload manager to run HPC applications. The microservice architectureenables it to have no concurrent interactions with the cluster and the appli-cation itself.
+
+:rocket: **Flexible for a wide range of use-cases**: new components can be registeredthrough a generalist configuration file.
+
+:rocket: **Integrates noise reduction strategies**: because of their highly dynamic natureand the complexity of applications and software stacks, HPC systems aresubject to many interference when running in production, which results in a different performance measure for each run even with the same system’sparametrization. Noise reduction strategies are included in the framework toperform well even in the case of strong interference.
+
+:rocket: **Integrates pruning strategies**: runs with unsuited parametrization are aborted,to speed-up the convergence process
+
+# Installation
+
+SHAMan can be installed in a containerized environment, as several docker containers run with `docker-compose`. However, this type of install is only suitable for demo purpose: it is not possible to infer proper performance metrics from hardwares or softwares running in a containerized environment. To deal with production installs, we provide a ansible playbook to deploy the services of the application that require the system's full performance.
+
+## Demo version
+To run the demo version of the 
+
+## Running in production
+
+# Registering a new component
+
+# Creating an experiment
+
+# Documentation
+
+More details about the available heuristics, the architecture and how it works is available in the documentation.
+
+# Maintainers
+
+# Contributing
