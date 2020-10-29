@@ -23,33 +23,33 @@ jobs:
         with:
           push: true
           tags: sphrbthyk/shaman-ui:latest
-          context: .
+          # context: .
           file: docker/Dockerfile.ui
       - name: Build and push SHAMan API
         uses: docker/build-push-action@v2
         with:
           push: true
           tags: sphrbthyk/shaman-api:latest
-          context: .
+          # context: .
           file: docker/Dockerfile.api
       - name: Build and push Slurm controller node
         uses: docker/build-push-action@v2
         with:
           push: true
           tags: sphrbthyk/shaman-slurm-controller:latest
-          context: .
+          # context: .
           file: docker/Dockerfile.slurm.controller
       - name: Build and push Slurm compute node
         uses: docker/build-push-action@v2
         with:
           push: true
           tags: sphrbthyk/shaman-slurm-compute:latest
-          context: .
+          # context: .
           file: docker/Dockerfile.slurm.compute
       - name: Build and push Slurm optimization worker
         uses: docker/build-push-action@v2
         with:
           push: true
           tags: sphrbthyk/shaman-slurm-optimization:latest
-          context: .
+          # context: .
           file: docker/Dockerfile.slurm.optimization
