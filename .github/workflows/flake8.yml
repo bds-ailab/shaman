@@ -3,8 +3,8 @@ name: Flake8
 on: push
 
 jobs:
-  lint-and-test:
-    name: Run the unit test
+  lint:
+    name: Run the flake8 linter
     runs-on: ubuntu-latest
     strategy:
       matrix:

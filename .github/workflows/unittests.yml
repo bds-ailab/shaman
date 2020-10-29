@@ -3,7 +3,7 @@ name: Unittests
 on: push
 
 jobs:
-  lint-and-test:
+  unittest:
     name: Run the unit test
     runs-on: ubuntu-latest
     strategy:
