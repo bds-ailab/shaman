@@ -1,6 +1,7 @@
 # The SHAMan project
 
-![Tests](https://github.com/SphRbtHyk/shaman_project/workflows/.github/workflows/main.yml/badge.svg)
+![Tests](https://github.com/SphRbtHyk/shaman_project/workflows/.github/workflows/python.yml/badge.svg)
+![flake-8](https://github.com/SphRbtHyk/shaman_project/workflows/.github/workflows/python.yml/badge.svg)
 ![Coverage](https://github.com/SphRbtHyk/shaman_project/badges/coverage.svg)
 
 The SHAMan project is the result of my research works during my PhD on the auto-tuning of I/O accelerators.

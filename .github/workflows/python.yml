@@ -1,6 +1,5 @@
-name: CI Pipeline for SHAMan project
+name: Python flake8 and unit tests
 
-# Run this workflow every time a new commit pushed to your repository
 on: push
 
 jobs:
