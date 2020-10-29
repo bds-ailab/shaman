@@ -2,7 +2,7 @@ name: Push and build of docker images
 
 on:
   push:
-    branches: master
+    branches: next
 
 jobs:
   main:
