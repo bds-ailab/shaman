@@ -39,6 +39,7 @@ pytest-cov = "^2.10.1"
 invoke = "^1.4.1"
 devtools = "^0.6"
 watchgod = "^0.6"
+coverage-badge = "^1.0.1"
 
 [tool.poetry.extras]
 bb-wrapper = ["pydantic", "requests", "typer", "PyYAML"]
@@ -52,6 +53,10 @@ shaman-api = "shaman_api.cli:cli"
 shaman-install = "bb_wrapper.tunable_component.install_component:cli"
 shaman-optimize = "bb_wrapper.run_experiment:cli"
 
+[tool.autopep8]
+max_line_length = 80
+
 [build-system]
 requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"
+

@@ -1,5 +1,10 @@
 # The SHAMan project
 
+![Tests](https://github.com/SphRbtHyk/shaman_project/workflows/Python%20flake8%20and%20unit%20tests/badge.svg)
+![flake-8](https://github.com/SphRbtHyk/shaman_project/workflows/Python%20flake8%20and%20unit%20tests/badge.svg)
+![build](https://github.com/SphRbtHyk/shaman_project/workflows/.github/workflows/build.yml/badge.svg)
+![Coverage](https://github.com/SphRbtHyk/shaman_project/badges/coverage.svg)
+
 The SHAMan project is the result of my research works during my PhD on the auto-tuning of I/O accelerators.
 Its an optimization framework to find the optimum parametrization of an I/O accelerator for HPC applications.
 

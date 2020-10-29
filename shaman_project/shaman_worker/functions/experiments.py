@@ -1,6 +1,4 @@
-"""
-This module defines the function that will launch a SHAMan experiment.
-"""
+"""This module defines the function that will launch a SHAMan experiment."""
 import pathlib
 
 # SHAMan dependency
@@ -19,7 +17,8 @@ async def launch_experiment(context, experiment: Dict):
     setup_logger_from_settings(logging_setting)
 
     logger.info(
-        f"Requested worker to run an experiment with parametrization: {experiment}"
+        "Requested worker to run an experiment with parametrization:"
+        f"{experiment}"
     )
     # Get sbatch file path
     sbatch_filepath = context["settings"].join_path("ui_sbatch.sbatch")
@@ -29,7 +28,8 @@ async def launch_experiment(context, experiment: Dict):
     # Get SHAMan configuration file path
     config_filepath = context["settings"].join_path("config_shaman.yaml")
     # Create ShamanConfig object
-    shaman_config = SHAManConfigBuilder(SHAMAN_CONFIG_TEMPLATE, config_filepath)
+    shaman_config = SHAManConfigBuilder(SHAMAN_CONFIG_TEMPLATE,
+                                        config_filepath)
     # Build the configuration file
     shaman_config.build_configuration(experiment)
     # Launch the experiment

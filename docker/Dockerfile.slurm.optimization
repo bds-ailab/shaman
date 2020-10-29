@@ -1,5 +1,5 @@
 # Image for compute node
-FROM sphrbthyk/shaman_project:slurm-base
+FROM sphrbthyk/shaman-slurm-base
 
 # Setup proper configuration for slurm
 RUN  touch /var/log/slurmd.log &&\

@@ -1,7 +1,6 @@
-"""
-The goal of this class is to provide an object which returns the execution time associated with each
-parametrization and is compatible with the BBO standards by having a compute method.
-"""
+"""The goal of this class is to provide an object which returns the execution
+time associated with each parametrization and is compatible with the BBO
+standards by having a compute method."""
 
 from pathlib import Path
 import re
@@ -16,10 +15,8 @@ from .tunable_component.component import TunableComponent
 
 
 class BBWrapper:
-    """
-    Given an instance of a class TunableComponent and
-    a sbatch file, builds a "black-box" which is suitable for use with BBO.
-    """
+    """Given an instance of a class TunableComponent and a sbatch file, builds
+    a "black-box" which is suitable for use with BBO."""
 
     def __init__(
         self,
@@ -29,22 +26,27 @@ class BBWrapper:
         component_configuration: str = "",
         sbatch_dir: str = Path.cwd(),
     ) -> None:
-        """Creates an object of class AccBlackBox, with the accelerator accelerator_name
-        and the file sbatch_file.
+        """Creates an object of class AccBlackBox, with the accelerator
+        accelerator_name and the file sbatch_file.
 
         Args:
-            component_name (str): The name of the component, among those registered.
-            parameter_names (list of str): The name of the parameters that will be tuned.
-            component_configuration (str): The path to the configuration of the components. It can
-                either link to a file or to a API connection.
+            component_name (str): The name of the component,
+                among those registered.
+            parameter_names (list of str): The name of the parameters that
+                will be tuned.
+            component_configuration (str): The path to the configuration of
+                the components. It can either link to a file or to
+                a API connection.
             sbatch_file (str): The path to the sbatch file to launch.
-            sbatch_dir (str): The path to the directory where the sbatch file is generated.
+            sbatch_dir (str): The path to the directory where the sbatch file
+                is generated.
         """
         self.component_name = component_name
         self.parameter_names = parameter_names
         self.component_configuration = component_configuration
         self.sbatch_dir = (
-            Path(sbatch_dir) if not isinstance(sbatch_dir, Path) else sbatch_dir
+            Path(sbatch_dir) if not isinstance(
+                sbatch_dir, Path) else sbatch_dir
         )
         self.sbatch_file = self.copy_sbatch(sbatch_file)
 
@@ -61,9 +63,8 @@ class BBWrapper:
 
     def copy_sbatch(self, sbatch_file: str) -> str:
         """This method copies the sbatch in order to transform it into a timed
-        sbatch which can be used by the optimizer.
-        This sbatch file will be stored in the same folder as the sbatch
-        submitted to the command line.
+        sbatch which can be used by the optimizer. This sbatch file will be
+        stored in the same folder as the sbatch submitted to the command line.
 
         Args:
             sbatch_file (str): The path to the sbatch file.
@@ -75,7 +76,8 @@ class BBWrapper:
         timed_written = False
         direct_copy = False
         self.sbatch_dir.mkdir(exist_ok=True)
-        new_path = self.sbatch_dir / (str(Path(sbatch_file).stem) + "_shaman.sbatch")
+        new_path = self.sbatch_dir / \
+            (str(Path(sbatch_file).stem) + "_shaman.sbatch")
         copy_sbatch = open(new_path, "w")
         # Check if file is already timed
         with open(sbatch_file, "r") as read_file:
@@ -84,7 +86,8 @@ class BBWrapper:
             for enum, line in enumerate(lines):
                 # If the line is timed already, break by copying the file
                 if line.startswith("time"):
-                    logger.debug(f"File {sbatch_file} is alread timed, escaping.")
+                    logger.debug(
+                        f"File {sbatch_file} is alread timed, escaping.")
                     direct_copy = True
                     break
                 # Write the current line and break
@@ -94,13 +97,15 @@ class BBWrapper:
                     following_line = lines[enum + 1]
                     # And not the following one and the time command has not
                     # yet been written
-                    if not following_line.startswith("#") and not timed_written:
+                    if not following_line.startswith("#") \
+                            and not timed_written:
                         copy_sbatch.write("time (" + "\n")
                         # Set time written to true
                         timed_written = True
                         logger.debug(f"Added time command to file {new_path}")
             if direct_copy:
-                # Leave the started file and directly copy the original timed file
+                # Leave the started file
+                # and directly copy the original timed file
                 copy_sbatch.close()
                 copyfile(sbatch_file, new_path)
             else:
@@ -110,7 +115,8 @@ class BBWrapper:
             return new_path
 
     def setup_component(self, parameters: Iterable) -> None:
-        """Setsup the component with the right configuration and the right parameters.
+        """Setsup the component with the right configuration and the right
+        parameters.
 
         Args:
             parameters (Iterable): The parameters to setup the component with.
@@ -120,7 +126,8 @@ class BBWrapper:
         """
         parameter_dict = dict(zip(self.parameter_names, parameters))
         logger.debug(
-            f"Setting up {self.component_name} black-box with parametrization {parameter_dict}"
+            f"Setting up {self.component_name} black-box with"
+            f"parametrization {parameter_dict}"
         )
         self.component = TunableComponent(
             self.component_name,
@@ -151,19 +158,20 @@ class BBWrapper:
         return execution_time
 
     def run_default(self) -> float:
-        """Launch the black-box with the default parameters, as specified in the IOModules
-        configuration file.
-        """
+        """Launch the black-box with the default parameters, as specified in
+        the IOModules configuration file."""
         # Submit the sbatch using the accelerator
         self.default_component = TunableComponent(
             self.component_name, self.component_configuration
         )
         # Log the output
         logger.debug(
-            f"Launching {self.component_name} black-box with default parametrization {self.default_component.parameters}"
+            f"Launching {self.component_name} black-box with default"
+            f"parametrization {self.default_component.parameters}"
         )
 
-        job_id = self.default_component.submit_sbatch(self.sbatch_file, wait=True)
+        job_id = self.default_component.submit_sbatch(
+            self.sbatch_file, wait=True)
         # Store the id of the default job
         self.default_jobid = job_id
         # Store the default parameters
@@ -176,21 +184,21 @@ class BBWrapper:
         return execution_time
 
     def step_cost_function(self) -> float:
-        """
-        Defines a custom cost function in order to be able to use BBO asynchronously. It computes
-        the slurm running time of the currently running job (i.e. the last element of
-        the currently running jobid).
+        """Defines a custom cost function in order to be able to use BBO
+        asynchronously.
+
+        It computes the slurm running time of the currently running job
+        (i.e. the last element of the currently running jobid).
         """
         return self.parse_job_elapsed_time(self.component.submitted_jobids[-1])
 
     def on_interrupt(self) -> None:
-        """
-        If the .compute method of the black-box is called, scancel the last job.
-        """
+        """If the .compute method of the black-box is called scancel the last
+        job."""
         self.scancel_job(self.component.submitted_jobids[-1])
 
     def _parse_slurm_times(self, out_file=str) -> float:
-        """Parses the slurm times associated with the file slurm-job_id.out
+        """Parses the slurm times associated with the file slurm-job_id.out.
 
         Args:
             out_file (str): The job slurm output file path to parse.
@@ -201,7 +209,7 @@ class BBWrapper:
         real_time = None
         try:
             logger.debug(f"Parsing file {out_file}")
-            logger.debug(f"Waiting 10 seconds to wait for .out to be written")
+            logger.debug("Waiting 10 seconds to wait for .out to be written")
             sleep(10)
             with open(out_file, "r") as file:
                 lines = file.readlines()
@@ -216,16 +224,16 @@ class BBWrapper:
                         if real_time:
                             return real_time
             raise ValueError(
-                f"Could not parse time of slurm output, content set to {real_time} !"
+                "Could not parse time of slurm output,"
+                f"content set to {real_time} !"
             )
         except FileNotFoundError:
             raise FileNotFoundError("Slurm output was not generated.")
 
     @staticmethod
     def parse_milliseconds(string_time: str) -> float:
-        """
-        Given a string date with the format MMmSS.MSs (as returned by the linux time command),
-        parses it to seconds.
+        """Given a string date with the format MMmSS.MSs (as returned by the
+        linux time command), parses it to seconds.
 
         Args:
             string_time (str): The date to parse
@@ -243,9 +251,8 @@ class BBWrapper:
 
     @staticmethod
     def parse_job_elapsed_time(job_id: int) -> float:
-        """
-        Given a Slurm jobid, parses the output of the squeue command for this job in order to
-        return the running time.
+        """Given a Slurm jobid, parses the output of the squeue command for
+        this job in order to return the running time.
 
         Args:
             job_id (int): The slurm ID of the job.
@@ -254,13 +261,16 @@ class BBWrapper:
             float: The time the job has been running.
         """
         sub_ps = subprocess.run(
-            split(f"squeue -j {job_id}"), stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            split(f"squeue -j {job_id}"),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
         )
         output_stdout = sub_ps.stdout.decode()
         if output_stdout:
             try:
                 # Try to parse the output of the squeue command
-                # If it returns a ValueError, it means that the job is already over
+                # If it returns a ValueError,
+                # it means that the job is already over
                 # Set the resulting time to 0
                 raw_time = output_stdout.split(" ")[-8].split(":")
                 time_in_second = int(raw_time[0]) * 60 + int(raw_time[1])
@@ -277,11 +287,15 @@ class BBWrapper:
             job_id (int): The id of the job to cancel.
         """
         sub_ps = subprocess.run(
-            split(f"scancel {job_id}"), stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            split(f"scancel {job_id}"),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
         )
         if sub_ps.returncode == 0:
             logger.debug(
-                f"Pruning strategy: Successfully cancelled slurm job with id {job_id}"
+                "Pruning strategy: "
+                f"Successfully cancelled slurm job with id {job_id}"
             )
         else:
-            logger.debug(f"Pruning strategy: Could not stop slurm job with id {job_id}")
+            logger.debug(
+                f"Pruning strategy: Could not stop slurm job with id {job_id}")

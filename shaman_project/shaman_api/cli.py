@@ -1,6 +1,4 @@
-"""
-Command Line application
-"""
+"""Command Line application."""
 import typer
 import uvicorn
 
@@ -10,10 +8,12 @@ cli = typer.Typer()
 
 @cli.command()
 def dev(host: str = "0.0.0.0", port: int = 5000):
-    """
-    Run the application in development mode.
-    """
-    uvicorn.run("shaman_api:app", host=host, port=port, reload=True, access_log=False)
+    """Run the application in development mode."""
+    uvicorn.run("shaman_api:app",
+                host=host,
+                port=port,
+                reload=True,
+                access_log=False)
 
 
 @cli.command()
@@ -24,9 +24,7 @@ def prod(
     workers: int = 2,
     loop: str = "uvloop",
 ):
-    """
-    Run the application in production mode.
-    """
+    """Run the application in production mode."""
     uvicorn.run(
         "shaman_api:app",
         host=host,

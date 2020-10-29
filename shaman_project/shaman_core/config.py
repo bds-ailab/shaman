@@ -1,8 +1,9 @@
 """Module contaning the configuration data for the SHAMan project.
 Configuration files deal with:
-    - The configuration of the bb_wrapper
-    - The configuration of the API
-    - The configuration of the worker
+
+- The configuration of the bb_wrapper
+- The configuration of the API
+- The configuration of the worker
 """
 import os
 from pathlib import Path
@@ -11,8 +12,7 @@ from pydantic import BaseSettings
 
 
 class SHAManConfig(BaseSettings):
-    """Parent class for configuration files.
-    """
+    """Parent class for configuration files."""
 
     class Config:
         case_sensitive = False
@@ -20,8 +20,7 @@ class SHAManConfig(BaseSettings):
 
 
 class DatabaseConfig(SHAManConfig):
-    """
-    This class sets values for different variables describing the database.
+    """This class sets values for different variables describing the database.
 
     Configuration can be set using:
         - Keyword arguments at instantation
@@ -37,9 +36,7 @@ class DatabaseConfig(SHAManConfig):
 
 
 class APIConfig(SHAManConfig):
-    """
-    This class sets values for different variables describing the API.
-    """
+    """This class sets values for different variables describing the API."""
 
     # Host of API
     api_host: str = "api"
@@ -50,9 +47,8 @@ class APIConfig(SHAManConfig):
 
 
 class RedisConfig(SHAManConfig):
-    """
-    This class sets values for different variables describing the Redis service.
-    """
+    """This class sets values for different variables describing the Redis
+    service."""
 
     redis_host: str = "redis"
     redis_port: int = 6379
@@ -62,8 +58,8 @@ class RedisConfig(SHAManConfig):
 
 
 class EngineConfig(SHAManConfig):
-    """This class sets values for different variables describing the behavior of the engine.
-    """
+    """This class sets values for different variables describing the behavior
+    of the engine."""
 
     directory: Path = "/slurm_fs"
 
@@ -74,4 +70,3 @@ class EngineConfig(SHAManConfig):
     def join_path(self, other: str) -> Path:
         p = self.directory / other
         return p.resolve()
-

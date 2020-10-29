@@ -1,6 +1,4 @@
-"""
-Init for the optimization engine.
-"""
+"""Init for the optimization engine."""
 
 __copyright__ = """
 Copyright (C) 2019-2020 Bull S. A. S. - All rights reserved

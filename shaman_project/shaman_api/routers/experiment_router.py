@@ -1,5 +1,5 @@
 from typing import Any, Callable, get_type_hints, Optional
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter
 from loguru import logger
 from arq import create_pool
 from arq.connections import RedisSettings, ArqRedis
@@ -26,16 +26,16 @@ class ExperimentRouter(APIRouter):
     def add_api_route(
         self, path: str, endpoint: Callable[..., Any], **kwargs: Any
     ) -> None:
-        """
-        Overrides the route decorator logic to use the annotated return type as the `response_model` if unspecified.
-        """
+        """Overrides the route decorator logic to use the annotated return type
+        as the `response_model` if unspecified."""
         if kwargs.get("response_model") is None:
             kwargs["response_model"] = get_type_hints(endpoint).get("return")
         return super().add_api_route(path, endpoint, **kwargs)
 
     async def connect_redis(self):
         logger.info(
-            f"Connecting to redis on host {RedisConfig().redis_host}:{RedisConfig().redis_host}"
+            "Connecting to redis on host"
+            f"{RedisConfig().redis_host}:{RedisConfig().redis_host}"
         )
         settings = RedisSettings(
             host=RedisConfig().redis_host, port=RedisConfig().redis_port

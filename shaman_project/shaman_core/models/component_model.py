@@ -1,25 +1,18 @@
-"""
-Defines a pydantic model that represents a tunable component.
-"""
+"""Defines a pydantic model that represents a tunable component."""
 from pathlib import Path
-from typing import Dict, Optional, Union, Type, Any
-from enum import Enum
-import ast
+from typing import Dict, Optional, Any
 import builtins
 import httpx
-from httpx import ConnectError
-from pydantic import BaseModel, validator, root_validator
+from pydantic import BaseModel, root_validator
 import yaml
 
 
 class BaseConfiguration:
-    """Base class to load YAML.
-    """
+    """Base class to load YAML."""
 
     @classmethod
     def from_yaml(cls, path: str):
-        """
-        Loads the yaml file located at the path path.
+        """Loads the yaml file located at the path path.
 
         Args:
             path (str): The path to the YAML file.
@@ -41,9 +34,7 @@ class BaseConfiguration:
 
 
 class TunableParameter(BaseModel):
-    """
-    Creates a pydantic model for a tunable parameter.
-    """
+    """Creates a pydantic model for a tunable parameter."""
 
     type: str
     default: Optional[Any] = None
@@ -57,33 +48,35 @@ class TunableParameter(BaseModel):
 
     @root_validator(pre=True)
     def check_env_cmd(cls, values):
-        """Checks that the parameter is either a command line variable or an environment one.
-        """
+        """Checks that the parameter is either a command line variable or an
+        environment one."""
         # Check that default value has correct type
         try:
             expected_type = getattr(builtins, values["type"])
         except AttributeError:
-            raise AttributeError("Specified parameter type was not understood.")
+            raise AttributeError(
+                "Specified parameter type was not \
+            understood."
+            )
         default = values.get("default", None)
         if default and not isinstance(default, expected_type):
             raise TypeError("Default does not match the parameter type")
 
         # Check that either cmd_var or env_var are defined
         if (
-            (not "cmd_var" in values)
-            and (not "env_var" in values)
-            and (not "cli_var" in values)
+            ("cmd_var" not in values)
+            and ("env_var" not in values)
+            and ("cli_var" not in values)
         ):
             raise ValueError(
-                "Variable must either be a command line variable, an environment variable or a CLI variable."
+                "Variable must either be a command line variable, \
+                an environment variable or a CLI variable."
             )
         return values
 
 
 class TunableComponentModel(BaseModel):
-    """
-    Creates a pydantic model for a tunable component.
-    """
+    """Creates a pydantic model for a tunable component."""
 
     plugin: str = ""
     header: Optional[str]
@@ -94,7 +87,6 @@ class TunableComponentModel(BaseModel):
 
 
 class TunableComponentsModel(BaseConfiguration, BaseModel):
-    """Creates a pydantic model for a list of tunable components.
-    """
+    """Creates a pydantic model for a list of tunable components."""
 
     components: Dict[str, TunableComponentModel]

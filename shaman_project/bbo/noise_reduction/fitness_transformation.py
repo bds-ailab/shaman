@@ -1,24 +1,20 @@
-"""This module contains several fitness transformation methods. Fitness transformation
-transforms the values of the fitness that will be given to the optimizer, in order to
-influence differently its choice.
+"""This module contains several fitness transformation methods.
+
+Fitness transformation transforms the values of the fitness that will be
+given to the optimizer, in order to influence differently its choice.
 """
 import numpy as np
 
 
 class FitnessTransformation:
-    """
-    Abstract parent class for fitness transformation policies, that all fitness aggregation
-    methods must inherit from.
-    """
+    """Abstract parent class for fitness transformation policies, that all
+    fitness aggregation methods must inherit from."""
 
     def __init__(self, *args, **kwargs):
-        """
-        Initialize an object of class FitnessAggregation.
-        """
+        """Initialize an object of class FitnessAggregation."""
 
     def transform(self, history):
-        """
-        Given the previous evaluation history, transforms the values of the
+        """Given the previous evaluation history, transforms the values of the
         fitness function to return a new history.
 
         Args:
@@ -29,17 +25,18 @@ class FitnessTransformation:
         Returns:
             dict: The transformed history, with three keys: parameters, which
                 contains the parameters already tested by the heuristic,
-                fitness, which contains the corresponding performance measure, and truncated
-                which indicates if the observation has been censored.
+                fitness, which contains the corresponding performance measure,
+                and truncated which indicates if the observation has
+                been censored.
         """
         return history
 
 
 class SimpleFitnessTransformation(FitnessTransformation):
-    """
-    Simple fitness transformation consists in applying an estimator (given as argument) on the
-    fitness grouped by parameters. For example, if the estimator is the mean, the fitness is
-    transformed by computing the mean for each parmametrization.
+    """Simple fitness transformation consists in applying an estimator (given
+    as argument) on the fitness grouped by parameters. For example, if the
+    estimator is the mean, the fitness is transformed by computing the mean for
+    each parmametrization.
 
     Args:
         history (dict): A dictionary with two keys: parameters, which
@@ -49,25 +46,24 @@ class SimpleFitnessTransformation(FitnessTransformation):
     Returns:
         dict: The transformed history, with three keys: parameters, which
             contains the parameters already tested by the heuristic,
-            fitness, which contains the corresponding performance measure, and truncated
-            which indicates if the observation has been censored.
+            fitness, which contains the corresponding performance measure,
+            and truncated which indicates if the observation has been censored.
     """
 
     def __init__(self, estimator, *args, **kwargs):
-        """
-        Initializes an object of class SimpleFitnessTransformation.
+        """Initializes an object of class SimpleFitnessTransformation.
 
         Args:
-            estimator (function): The function to use for aggregating the fitness.
+            estimator (function): The function to use for aggregating
+            the fitness.
         """
-        super(SimpleFitnessTransformation, self).__init__(estimator, *args, **kwargs)
+        super(SimpleFitnessTransformation, self).\
+            __init__(estimator, *args, **kwargs)
         self.estimator = estimator
 
     def transform(self, history):
-        """
-        Performs the transformation of the fitness, by aggregating the fitness within each
-        parametrization using the estimator.
-        """
+        """Performs the transformation of the fitness, by aggregating the
+        fitness within each parametrization using the estimator."""
         new_parameters = list()
         new_fitness = list()
         new_truncated = list()
@@ -79,7 +75,8 @@ class SimpleFitnessTransformation(FitnessTransformation):
             return history
         else:
             # Get the index of the unique parametrization
-            # You have to use the index else the array gets sorted and this is problematic
+            # You have to use the index else the array gets sorted and
+            # this is problematic
             # for space location dependent heuristics
             unique_parameterization_indexes = np.unique(
                 parameters_array, axis=0, return_index=True

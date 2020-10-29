@@ -31,7 +31,8 @@ class ExperimentDatabase:
         if config is None:
             config = DatabaseConfig()
         logger.info(
-            f"Connecting to Mongo database on host {config.mongodb_host}:{config.mongodb_port}"
+            "Connecting to Mongo database on host"
+            f"{config.mongodb_host}:{config.mongodb_port}"
         )
         # Create asynchronous Mongo client
         self.async_client = AsyncIOMotorClient(
@@ -42,7 +43,8 @@ class ExperimentDatabase:
         self.components_collection = self.async_db["components"]
         self.server_info = await self.async_client.server_info()
         logger.info(
-            "Connected to mongodb server version {0} on host 'mongodb://{1}:{2}'.".format(
+            "Connected to mongodb server version {0}"
+            "on host 'mongodb://{1}:{2}'.".format(
                 self.server_info["version"], *self.async_client.address
             )
         )
@@ -53,16 +55,17 @@ class ExperimentDatabase:
         logger.info("Closed connection to mongodb server.")
 
     async def create_experiment(self, experiment: InitExperiment):
-        """
-        Experiments are created inside shaman mongodb database
-        """
+        """Experiments are created inside shaman mongodb database."""
         experiment.update({"status": "created"})
         return await self.experiments_collection.insert_one(experiment)
 
-    async def get_experiments(self, limit: int, offset: Optional[int] = None) -> List:
-        """
-        Return a cursor of all experiments.
-        Optionaly you can give a limit argument to return a limited number of experiments
+    async def get_experiments(self,
+                              limit: int,
+                              offset: Optional[int] = None) -> List:
+        """Return a cursor of all experiments.
+
+        Optionaly you can give a limit argument to return a limited
+        number of experiments
         """
         all_experiments = self.experiments_collection.find(
             projection=Experiment._project()
@@ -72,19 +75,17 @@ class ExperimentDatabase:
         return await all_experiments.to_list(length=limit)
 
     async def get_experiment(self, experiment_id: str) -> Experiment:
-        """
-        Return a single experiment based on given experiment ID
-        Return None if the experiment do not exist.
-        """
+        """Return a single experiment based on given experiment ID Return None
+        if the experiment do not exist."""
         experiment = await self.experiments_collection.find_one(
             {"_id": ObjectId(experiment_id)}
         )
         return experiment
 
-    async def update_experiment(self, experiment_id: str, result: IntermediateResult):
-        """
-        Experiments are updated inside shaman mongodb database
-        """
+    async def update_experiment(self,
+                                experiment_id: str,
+                                result: IntermediateResult):
+        """Experiments are updated inside shaman mongodb database."""
         await self.experiments_collection.update_one(
             {"_id": ObjectId(experiment_id)},
             {
@@ -108,53 +109,49 @@ class ExperimentDatabase:
             upsert=True,
         )
 
-    async def close_experiment(self, experiment_id: str, final_result: FinalResult):
-        """
-        Experiments are terminated inside shaman mongodb database
-        """
+    async def close_experiment(self,
+                               experiment_id: str,
+                               final_result: FinalResult):
+        """Experiments are terminated inside shaman mongodb database."""
         final_result.update({"status": "finished"})
         await self.experiments_collection.update_one(
             {"_id": ObjectId(experiment_id)}, {"$set": final_result}
         )
 
     async def fail_experiment(self, experiment_id: str):
-        """
-        Experiments are terminated inside shaman mongodb database
-        """
+        """Experiments are terminated inside shaman mongodb database."""
         await self.experiments_collection.update_one(
             {"_id": ObjectId(experiment_id)}, {"$set": {"status": "failed"}}
         )
 
     async def stop_experiment(self, experiment_id: str):
-        """
-        Experiments are terminated inside shaman mongodb database
-        """
+        """Experiments are terminated inside shaman mongodb database."""
         await self.experiments_collection.update_one(
             {"_id": ObjectId(experiment_id)}, {"$set": {"status": "stopped"}}
         )
 
     async def watch_experiments(self):
-        """Watch the changes on a collection for a given experiment_id using Mongo Stream
-        """
+        """Watch the changes on a collection for a given experiment_id using
+        Mongo Stream."""
         # try:
         async with self.experiments_collection.watch(
             [
                 {
-                    "$match": {
-                        "$or": [
-                            {"operationType": "insert"},
-                            {
-                                "$and": [
-                                    {
-                                        "updateDescription.updatedFields.status": {
-                                            "$exists": True
-                                        },
-                                        "operationType": "update",
-                                    }
-                                ]
-                            },
-                        ]
-                    }
+                "$match": {
+                    "$or": [
+                        {"operationType": "insert"},
+                        {
+                            "$and": [
+                                {
+                                    "updateDescription.updatedFields.status": {
+                                        "$exists": True
+                                    },
+                                    "operationType": "update",
+                                }
+                            ]
+                        },
+                    ]
+                }
                 }
             ],
             full_document="updateLookup",
@@ -165,8 +162,8 @@ class ExperimentDatabase:
         # print("Error when watching change.")
 
     async def watch_experiment(self, experiment_id: str):
-        """Watch the changes on a collection for a given experiment_id using Mongo Stream
-        """
+        """Watch the changes on a collection for a given experiment_id using
+        Mongo Stream."""
         # try:
         async with self.experiments_collection.watch(
             [
@@ -198,23 +195,26 @@ class ExperimentDatabase:
     # Components related functions
     async def get_components(self) -> List:
         """List all the available components."""
-        all_components = self.components_collection.find({}, projection={"_id": 0})
+        all_components = self.components_collection.find(
+            {}, projection={"_id": 0})
         return await all_components.to_list(length=1)
 
     async def update_components(self, component) -> UpdateResult:
         """Update the component data: replace if already exists."""
-        return await self.components_collection.replace_one({}, component, upsert=True)
+        return await self.components_collection.replace_one({},
+                                                            component,
+                                                            upsert=True)
 
     async def get_components_parameters(self) -> Dict:
-        """Returns the list of available components and their
-        """
+        """Returns the list of available components and their."""
         components = await self.components_collection.find(
             {}, projection={"_id": 0}
         ).to_list(length=1)
         if components:
             return {
                 component: parameters["parameters"]
-                for component, parameters in components[0]["components"].items()
+                for component, parameters
+                in components[0]["components"].items()
             }
         else:
             {"": []}

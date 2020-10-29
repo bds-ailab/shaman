@@ -1,6 +1,4 @@
-"""
-Logging module for the SHAMan package.
-"""
+"""Logging module for the SHAMan package."""
 import sys
 from enum import Enum
 from pathlib import Path
@@ -11,9 +9,7 @@ from loguru import logger
 
 
 class LoggingLevel(str, Enum):
-    """
-    Allowed log levels for the application
-    """
+    """Allowed log levels for the application."""
 
     CRITICAL: str = "CRITICAL"
     ERROR: str = "ERROR"
@@ -29,7 +25,11 @@ class LoggingSettings(BaseSettings):
 
     Arguments:
         level (str): the minimum log-level to log. (default: "DEBUG")
-        format (str): the logformat to use. (default: "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> | <level>{message}</level>")
+        format (str): the logformat to use.
+            (default: "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green>
+            | <level>{level: <8}</level>
+            | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan>
+            | <level>{message}</level>")
         filepath (Path): the path where to store the logfiles. (default: None)
         rotation (str): when to rotate the logfile. (default: "1 days")
         retention (str): when to remove logfiles. (default: "1 months")
@@ -119,7 +119,7 @@ def setup_logger_from_settings(settings: LoggingSettings) -> Tuple[int, ...]:
 
 
 def setup_logger_from_env() -> Tuple[int, ...]:
-    """Override all standard library logging handlers to be intercepted and forwared to loguru.
-    """
+    """Override all standard library logging handlers to be intercepted and
+    forwarded to loguru."""
     settings = LoggingSettings()
     return setup_logger_from_settings(settings)
