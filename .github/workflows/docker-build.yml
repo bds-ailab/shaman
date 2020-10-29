@@ -19,37 +19,42 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Build and push SHAMan ui
         id: docker_build_ui
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v1
         with:
           push: true
-          tags: sphrbthyk/shaman-ui:latest
-          context: .
+          repository: sphrbthyk/shaman-ui:latest
+          path: .
           file: docker/Dockerfile.ui
+          tags: latest
       - name: Build and push SHAMan API
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v1
         with:
           push: true
-          tags: sphrbthyk/shaman-api:latest
-          context: .
+          repository: sphrbthyk/shaman-api:latest
+          path: .
           file: docker/Dockerfile.api
+          tags: latest
       - name: Build and push Slurm controller node
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v1
         with:
           push: true
-          tags: sphrbthyk/shaman-slurm-controller:latest
-          context: .
+          repository: sphrbthyk/shaman-slurm-controller:latest
+          path: .
           file: docker/Dockerfile.slurm.controller
+          tags: latest
       - name: Build and push Slurm compute node
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v1
         with:
           push: true
-          tags: sphrbthyk/shaman-slurm-compute:latest
-          context: .
+          repository: sphrbthyk/shaman-slurm-compute:latest
+          path: .
           file: docker/Dockerfile.slurm.compute
+          tags: latest
       - name: Build and push Slurm optimization worker
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v1
         with:
           push: true
-          tags: sphrbthyk/shaman-slurm-optimization:latest
-          context: .
+          repository: sphrbthyk/shaman-slurm-optimization:latest
+          path: .
           file: docker/Dockerfile.slurm.optimization
+          tags: latest
