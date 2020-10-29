@@ -1,4 +1,4 @@
-name: Python flake8 and unit tests
+name: Unittests
 
 on: push
 
@@ -33,11 +33,6 @@ jobs:
           poetry config virtualenvs.create false
           poetry update
           poetry install -E bbo -E bb-wrapper -E shaman-core -E shaman-worker
-
-      # Run flake 8 linter
-      - name: Run flake8 linter
-        run: |
-          flake8 . --exit-zero --exclude tests
 
       # Run the unit tests
       - name: Run unit tests

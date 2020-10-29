@@ -1,0 +1,40 @@
+name: Flake8
+
+on: push
+
+jobs:
+  lint-and-test:
+    name: Run the unit test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.6, 3.7, 3.8]
+
+    steps:
+      # Checks out a copy of your repository on the ubuntu-latest machine
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Select correct version of Python
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      # Install poetry package
+      - name: Install poetry using pip
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install poetry
+
+      # Install the python package
+      - name: Install python package
+        run: |
+          poetry config virtualenvs.create false
+          poetry update
+          poetry install -E bbo -E bb-wrapper -E shaman-core -E shaman-worker
+
+      # Run flake 8 linter
+      - name: Run flake8 linter
+        run: |
+          flake8 . --exit-zero --exclude tests
