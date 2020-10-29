@@ -1,5 +1,8 @@
 # The SHAMan project
 
+![Tests](https://github.com/SphRbtHyk/shaman_project/workflows/.github/workflows/main.yml/badge.svg)
+![Coverage](https://github.com/SphRbtHyk/shaman_project/badges/coverage.svg)
+
 The SHAMan project is the result of my research works during my PhD on the auto-tuning of I/O accelerators.
 Its an optimization framework to find the optimum parametrization of an I/O accelerator for HPC applications.
 
