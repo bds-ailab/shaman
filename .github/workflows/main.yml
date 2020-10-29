@@ -32,6 +32,7 @@ jobs:
       - name: Install python package
         run: |
           poetry config virtualenvs.create false
+          poetry update
           poetry install -E bbo -E bb-wrapper -E shaman-core -E shaman-worker
 
       # Run flake 8 linter
@@ -47,4 +48,4 @@ jobs:
       # Generate coverage badge
       - name: Generate coverage badge
         run: |
-          coverage-badge -o badges/coverage.svg
+          coverage-badge -o badges/coverage.svg -f
