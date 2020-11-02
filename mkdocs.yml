@@ -1,0 +1,23 @@
+site_name: SHAMan project
+
+theme:
+  name: material
+
+nav:
+  - Home: "index.md"
+  - "User Guide":
+      - "Installing SHAMan": "install.md"
+      - "Registering a new component": "styling-your-docs.md"
+      - "Launching an experiment": ""
+      - "Stand-alone optimization": ""
+  - "Technical guide":
+      - "Architecture": ""
+      - "Black-box optimization": ""
+  - Cookbooks:
+      - "Optimization of I/O accelerators": ""
+      - "Stand-alone optimization of ML model": ""
+  - About:
+      - "License": "license.md"
+      - "Release Notes": "release-notes.md"
+      - "Related works": ""
+      - "About the author": ""

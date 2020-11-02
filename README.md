@@ -30,9 +30,17 @@ Compared to already existing softwares, it provides these main advantages:
 
 # Basic architecture
 
+SHAMan relies on a microservice architecture and integrates:
+
+- A front-end Web application, running with (Nuxt.js)[https://github.com/nuxt/nuxt.js]
+- A back-end storage database, relying on (MongoDB)[www.mongodb.com/]
+- An optimization engine, reached by the API through a message broker, and which uses runners to perform optimization tasks, written in Python
+
+The several services communicate through a REST API, using (FastAPI)[https://github.com/tiangolo/fastapi]
+
 # Installation
 
-SHAMan can be installed in a containerized environment, as several docker containers run with `docker-compose`. However, this type of install is only suitable for demo purpose: it is not possible to infer proper performance metrics from hardwares or softwares running in a containerized environment. To deal with production installs, we provide a ansible playbook to deploy the services of the application that require the system's full performance.
+SHAMan can be installed in a containerized environment, as several docker containers run with `docker-compose`. However, this type of install is only suitable for demo purpose: it is not possible to infer proper performance metrics from hardwares or softwares when the optimization engine is running in a containerized environment. To deal with production installs, we provide a ansible playbook to deploy the services of the application that require the system's full performance.
 
 In both cases, the latest version of SHAMan pust be pulled by cloning this repository. The user must then move to the cloned repository.
 
@@ -54,7 +62,7 @@ Once the application is up and running, visit `localhost:3000` and check that yo
 
 :warning: This version requires a working install of docker, the possibility to install Python libraries on a node that has access to the Slurm cluster (login node or compute node).
 
-An ansible playbook is available for deployment in production. A config file, indicating the different names of the cluster nodes, must be filled out beforehand.
+An ansible playbook is available to deploy the application in a production ready mode, where every services but the optimization engine and the slurm nodes are dockerized. A config file, indicating the different names of the cluster nodes, must be filled out beforehand.
 
 # Registering a new component
 
@@ -99,6 +107,16 @@ The parameters with a default value, can be either passed:
 For a more in-depth description of the parameters used to set-up a component, go to xxx.
 
 # Creating an experiment
+
+To launch an experiment through the `/create` menu of the Web interface, the optimization experiment should be parametrized by:
+
+- Writing an application according to Slurm sbatch format.
+- Selecting the component and the parametric grid through the radio buttons (minimal, maximal and step value).
+- Configuring the optimization heuristic, chosen freely among available ones. Resampling parametrization and pruning strategies can also be activated.
+
+Once the experiment is created and launched, it is available for real-time vizualization in the `/launch` menu of the Web interface.
+
+For an explaination on how to launch an experiment using a command line interface, go to xxx.
 
 # Documentation
 

@@ -30,6 +30,9 @@ cma = { optional = true, version = "^3.0.3" }
 scipy = { optional = true, version = "^1.5.2" }
 pandas = { optional = true, version = "^1.1.2" }
 loguru = "^0.5.3"
+pip = "^20.2.4"
+install = "^1.3.4"
+mkdocs-material = "^6.1.2"
 
 [tool.poetry.dev-dependencies]
 black = "^19.10b0"
@@ -40,6 +43,7 @@ invoke = "^1.4.1"
 devtools = "^0.6"
 watchgod = "^0.6"
 coverage-badge = "^1.0.1"
+mkdocs = "^1.1.2"
 
 [tool.poetry.extras]
 bb-wrapper = ["pydantic", "requests", "typer", "PyYAML"]
