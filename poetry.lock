@@ -1058,7 +1058,7 @@ shaman-core = ["pydantic", "httpx", "PyYAML"]
 shaman-worker = ["arq", "prometheus-client", "httpx", "pydantic"]
 
 [metadata]
-content-hash = "6f15af9fad45f836fab097cbef761e418d79d073f51dd967e0491b9fcd0d79f6"
+content-hash = "0a025ab27d56c6bc70743f0498eac57a5908d52bd4fa38a74a6126bc91f46a00"
 lock-version = "1.0"
 python-versions = "^3.6.1"
 
