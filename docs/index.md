@@ -1,6 +1,8 @@
+<img src="./assets/little_shaman.png" width="150">
+
 # SHAMan: Smart HPC Application MANager
 
-SHAMan is an out-of-the-box framework to perform black-box auto-tuning of custom computer components running on a distributed system, for an application submitted by a user. It relies on state-of-the-art black-box algorithms to find the components' parametrization that are the most efficient in terms of execution time. As well as noise reduction strategies to deal with the possible interference of shared resources for large scale HPC systems, and pruning strategies to limit the time spent by the optimization process.
+SHAMan is an out-of-the-box framework to perform **black-box auto-tuning of custom computer components** running on **a distributed system**, for a given application launched through the **Slurm workload manager**. It relies on state-of-the-art black-box algorithms to find the components' parametrization that are the most efficient in terms of execution time. It also integrates **noise reduction strategies** to deal with the possible interference of shared resources for large scale HPC systems, and **pruning strategies** to limit the time spent by the optimization process.
 
 Compared to already existing softwares, it provides these main advantages:
 
