@@ -59,7 +59,7 @@ class Heuristic:
         # boolean in order to enforce an heuristic-specific stop criterion.
         self.stop = False
 
-    def choose_next_parameter(self, history, *args, **kwargs):
+    def choose_next_parameter(self, history, ranges, *args, **kwargs):
         """Launches the heuristic that exploits the history of the already
         evaluated point in order to return the most relevant data points.
 

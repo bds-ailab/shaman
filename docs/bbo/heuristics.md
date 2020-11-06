@@ -2,7 +2,7 @@
 
 ## Surrogate models
 
-The principle of surrogate modeling is to find a computationally cheap to evaluate function that describes well the unknown function, and decide which parameter should be evaluated next given by exploiting the properties of this regressed curve.
+The principle of surrogate modeling is to find a computationally cheap function that describes well the unknown function, and decide which parameter should be evaluated next given this regressed curve.
 
 ### Main principles
 

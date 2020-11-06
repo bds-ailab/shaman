@@ -76,7 +76,11 @@ It requires:
 
 ### Writing a configuration file
 
-TODO
+#### Optimizer parametrization
+
+#### Noise reduction strategies
+
+#### Pruning strategies
 
 ## Vizualizing an experiment
 
