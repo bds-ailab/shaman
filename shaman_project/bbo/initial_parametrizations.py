@@ -67,9 +67,7 @@ def latin_hypercube_sampling(number_of_parameters, parameter_space):
 
     # empty matrix that will contain the parameter values
     random_draw = np.full((number_of_parameters, len(parameter_space)),
-                          np.nan,
-                          dtype=object)
-
+                          np.nan, dtype=object)
     # For each row in the array
     for i in range(number_of_parameters):
         # for each dimension
@@ -84,7 +82,11 @@ def latin_hypercube_sampling(number_of_parameters, parameter_space):
                 ).tolist()
             # store value in random_draw array
             random_draw[i, idx] = random_coordinate[0]
-    return random_draw
+    # TODO: deal better with mixed types
+    try:
+        return random_draw.astype(float)
+    except ValueError:
+        return random_draw
 
 
 def hybrid_lhs_uniform_sampling(number_of_parameters, parameter_space):

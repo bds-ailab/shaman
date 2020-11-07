@@ -42,9 +42,13 @@ def hop_to_next_value(parameter, ranges):
             # Get current index of parameter
             # TODO: deal more elegantly with different types
             try:
-                current_index = np.where(
-                    range_param.astype(str) == str(
-                        parameter[axis]))[0][0]
+                try:
+                    current_index = np.where(
+                        float(parameter[axis]) == range_param)[0][0]
+                except ValueError:
+                    current_index = np.where(
+                        range_param.astype(str) == str(
+                            parameter[axis]))[0][0]
             except IndexError:
                 raise IndexError("Current parameter out of grid.")
             current_index = random_draw(current_index, len(range_param))
