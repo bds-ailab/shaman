@@ -66,7 +66,9 @@ def latin_hypercube_sampling(number_of_parameters, parameter_space):
     )
 
     # empty matrix that will contain the parameter values
-    random_draw = np.full((number_of_parameters, len(parameter_space)), np.nan)
+    random_draw = np.full((number_of_parameters, len(parameter_space)),
+                          np.nan,
+                          dtype=object)
 
     # For each row in the array
     for i in range(number_of_parameters):

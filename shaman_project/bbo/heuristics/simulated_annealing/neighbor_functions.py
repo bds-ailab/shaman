@@ -40,8 +40,11 @@ def hop_to_next_value(parameter, ranges):
         # For each dimension
         for axis, range_param in enumerate(ranges):
             # Get current index of parameter
+            # TODO: deal more elegantly with different types
             try:
-                current_index = np.where(range_param == parameter[axis])[0][0]
+                current_index = np.where(
+                    range_param.astype(str) == str(
+                        parameter[axis]))[0][0]
             except IndexError:
                 raise IndexError("Current parameter out of grid.")
             current_index = random_draw(current_index, len(range_param))
@@ -71,7 +74,7 @@ def random_draw(current_index, range_length):
     # if null draw, go one step further if it's possible
     if draw == 0:
         # go one step up if its possible
-        if current_index < range_length - 1:
+        if current_index < range_length - 2:
             current_index += 1
         # if on the border, stay put
         else:

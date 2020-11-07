@@ -33,7 +33,7 @@ parametric_grid = np.array([np.arange(-10, 10, 1), np.arange(-5, 5, 1)]).T
 When setting up the `BBOptimizer` like in the example below, all runs that run longer than 20 seconds (the value for the `max_step_cost`) will be interrupted. It will also print `"I have been interrupted."` for each of these runs.
 
 ``` python hl_lines="17"
-from bbo import BBOptimizer
+from bbo.optimizer import BBOptimizer
 import numpy
 from bbo.heuristics.surrogate_models.next_parameter_strategies import expected_improvement
 from sklearn.gaussian_process import GaussianProcessRegressor
@@ -44,7 +44,7 @@ bb_obj = BBOptimizer(
     heuristic="surrogate_model",
     max_iteration=20,
     initial_sample_size=2,
-    parameter_space=parameter_space,
+    parameter_space=parameteric_grid,
     next_parameter_strategy=expected_improvement,
     regression_model=GaussianProcessRegressor,
     async_optim=True

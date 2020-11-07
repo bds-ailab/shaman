@@ -6,6 +6,9 @@ theme:
   hljs_languages:
     - yaml
 
+plugins:
+  - mknotebooks
+
 markdown_extensions:
   - pymdownx.emoji:
       emoji_index: !!python/name:materialx.emoji.twemoji
@@ -39,7 +42,7 @@ nav:
       - "Adding a new heuristic": "bbo/adding-heuristic.md"
   - Cookbooks:
       - "Optimization of I/O accelerators": "cookbooks/ioaccelerators.md"
-      - "Stand-alone optimization of ML model": "cookbooks/ml_model.md"
+      - "Stand-alone optimization of ML model": "cookbooks/ml_model.ipynb"
   - About:
       - "License": "about/license.md"
       - "Publications": "about/publications.md"

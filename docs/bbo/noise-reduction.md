@@ -41,7 +41,7 @@ parametric_grid = np.array([np.arange(-10, 10, 1), np.arange(-5, 5, 1)]).T
 we can use the median as a custom aggregation function:
 
 ``` python hl_lines="11 12"
-from bbo import BBOptimizer
+from bbo.optimizer import BBOptimizer
 import numpy
 from bbo.heuristics.surrogate_models.next_parameter_strategies import expected_improvement
 from sklearn.gaussian_process import GaussianProcessRegressor
@@ -52,7 +52,7 @@ bb_obj = BBOptimizer(
     heuristic="surrogate_model",
     max_iteration=20,
     initial_sample_size=2,
-    parameter_space=parameter_space,
+    parameter_space=parameter_grid,
     next_parameter_strategy=expected_improvement,
     regression_model=GaussianProcessRegressor,
     resampling_policy="simple_resampling",
@@ -67,7 +67,7 @@ bb_obj = BBOptimizer(
 Static resampling consists in **repeating each parametrization a fixed number of times**. It is activated using the `resampling_policy` argument of the `BBOptimizer` class. It requires to also give a value for the argument `nbr_resamples` (which will correspond to the number of resamples). You can add custom fitness aggregation (like seen in the above section) or just use the default behavior of using the mean.
 
 ``` python hl_lines="15 16"
-from bbo import BBOptimizer
+from bbo.optimizer import BBOptimizer
 import numpy
 from bbo.heuristics.surrogate_models.next_parameter_strategies import expected_improvement
 from sklearn.gaussian_process import GaussianProcessRegressor
@@ -78,7 +78,7 @@ bb_obj = BBOptimizer(
     heuristic="surrogate_model",
     max_iteration=20,
     initial_sample_size=2,
-    parameter_space=parameter_space,
+    parameter_space=parameter_grid,
     next_parameter_strategy=expected_improvement,
     regression_model=GaussianProcessRegressor,
     resampling_policy="simple_resampling",
@@ -93,7 +93,7 @@ Dynamic resampling consists in **resampling a parametrization until the 95% conf
 In the example below, resampling happens until the width of the 95% confidence interval falls below 10% of the mean of the fitness value measured at this point.
 
 ``` python hl_lines="15 16"
-from bbo import BBOptimizer
+from bbo.optimizer import BBOptimizer
 import numpy
 from bbo.heuristics.surrogate_models.next_parameter_strategies import expected_improvement
 from sklearn.gaussian_process import GaussianProcessRegressor
@@ -104,7 +104,7 @@ bb_obj = BBOptimizer(
     heuristic="surrogate_model",
     max_iteration=20,
     initial_sample_size=2,
-    parameter_space=parameter_space,
+    parameter_space=parameter_grid,
     next_parameter_strategy=expected_improvement,
     regression_model=GaussianProcessRegressor,
     resampling_policy="dynamic_resampling",

@@ -29,7 +29,7 @@ For example, we can create a class `RandomSelector` which selects a value random
 
 ``` python
 import numpy as np
-from bbo.heuristics import Heuristic
+from bbo.heuristics.heuristics import Heuristic
 
 
 class RandomSelector(Heuristic):
