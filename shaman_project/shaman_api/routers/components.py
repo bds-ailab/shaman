@@ -1,3 +1,4 @@
+# Copyright 2020 BULL SAS All rights reserved
 """Rest API endpoints for components are defined in this module."""
 from typing import Dict
 from .component_router import ComponentRouter

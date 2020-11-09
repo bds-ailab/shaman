@@ -1,3 +1,4 @@
+# Copyright 2020 BULL SAS All rights reserved
 # Base image for all slurm nodes: install Slurm and MPI packages
 # gcharbon/centos7-openmpi:latest
 FROM centos:7

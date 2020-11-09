@@ -1,3 +1,4 @@
+# Copyright 2020 BULL SAS All rights reserved
 [tool.poetry]
 name = "shaman-project"
 version = "0.1.0"

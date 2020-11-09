@@ -1,4 +1,5 @@
 <template>
+  <!-- Copyright 2020 BULL SAS All rights reserved -->
   <div class="container-fluid">
     <!-- Page content is a single row -->
     <div v-if="!experiments" class="flex flex-col items-center">

@@ -1,4 +1,5 @@
 <template>
+  <!-- Copyright 2020 BULL SAS All rights reserved -->
   <div
     class="w-full md:w-1/2 lg:w-1/5 xl:w-1/5 px-2 mt-2"
     data-aos="fade-in"

@@ -1,3 +1,4 @@
+# Copyright 2020 BULL SAS All rights reserved
 """This modules implements the simulated annealing heuristic, which is a hill-
 climbing algorithm which can probabilistically accept a worse solution than the
 current one. The probability of accepting a value worse than the current one

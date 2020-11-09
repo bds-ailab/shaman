@@ -1,3 +1,4 @@
+# Copyright 2020 BULL SAS All rights reserved
 """Implementation of the genetic algorithm as an heuristic for black-box
 optimization."""
 

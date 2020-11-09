@@ -1,3 +1,4 @@
+# Copyright 2020 BULL SAS All rights reserved
 # Image for slurm controller
 FROM sphrbthyk/shaman-slurm-base
 

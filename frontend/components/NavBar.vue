@@ -1,4 +1,5 @@
 <template>
+  <!-- Copyright 2020 BULL SAS All rights reserved -->
   <div>
     <b-button v-b-toggle.sidebar-1 class="bg-pink-700"
       ><i class="fas fa-bars"></i

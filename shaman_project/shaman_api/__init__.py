@@ -1,3 +1,4 @@
+# Copyright 2020 BULL SAS All rights reserved
 """Shaman API package.
 
 Rest API written in Python using FastAPI framework

@@ -1,3 +1,4 @@
+# Copyright 2020 BULL SAS All rights reserved
 """This module contains different regression models to use with the surrogate
 modeling heuristics.
 

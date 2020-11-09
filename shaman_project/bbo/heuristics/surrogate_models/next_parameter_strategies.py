@@ -1,3 +1,4 @@
+# Copyright 2020 BULL SAS All rights reserved
 """This module contains different strategies used to compute the next point to
 evaluate when modeling the function with surrogate models. There exists in the
 literature three main methods to compute this parameter:

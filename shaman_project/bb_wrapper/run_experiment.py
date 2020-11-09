@@ -1,3 +1,4 @@
+# Copyright 2020 BULL SAS All rights reserved
 """This script is the entrypoint for little-shaman, by defining a main function
 which launches the exploration process. It ties together all the components
 required by the application.

@@ -1,3 +1,4 @@
+# Copyright 2020 BULL SAS All rights reserved
 """Command Line application."""
 import typer
 import uvicorn

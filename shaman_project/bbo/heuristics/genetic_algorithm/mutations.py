@@ -1,3 +1,4 @@
+# Copyright 2020 BULL SAS All rights reserved
 """This module contains different functions to perform mutations on a
 chromosome or a gene."""
 

@@ -1,5 +1,5 @@
 #!/usr/bin/bash
-
+# Copyright 2020 BULL SAS All rights reserved
 # TODO change _ in - for better compliance with shell conventions
 
 # TODO: #20 ugly workaround of forcing munge to run as root ... check later

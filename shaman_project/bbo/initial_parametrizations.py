@@ -1,3 +1,4 @@
+# Copyright 2020 BULL SAS All rights reserved
 """This module contains different functions that sample some data points from a
 parameter grid using different strategies for a smart selection. Many
 techniques and implementations exist from the literature and for now only two

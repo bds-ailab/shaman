@@ -1,4 +1,5 @@
 <template>
+  <!-- Copyright 2020 BULL SAS All rights reserved -->
   <div class="main">
     <logo />
     <div class="hero mx-auto text-center text-6xl font-bold">

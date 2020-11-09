@@ -1,3 +1,4 @@
+# Copyright 2020 BULL SAS All rights reserved
 """Given data sent by the user from the Web Interface, builds the corresponding
 experiment configuration."""
 from typing import Dict

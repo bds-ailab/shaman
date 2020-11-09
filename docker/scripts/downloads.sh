@@ -1,4 +1,5 @@
 #!/usr/bin/bash
+# Copyright 2020 BULL SAS All rights reserved
 set -e
 
 # build slurm rpms

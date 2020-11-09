@@ -1,4 +1,6 @@
 <template>
+  <!-- Copyright 2020 BULL SAS All rights reserved -->
+
   <!-- Start of experiment view column
     NOTE: An experiment is a column because its direct child are positioned vertically
   -->

@@ -1,3 +1,4 @@
+# Copyright 2020 BULL SAS All rights reserved
 from pydantic import BaseModel, Field, validator
 from typing import List, Dict, Optional
 

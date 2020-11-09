@@ -1,3 +1,4 @@
+# Copyright 2020 BULL SAS All rights reserved
 """Rest API endpoints related to SHAman are defined in this module."""
 from typing import List, Optional
 from starlette.responses import Response

@@ -1,3 +1,4 @@
+# Copyright 2020 BULL SAS All rights reserved
 """Startup and shutdown worker events."""
 from shaman_core.config import EngineConfig
 

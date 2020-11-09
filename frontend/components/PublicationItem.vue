@@ -1,4 +1,5 @@
 <template>
+  <!-- Copyright 2020 BULL SAS All rights reserved -->
   <div class="flex relative pt-10 pb-20 sm:items-center md:w-2/3 mx-auto">
     <div
       class="w-24 h-12 rounded-md mt-10 sm:mt-0 inline-flex items-center justify-center bg-pink-600 text-white relative z-10 text-xl p-4"

@@ -1,3 +1,4 @@
+# Copyright 2020 BULL SAS All rights reserved
 """This module contains several functions to perform selection of the two
 fittest parents."""
 

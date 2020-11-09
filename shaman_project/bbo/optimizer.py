@@ -1,3 +1,4 @@
+# Copyright 2020 BULL SAS All rights reserved
 """This module implements the class BBOptimizer, which is the interface that
 allows to optimize a black-box with a given heuristic, which is passed as a
 string. Given a "black-box" instance, which is simply defined as a Python
