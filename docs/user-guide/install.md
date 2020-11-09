@@ -25,7 +25,7 @@ Once the application is up and running, visit `localhost:3000` and check that yo
 ## Production deployment
 
 !!! warning
-    This version requires a working install of **docker** and the possibility to install **Python libraries** on a node that has access to a **Slurm cluster** (login node or compute node).
+    This version requires a working install of **docker** and the possibility to install and run **Python libraries** on a node that has access to a **Slurm cluster** (login node or compute node).
 
 The suggested method to deploy the application in production is to use every services in a container except for the optimization engine (see [architecture]('../technical-guide/architecture) for a detailed description of the architecture). 
 
@@ -48,6 +48,12 @@ export SHAMAN_REDIS_HOST=...
 export SHAMAN_DIRECTORY="where_you_want_shaman_to_run"
 # Where the SHAMan code is located
 export SHAMAN_FOLDER="where_the_code_is_located"
+```
+
+You must then install the Python packages that make up the application. SHAMan relies on the [`poetry`](https://python-poetry.org/) package manager. You must first install it (either through `pip` or the install procedure described in [the documentation](https://python-poetry.org/docs/)), and then run in the top folder:
+
+```
+poetry install
 ```
 
 Then run a script to run the worker:

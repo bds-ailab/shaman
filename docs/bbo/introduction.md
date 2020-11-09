@@ -2,6 +2,10 @@
 
 SHAMan comes with a stand-alone Python library called `bbo` that can be used directly in an interactive Python session. `bbo` is a generic modular library to perform black-box optimization of Python object.
 
+!!! tip
+    To only install `bbo` (and not the other dependencies), you can run:
+    ```poetry install -E bbo```
+
 ## What is black-box optimization ?
 
 Black-box optimization refers to the optimization of a function of unknown properties, most of the time costly to evaluate, which entails a limited number of possible evaluations. The goal of the procedure is to find the optimum of a function f in a minimum of evaluations without making any hypothesis on the function.

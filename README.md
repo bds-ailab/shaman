@@ -52,7 +52,7 @@ In both cases, the latest version of SHAMan pust be pulled by cloning this repos
 The demo version of the application can be run by calling:
 
 ```
-docker-compose -f demo-compose.yml up
+docker-compose -f demo-docker-compose.yml up
 ```
 
 :warning: If the user wants data persistence, a volume must be declared in the docker-compose file.
