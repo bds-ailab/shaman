@@ -41,7 +41,7 @@ The several services communicate through a REST API, using [FastAPI](https://git
 
 # Installation
 
-SHAMan can be installed in a containerized environment, as several docker containers run with `docker-compose`. However, this type of install is only suitable for demo purpose: it is not possible to infer proper performance metrics from hardwares or softwares when the optimization engine is running in a containerized environment. To deal with production installs, we provide a ansible playbook to deploy the services of the application that require the system's full performance.
+SHAMan can be installed in a containerized environment, as several docker containers run with `docker-compose`. However, this type of install is only suitable for demo purpose: it is not possible to infer proper performance metrics from hardwares or softwares when the optimization engine is running in a containerized environment. 
 
 In both cases, the latest version of SHAMan pust be pulled by cloning this repository. The user must then move to the cloned repository.
 
