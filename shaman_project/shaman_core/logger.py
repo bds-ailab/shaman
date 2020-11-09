@@ -1,3 +1,4 @@
+# Copyright 2020 BULL SAS All rights reserved
 """Logging module for the SHAMan package."""
 import sys
 from enum import Enum

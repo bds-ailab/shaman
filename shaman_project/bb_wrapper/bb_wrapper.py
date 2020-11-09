@@ -1,3 +1,4 @@
+# Copyright 2020 BULL SAS All rights reserved
 """The goal of this class is to provide an object which returns the execution
 time associated with each parametrization and is compatible with the BBO
 standards by having a compute method."""

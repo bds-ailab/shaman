@@ -1,3 +1,4 @@
+# Copyright 2020 BULL SAS All rights reserved
 """This module provides the different tests for the fitness aggregation policy.
 """
 
@@ -45,7 +46,8 @@ class TestSimpleFitnessTransformation(unittest.TestCase):
             "truncated": np.array([True, True, True, True]),
         }
         transformed_history = sft.transform(history)
-        np.testing.assert_array_equal(transformed_history["fitness"], [2.5, 2.5])
+        np.testing.assert_array_equal(
+            transformed_history["fitness"], [2.5, 2.5])
         np.testing.assert_array_equal(
             transformed_history["parameters"], np.array([[1, 2], [3, 4]])
         )
@@ -64,7 +66,8 @@ class TestSimpleFitnessTransformation(unittest.TestCase):
             "truncated": np.array([True, True, True, True]),
         }
         transformed_history = sft.transform(history)
-        np.testing.assert_array_equal(transformed_history["fitness"], [0.5, 1.5])
+        np.testing.assert_array_equal(
+            transformed_history["fitness"], [0.5, 1.5])
         np.testing.assert_array_equal(
             transformed_history["parameters"], np.array([[1, 2], [3, 4]])
         )

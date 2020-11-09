@@ -1,3 +1,4 @@
+# Copyright 2020 BULL SAS All rights reserved
 """Unit testing for exhaustive grid search.
 """
 import unittest
@@ -7,7 +8,8 @@ import numpy as np
 from numpy import testing
 from bbo.heuristics.exhaustive_search.exhaustive_search import ExhaustiveSearch
 
-PARAMETRIC_GRID = np.array([np.arange(-5, 5, 1), np.arange(-6, 6, 1),], dtype=object).T
+PARAMETRIC_GRID = np.array(
+    [np.arange(-5, 5, 1), np.arange(-6, 6, 1), ], dtype=object).T
 
 
 class TestExhaustiveSearch(unittest.TestCase):
@@ -39,12 +41,14 @@ class TestExhaustiveSearch(unittest.TestCase):
         ix = 0
         while ix <= 119:
             tested_parameters.append(
-                exhaustive_search.choose_next_parameter(history, PARAMETRIC_GRID)
+                exhaustive_search.choose_next_parameter(
+                    history, PARAMETRIC_GRID)
             )
             # Append bogus fitness
             history["fitness"].append(1)
             ix += 1
-        # Check that the whole parametric grid is the same as the tested parameters
+        # Check that the whole parametric grid is the same as the tested
+        # parameters
         exhaustive_grid = np.array(np.meshgrid(*PARAMETRIC_GRID)).T.reshape(
             -1, len(PARAMETRIC_GRID)
         )
@@ -60,7 +64,8 @@ class TestExhaustiveSearch(unittest.TestCase):
         ix = 0
         while ix <= 50:
             tested_parameters.append(
-                exhaustive_search.choose_next_parameter(history, PARAMETRIC_GRID)
+                exhaustive_search.choose_next_parameter(
+                    history, PARAMETRIC_GRID)
             )
             # Append bogus fitness
             history["fitness"].append(1)
@@ -77,7 +82,8 @@ class TestExhaustiveSearch(unittest.TestCase):
         ix = 0
         while ix <= 50:
             tested_parameters.append(
-                exhaustive_search.choose_next_parameter(history, PARAMETRIC_GRID)
+                exhaustive_search.choose_next_parameter(
+                    history, PARAMETRIC_GRID)
             )
             # Append bogus fitness
             history["fitness"].append(1)

@@ -1,3 +1,4 @@
+# Copyright 2020 BULL SAS All rights reserved
 """This module contains several fitness transformation methods.
 
 Fitness transformation transforms the values of the fitness that will be

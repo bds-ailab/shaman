@@ -1,3 +1,4 @@
+# Copyright 2020 BULL SAS All rights reserved
 """This module implements surrogate modeling techniques for black-box
 optimization of a function."""
 

@@ -1,3 +1,4 @@
+# Copyright 2020 BULL SAS All rights reserved
 """Tests the tunable component behavior.
 """
 
@@ -10,12 +11,14 @@ from pathlib import Path
 from bb_wrapper.tunable_component.component import TunableComponent
 
 
-TEST_COMPONENT_CONFIG = Path(__file__).parent / "test_component_config" / "test.yaml"
+TEST_COMPONENT_CONFIG = Path(__file__).parent / \
+    "test_component_config" / "test.yaml"
 # Test config component
 
 TEST_SBATCH = Path(__file__).parent / "test_data" / "test_sbatch.sbatch"
 # Test sbatch
-TEST_SBATCH_HEADER = Path(__file__).parent / "test_data" / "test_sbatch_header.sbatch"
+TEST_SBATCH_HEADER = Path(__file__).parent / \
+    "test_data" / "test_sbatch_header.sbatch"
 
 # Save current environment variable into a variable
 current_var_env = os.environ.copy()
@@ -172,7 +175,9 @@ class TestTunableComponent(unittest.TestCase):
 
     def test_class_initialization_yaml(self):
         """Checks the proper initialization of the TunableComponent class through a YAML file."""
-        TunableComponent(name="component_1", module_configuration=TEST_COMPONENT_CONFIG)
+        TunableComponent(
+            name="component_1",
+            module_configuration=TEST_COMPONENT_CONFIG)
 
     def test_configuration_not_found(self):
         """Check that a file not found error is raised when the configuration module can't be found.
@@ -281,15 +286,20 @@ class TestTunableComponent(unittest.TestCase):
         file is missing, has no default and is not optional."""
         parameters_missing = {"param_2": 5}
         with self.assertRaises(ValueError):
-            TunableComponent("component_2", TEST_COMPONENT_CONFIG, parameters_missing)
+            TunableComponent(
+                "component_2",
+                TEST_COMPONENT_CONFIG,
+                parameters_missing)
 
     def test_setup_var_env_default(self):
         """Tests that the environment variables are properly setup using default values."""
-        tunable_component = TunableComponent("component_1", TEST_COMPONENT_CONFIG)
+        tunable_component = TunableComponent(
+            "component_1", TEST_COMPONENT_CONFIG)
         tunable_component.setup_var_env()
         expected_var_env = {"param_1": "1"}
         expected_var_env.update(current_var_env)
-        self.assertDictContainsSubset(tunable_component.var_env, expected_var_env)
+        self.assertDictContainsSubset(
+            tunable_component.var_env, expected_var_env)
 
     def test_setup_var_env(self):
         """Tests that the environment variables are properly setup using non-default values."""
@@ -299,7 +309,8 @@ class TestTunableComponent(unittest.TestCase):
         tunable_component.setup_var_env()
         expected_var_env = {"param_1": "10"}
         expected_var_env.update(current_var_env)
-        self.assertDictContainsSubset(tunable_component.var_env, expected_var_env)
+        self.assertDictContainsSubset(
+            tunable_component.var_env, expected_var_env)
 
     def test_optional_parameters(self):
         """Tests that when an optional parameter is specified, it is taken into account."""
@@ -310,12 +321,14 @@ class TestTunableComponent(unittest.TestCase):
 
     def test_optional_no_parameters(self):
         """Tests that when an optional parameter is not specified, it is not taken into account."""
-        tunable_component = TunableComponent("component_4", TEST_COMPONENT_CONFIG)
+        tunable_component = TunableComponent(
+            "component_4", TEST_COMPONENT_CONFIG)
         # self.assertDictEqual(tunable_component.parameters,  {})
 
     def test_edit_sbatch(self):
         """Tests that editing the sbatch by adding a header, a ld_preload and the command line works properly."""
-        tunable_component = TunableComponent("component_1", TEST_COMPONENT_CONFIG)
+        tunable_component = TunableComponent(
+            "component_1", TEST_COMPONENT_CONFIG)
         # Create new sbatch
         new_sbatch = tunable_component.add_header_sbatch(TEST_SBATCH)
         # Checks that the header has been added
@@ -333,7 +346,8 @@ class TestTunableComponent(unittest.TestCase):
     def test_cmd_line(self):
         """Tests that the command line is correctly built, given the different
         possible configuration."""
-        tunable_component = TunableComponent("component_1", TEST_COMPONENT_CONFIG)
+        tunable_component = TunableComponent(
+            "component_1", TEST_COMPONENT_CONFIG)
         # Command line without wait option
         cmd_line_no_wait = tunable_component._build_sbatch_cmd_line(
             TEST_SBATCH, wait=False
@@ -345,7 +359,8 @@ class TestTunableComponent(unittest.TestCase):
             "Problem with building command line building without wait mode.",
         )
         # Command line with wait option
-        cmd_line_wait = tunable_component._build_sbatch_cmd_line(TEST_SBATCH, wait=True)
+        cmd_line_wait = tunable_component._build_sbatch_cmd_line(
+            TEST_SBATCH, wait=True)
         expected_cmd_line_wait = f"sbatch --wait --example_1 {TEST_SBATCH}"
         self.assertEqual(
             cmd_line_wait,

@@ -1,3 +1,4 @@
+# Copyright 2020 BULL SAS All rights reserved
 """Define the configuration of the Redis message broker."""
 
 from .functions import FUNCTIONS

@@ -1,3 +1,4 @@
+# Copyright 2020 BULL SAS All rights reserved
 """
 Tests the various methods associated with simulated annealing:
     - Creation of the heuristic
@@ -6,12 +7,6 @@ Tests the various methods associated with simulated annealing:
     - Restart functions
 """
 
-__copyright__ = """
-Copyright (C) 2020 Bull S. A. S. - All rights reserved
-Bull, Rue Jean Jaures, B.P.68, 78340, Les Clayes-sous-Bois, France
-This is not Free or Open Source software.
-Please contact Bull S. A. S. for details about its license.
-"""
 # Disable the could be a function for unit testing
 # pylint: disable=no-self-use
 # Disable name too longs (necessary for clarity in testing)
@@ -56,7 +51,10 @@ class TestCoolDownSchedules(unittest.TestCase):
         current_iteration = 1
         initial_temperature = 100
         with self.assertRaises(AssertionError):
-            exponential_schedule(initial_temperature, current_iteration, cooling_factor)
+            exponential_schedule(
+                initial_temperature,
+                current_iteration,
+                cooling_factor)
 
     def test_exponential_schedule(self):
         """
@@ -84,7 +82,10 @@ class TestCoolDownSchedules(unittest.TestCase):
         current_iteration = 1
         initial_temperature = 100
         with self.assertRaises(AssertionError):
-            logarithmic_schedule(initial_temperature, current_iteration, cooling_factor)
+            logarithmic_schedule(
+                initial_temperature,
+                current_iteration,
+                cooling_factor)
 
     def test_logarithmic_schedule(self):
         """
@@ -189,7 +190,8 @@ class TestNeighboringFunction(unittest.TestCase):
         """
         np.random.seed(10)
         fake_grid = np.array(
-            [np.arange(-10, 10, 1), np.arange(-10, 10, 1), np.arange(-10, 11, 1)]
+            [np.arange(-10, 10, 1), np.arange(-10, 10, 1),
+             np.arange(-10, 11, 1)]
         )
         current_parameter = np.array([0, 0, 0])
         next_value = hop_to_next_value(current_parameter, fake_grid)
@@ -207,7 +209,8 @@ class TestNeighboringFunction(unittest.TestCase):
         """
         np.random.seed(10)
         fake_grid = np.array(
-            [np.arange(-10, 10, 1), np.arange(-10, 10, 1), np.arange(-10, 11, 1)]
+            [np.arange(-10, 10, 1), np.arange(-10, 10, 1),
+             np.arange(-10, 11, 1)]
         )
         current_parameter = np.array([10, 8, 8])
         with self.assertRaises(IndexError):
@@ -220,7 +223,8 @@ class TestNeighboringFunction(unittest.TestCase):
         """
         np.random.seed(12)
         fake_grid = np.array(
-            [np.arange(-10, 10, 1), np.arange(-10, 10, 1), np.arange(-10, 11, 1)]
+            [np.arange(-10, 10, 1), np.arange(-10, 10, 1),
+             np.arange(-10, 11, 1)]
         )
         current_parameter = np.array([-10, -9, -10])
         next_value = hop_to_next_value(current_parameter, fake_grid)
@@ -241,7 +245,8 @@ class TestNeighboringFunction(unittest.TestCase):
         """
         np.random.seed(13)
         fake_grid = np.array(
-            [np.arange(-10, 10, 1), np.arange(-10, 10, 1), np.arange(-10, 11, 1)]
+            [np.arange(-10, 10, 1), np.arange(-10, 10, 1),
+             np.arange(-10, 11, 1)]
         )
         current_parameter = np.array([9, 9, 10])
         next_value = hop_to_next_value(current_parameter, fake_grid)
@@ -342,7 +347,8 @@ class TestSimulatedAnnealing(unittest.TestCase):
         )
         next_parameter = sa.choose_next_parameter(fake_history, ranges)
         expected_next_parameter = np.array([2, 6])
-        np.testing.assert_array_equal(next_parameter, expected_next_parameter, "tutu")
+        np.testing.assert_array_equal(
+            next_parameter, expected_next_parameter, "tutu")
 
     def test_simulated_annealing_random_restart(self):
         """

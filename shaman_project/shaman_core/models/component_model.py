@@ -1,3 +1,4 @@
+# Copyright 2020 BULL SAS All rights reserved
 """Defines a pydantic model that represents a tunable component."""
 from pathlib import Path
 from typing import Dict, Optional, Any

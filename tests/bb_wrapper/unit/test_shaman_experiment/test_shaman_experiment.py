@@ -1,3 +1,4 @@
+# Copyright 2020 BULL SAS All rights reserved
 """
 This module proposes unit tests for the shaman_experiment module.
 """

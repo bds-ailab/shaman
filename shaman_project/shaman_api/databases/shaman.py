@@ -1,3 +1,4 @@
+# Copyright 2020 BULL SAS All rights reserved
 from typing import Optional, List, Dict
 from loguru import logger
 

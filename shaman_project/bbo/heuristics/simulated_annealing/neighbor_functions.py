@@ -1,3 +1,4 @@
+# Copyright 2020 BULL SAS All rights reserved
 """This module contains functions to compute the neighbors of parameters
 according to a given distance. This selection is necessary for the simulated
 annealing heuristic in order to pick the next parameters to evaluate.

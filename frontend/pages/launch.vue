@@ -1,4 +1,5 @@
 <template>
+  <!-- Copyright 2020 BULL SAS All rights reserved -->
   <div>
     <form ref="form" @submit.prevent="submitExperiment" v-if="componentsName">
       <!-- Row for the experiment -->

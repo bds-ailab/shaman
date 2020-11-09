@@ -1,3 +1,4 @@
+# Copyright 2020 BULL SAS All rights reserved
 from typing import Any, Callable, get_type_hints, Optional
 from fastapi import APIRouter
 from loguru import logger

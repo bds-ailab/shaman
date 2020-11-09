@@ -1,3 +1,4 @@
+# Copyright 2020 BULL SAS All rights reserved
 components:
   fastio-ioi:
     plugin: fastio=yes --ioi=yes

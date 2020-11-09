@@ -1,4 +1,5 @@
 <template>
+  <!-- Copyright 2020 BULL SAS All rights reserved -->
   <div>
     <b-row
       v-for="(value, key) in options"

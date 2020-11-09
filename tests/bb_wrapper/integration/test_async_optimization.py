@@ -1,3 +1,4 @@
+# Copyright 2020 BULL SAS All rights reserved
 """
 The goal of this module is to provide integration test of the little-shaman command, when using:
 - Asynchronous optimization

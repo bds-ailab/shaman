@@ -1,3 +1,4 @@
+# Copyright 2020 BULL SAS All rights reserved
 """This module contains the abstraction of a tunable HPC component. It must be
 implemented in order to tune a component using the optimization engine. It
 provides three methods most common to setup HPC components:

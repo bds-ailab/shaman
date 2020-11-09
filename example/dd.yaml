@@ -1,3 +1,4 @@
+# Copyright 2020 BULL SAS All rights reserved
 components:
   dd:
     command: dd if=/dev/zero of=file.test

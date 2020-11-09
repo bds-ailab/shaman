@@ -1,3 +1,4 @@
+# Copyright 2020 BULL SAS All rights reserved
 """Module to test the shaman_config.py module.
 """
 
@@ -6,7 +7,8 @@ from pathlib import Path
 from shaman_core.models.shaman_config_model import SHAManConfig
 from shaman_worker.shaman_config.shaman_config import SHAManConfigBuilder
 
-DEFAULT_FILE = Path(__file__).parent / "test_shaman_template" / "shaman_template.yaml"
+DEFAULT_FILE = Path(__file__).parent / \
+    "test_shaman_template" / "shaman_template.yaml"
 OUTPUT_FILE = Path(__file__).parent / "output_config.yaml"
 
 

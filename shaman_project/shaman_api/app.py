@@ -1,3 +1,4 @@
+# Copyright 2020 BULL SAS All rights reserved
 from fastapi import FastAPI
 from .routers import experiment_router, component_router
 

@@ -1,1 +1,1 @@
-""" Test module for shaman_worker package """
+# Copyright 2020 BULL SAS All rights reserved

@@ -1,3 +1,4 @@
+# Copyright 2020 BULL SAS All rights reserved
 """Databases subpackage of shaman_api package.
 
 This subpackages defines connections to mongodb databases and functions

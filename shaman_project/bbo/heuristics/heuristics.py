@@ -1,3 +1,4 @@
+# Copyright 2020 BULL SAS All rights reserved
 """This module contains the Heuristic class is the mother class from which all
 of the heuristics will inherit. This helps ensure that all heuristics will
 respect the same properties. The following methods are mandatory when adding a
