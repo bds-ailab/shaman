@@ -1,8 +1,10 @@
 # Copyright 2020 BULL SAS All rights reserved
-'''Tests that the various methods associated with surrogate modeling:
+"""
+Tests that the various methods associated with surrogate modeling:
     - Creation of the heuristic
     - Acquisition functions
-'''
+"""
+
 
 # Disable the could be a function for unit testing
 # pylint: disable=no-self-use
@@ -39,9 +41,8 @@ from bbo.heuristics.surrogate_models.next_parameter_strategies import (
 fake_history = {
     "fitness": np.array([10, 5, 4, 2, 15, 20]),
     "parameters": np.array([[1, 2], [2, 3], [1, 3], [4, 3], [2, 1], [1, 5]]),
-    "truncated": np.array([True, True, False, False, False, True]), }
-# fake history that will be used for testing the correct behavior of the
-# heuristic
+    "truncated": np.array([True, True, False, False, False, True]),
+}
 # fake parameter range to use for testing
 ranges = np.array([np.arange(20), np.arange(21)])
 
@@ -66,15 +67,13 @@ class TestAcquisitionFunctions(unittest.TestCase):
         # gaussian processes
         gaussian_process = GaussianProcessRegressor()
         gaussian_process.fit(
-    X=fake_history["parameters"],
-     y=fake_history["fitness"])
+            X=fake_history["parameters"],
+            y=fake_history["fitness"])
         self.gp_fun = SurrogateModel._build_prediction_function(
             gaussian_process, scaler
         )
 
-        gaussian_process.fit(
-            X=fake_history["parameters"],
-            y=fake_history["fitness"])
+    # def test_lbfgs_b(self):
     #     """
     #     Tests that the L_BFGS_B minimizer works properly.
     #     """
@@ -93,7 +92,7 @@ class TestAcquisitionFunctions(unittest.TestCase):
     #     cma_optimizer(self.knn_fun, ranges)
     #     self._remove_dat()
 
-    @ staticmethod
+    @staticmethod
     def _remove_dat():
         """
         Removes the .dat file in the test folder that are created by the CMA optimizer.
@@ -155,20 +154,18 @@ class TestAcquisitionFunctions(unittest.TestCase):
         np.testing.assert_array_almost_equal(expected_ei, expected_imp)
 
     def test_ei(self):
-        expected_imp = compute_expected_improvement(
-            current_optimum, means, stds)
+        """
         Tests that the Expected Improvement function works properly.
         """
         np.random.seed(10)
         expected_min = np.array([0, 20])
         real_min = expected_improvement(
-    self.gp_fun, ranges, fake_history["fitness"])
+            self.gp_fun, ranges, fake_history["fitness"])
         np.testing.assert_array_equal(real_min, expected_min)
 
     def test_ei_no_sd_option(self):
         """
-        real_min = expected_improvement(
-            self.gp_fun, ranges, fake_history["fitness"])
+        Tests that the EI function works properly.
         """
         with self.assertRaises(TypeError):
             expected_improvement(self.knn_fun, ranges, fake_history["fitness"])
@@ -246,14 +243,12 @@ class TestSurrogateModels(unittest.TestCase):
         real_new_parameter = surrogate_model.choose_next_parameter(
             fake_history, ranges)
         np.testing.assert_array_equal(
-    real_new_parameter, expected_new_parameter)
+            real_new_parameter, expected_new_parameter)
 
     def test_choose_next_parameter_ei(self):
         """
-        real_new_parameter = surrogate_model.choose_next_parameter(
-            fake_history, ranges)
-        np.testing.assert_array_equal(
-            real_new_parameter, expected_new_parameter)
+        Checks that the selection of the next parameter works properly when using EI.
+        """
         expected_new_parameter = [4, 3]
         surrogate_model = SurrogateModel(
             regression_model=GaussianProcessRegressor,
@@ -262,14 +257,12 @@ class TestSurrogateModels(unittest.TestCase):
         real_new_parameter = surrogate_model.choose_next_parameter(
             fake_history, ranges)
         np.testing.assert_array_equal(
-    real_new_parameter, expected_new_parameter)
+            real_new_parameter, expected_new_parameter)
 
     # def test_choose_next_parameter_lbfgsb(self):
     #     """
-        real_new_parameter = surrogate_model.choose_next_parameter(
-            fake_history, ranges)
-        np.testing.assert_array_equal(
-            real_new_parameter, expected_new_parameter)
+    #     Checks that the selection of the next parameter works properly when using L-BFGS-B.
+    #     """
     #     np.random.seed(10)
     #     expected_new_parameter = np.array([3.974002, 3.046726])
     #     surrogate_model = SurrogateModel(regression_model=GaussianProcessRegressor,
@@ -309,14 +302,12 @@ class TestCensoredBayesian(unittest.TestCase):
         real_new_parameter = surrogate_model.choose_next_parameter(
             fake_history, ranges)
         np.testing.assert_array_equal(
-    real_new_parameter, expected_new_parameter)
+            real_new_parameter, expected_new_parameter)
 
 
 class TestDecisionTreeSTD(unittest.TestCase):
-        real_new_parameter = surrogate_model.choose_next_parameter(
-            fake_history, ranges)
-        np.testing.assert_array_equal(
-            real_new_parameter, expected_new_parameter)
+    """
+    Tests that surrogate modeling using DecisionTreeRegressor work as expected.
     """
 
     def test_tree_ei(self):
@@ -327,13 +318,13 @@ class TestDecisionTreeSTD(unittest.TestCase):
         dtstdr = DecisionTreeSTDRegressor()
         dtstdr.fit(fake_history["parameters"], fake_history["fitness"])
         # Predict the regression values over the whole grid
-        combination_ranges = np.array(np.meshgrid(*ranges)).T.reshape(-1, len(ranges))
+        combination_ranges = np.array(
+            np.meshgrid(*ranges)).T.reshape(-1, len(ranges))
         predictions_means, predictions_std = dtstdr.predict(
             combination_ranges, return_std=True
         )
         # Compute the EI and save the max
-        combination_ranges = np.array(
-            np.meshgrid(*ranges)).T.reshape(-1, len(ranges))
+        current_optimum = np.min(fake_history["fitness"])
         computed_ei = compute_expected_improvement(
             current_optimum, predictions_means, predictions_std
         )
@@ -344,10 +335,10 @@ class TestDecisionTreeSTD(unittest.TestCase):
             regression_model=DecisionTreeSTDRegressor,
             next_parameter_strategy=expected_improvement,
         )
-        next_parameter = surrogate_model.choose_next_parameter(fake_history, ranges)
+        next_parameter = surrogate_model.choose_next_parameter(
+            fake_history, ranges)
         np.testing.assert_array_equal(next_parameter, expected_next_parameter)
 
 
 if __name__ == "__main__":
-        next_parameter = surrogate_model.choose_next_parameter(
-            fake_history, ranges)
+    unittest.main()
