@@ -1,3 +1,4 @@
+# Copyright 2020 BULL SAS All rights reserved
 """
 Tests the various methods associated with the genetic algorithms:
     - Creation of the heuristic
