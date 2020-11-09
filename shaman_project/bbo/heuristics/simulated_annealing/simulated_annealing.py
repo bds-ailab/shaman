@@ -27,7 +27,6 @@ import numpy as np
 from numpy.random import uniform
 
 from bbo.heuristics.heuristics import Heuristic
-from loguru import logger
 
 
 class SimulatedAnnealing(Heuristic):
