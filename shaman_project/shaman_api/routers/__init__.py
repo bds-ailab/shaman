@@ -1,3 +1,4 @@
+# Copyright 2020 BULL SAS All rights reserved
 """routers subpackage of shaman_api package.
 
 This subpackage implement the endpoints of the REST API.

@@ -1,3 +1,4 @@
+# Copyright 2020 BULL SAS All rights reserved
 """This module contains the different functions that can be used as cooldown
 schedules for the simulated annealing heuristic. Many different choice of
 schedules exist in literature.

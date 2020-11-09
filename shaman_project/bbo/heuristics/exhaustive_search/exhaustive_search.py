@@ -1,3 +1,4 @@
+# Copyright 2020 BULL SAS All rights reserved
 """The exhaustive search heuristic tests sequentially every parameter in the
 optimization grid, in the order of the parameter space specified by the
 user."""

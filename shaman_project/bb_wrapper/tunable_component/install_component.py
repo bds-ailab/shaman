@@ -1,11 +1,15 @@
-"""This module sends data read from an input YAML file to a POST endpoint
-/components, which creates a collection containing the available components."""
+# Copyright 2020 BULL SAS All rights reserved
+"""
+This module sends data read from an input YAML file to a POST endpoint
+/components, which creates a collection containing the available components.
+"""
+
+
 from httpx import Client
 from typer import Typer, Argument
 from loguru import logger
 from shaman_core.models.component_model import TunableComponentsModel
 from shaman_core.config import APIConfig
-
 cli = Typer(add_completion=False)
 api_settings = APIConfig()
 

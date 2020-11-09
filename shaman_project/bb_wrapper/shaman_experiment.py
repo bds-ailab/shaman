@@ -1,3 +1,4 @@
+# Copyright 2020 BULL SAS All rights reserved
 """The class SHAManExperiment is a tool to launch, monitor and save
 optimization experiments."""
 

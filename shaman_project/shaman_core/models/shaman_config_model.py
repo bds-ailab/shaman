@@ -1,3 +1,4 @@
+# Copyright 2020 BULL SAS All rights reserved
 """Pydantic model for parsing the SHAMan configuration."""
 import dataclasses
 from pathlib import Path

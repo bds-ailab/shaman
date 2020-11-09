@@ -1,3 +1,4 @@
+# Copyright 2020 BULL SAS All rights reserved
 """This module provides resampling policies: they consist in reevaluating some
 parametrization several times, in order to get a better estimation of the
 impact of these parameters on the performance function.

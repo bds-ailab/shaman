@@ -1,3 +1,4 @@
+# Copyright 2020 BULL SAS All rights reserved
 """
 This module tests that the BBOptimizer class behaves as expected.
 """

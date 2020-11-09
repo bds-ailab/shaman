@@ -1,3 +1,4 @@
+# Copyright 2020 BULL SAS All rights reserved
 """This module provides the different tests for the resampling policies.
 """
 

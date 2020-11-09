@@ -1,3 +1,4 @@
+# Copyright 2020 BULL SAS All rights reserved
 FROM sphrbthyk/slurm-dependencies:latest
 
 # Copy the configuration file

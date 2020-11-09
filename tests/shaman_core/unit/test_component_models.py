@@ -1,3 +1,4 @@
+# Copyright 2020 BULL SAS All rights reserved
 """
 Tests that the component model behaves as expected.
 """
@@ -70,7 +71,8 @@ TEST_PARAMETERS_WRONG_TYPE = {
     "param_1": {"type": "int", "default": "home", "optional": True, "env_var": True}
 }
 
-TEST_COMPONENT_CONFIG = Path(__file__).parent / "test_component_config" / "test.yaml"
+TEST_COMPONENT_CONFIG = Path(__file__).parent / \
+    "test_component_config" / "test.yaml"
 
 
 class MockResponse:
@@ -256,7 +258,8 @@ class TestComponentModels(unittest.TestCase):
         """
         Tests that loading a component from a YAML file behaves as expected.
         """
-        tunable_components = TunableComponentsModel.from_yaml(TEST_COMPONENT_CONFIG)
+        tunable_components = TunableComponentsModel.from_yaml(
+            TEST_COMPONENT_CONFIG)
         assert tunable_components.components["component_1"].plugin == "example_1"
         assert tunable_components.components["component_2"].plugin == "example_2"
 

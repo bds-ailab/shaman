@@ -1,4 +1,5 @@
 #!/usr/bin/bash
+# Copyright 2020 BULL SAS All rights reserved
 
 mkdir -p ~/.ssh
 chmod 0700 ~/.ssh

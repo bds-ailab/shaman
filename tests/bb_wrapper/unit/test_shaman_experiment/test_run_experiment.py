@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+# Copyright 2020 BULL SAS All rights reserved
 """
 This module proposes unit tests for the run_experiment module.
 """

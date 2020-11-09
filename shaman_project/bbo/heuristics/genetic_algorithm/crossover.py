@@ -1,3 +1,4 @@
+# Copyright 2020 BULL SAS All rights reserved
 """This module contains different functions to perform crossover using two
 chromosomes, i.e. building a child chromosome given two parents."""
 

@@ -1,3 +1,4 @@
+# Copyright 2020 BULL SAS All rights reserved
 """This module defines the function that will launch a SHAMan experiment."""
 import pathlib
 

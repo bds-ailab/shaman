@@ -1,3 +1,4 @@
+# Copyright 2020 BULL SAS All rights reserved
 """
 The goal of this module is to test that when performing the optimization asynchronously (i.e. by 
 giving the optimizer a cost value that must not be exceeded), the optimizer behaves as expected.

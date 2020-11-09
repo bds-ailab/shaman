@@ -1,5 +1,7 @@
 #TODO: multistage docker
 # Dockerfile containing the FastAPI library
+# Copyright 2020 BULL SAS All rights reserved
+
 FROM python:3.8-slim
 
 # Install poetry

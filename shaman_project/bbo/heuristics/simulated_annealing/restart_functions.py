@@ -1,3 +1,4 @@
+# Copyright 2020 BULL SAS All rights reserved
 """This module contains different methods to restart the simulated annealing
 system. It provides functions that return a boolean to indicate if the system
 should restart and the new temperature. There exists many ways to restart the

@@ -1,3 +1,4 @@
+# Copyright 2020 BULL SAS All rights reserved
 """Module contaning the configuration data for the SHAMan project.
 Configuration files deal with:
 

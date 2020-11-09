@@ -1,4 +1,5 @@
 <template>
+  <!-- Copyright 2020 BULL SAS All rights reserved -->
   <!-- Flex column is used to easily center text vertically.
  -->
   <b-col>

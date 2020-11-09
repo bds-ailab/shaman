@@ -1,3 +1,4 @@
+# Copyright 2020 BULL SAS All rights reserved
 """
 Tests that the BBWrapper class behaves as expected.
 """
@@ -208,7 +209,10 @@ class TestBBWrapper(unittest.TestCase):
         new_path = self.bb_wrapper.copy_sbatch(original_file)
         with open(new_path) as read_file:
             lines = read_file.readlines()
-        self.assertEqual(new_path, TEST_SBATCH / "test_sbatch_timed_shaman.sbatch")
+        self.assertEqual(
+            new_path,
+            TEST_SBATCH /
+            "test_sbatch_timed_shaman.sbatch")
         self.assertListEqual(lines, expected_lines)
         Path(new_path).unlink()
 
@@ -236,9 +240,12 @@ class TestBBWrapper(unittest.TestCase):
         self.assertEqual(self.bb_wrapper.default_jobid, 42)
         # Check that the execution time is properly stored
         self.assertEqual(self.bb_wrapper.default_execution_time, 1508.085)
-        # Check that the default parameters of the accelerator are properly stored
+        # Check that the default parameters of the accelerator are properly
+        # stored
         default_parameters = {"param_1": 1, "param_2": "/home/"}
-        self.assertDictEqual(self.bb_wrapper.default_parameters, default_parameters)
+        self.assertDictEqual(
+            self.bb_wrapper.default_parameters,
+            default_parameters)
 
     def test_parse_slurm_times(self):
         """Tests that the slurm times are properly parsed from a slurm out file.
@@ -277,7 +284,8 @@ class TestBBWrapper(unittest.TestCase):
         """Tests that parsing a job elapsed time through a subprocess call calling the
         squeue command works as expected.
         """
-        mock_stdout.return_value.stdout = "'             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)\n                 9       all    sleep     root  R       0:30      1 compute1\n'".encode()
+        mock_stdout.return_value.stdout = "'             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)\n                 9       all    sleep     root  R       0:30      1 compute1\n'".encode(
+        )
         time = self.bb_wrapper.parse_job_elapsed_time(2)
         self.assertEqual(30, time)
 

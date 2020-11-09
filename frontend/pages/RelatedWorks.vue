@@ -1,4 +1,5 @@
 <template>
+  <!-- Copyright 2020 BULL SAS All rights reserved -->
   <div class="container">
     <div class="flex flex-col w-full min-h-screen">
       <div class="flew flex-row w-full">
