@@ -572,9 +572,10 @@ class BBOptimizer:
             self.parameter_space,
             current_parameters=current_parameters,
         )
-        return self.closest_parameters(
-            parameter_returned_by_heuristic, self.parameter_space
-        )
+        return parameter_returned_by_heuristic
+        # return self.closest_parameters(
+        #     parameter_returned_by_heuristic, self.parameter_space
+        # )
 
     def _select_next_parameters(self, current_parameters=None):
         """Select the next parameters to be evaluated by the algorithm, by
@@ -684,20 +685,28 @@ class BBOptimizer:
         print(f"Elapsed time: {self.elapsed_time}")
         print(f"Best parameters: {self.best_parameters_in_grid}")
         print(f"Best fitness value: {self.best_fitness}")
-        print(f"Percentage of explored space: {self.size_explored_space[0]}")
-        print(f"Percentage of static moves: {self.size_explored_space[1]}")
-        print(f"Cost of global exploration: {self.global_exploration_cost[1]}")
-        print(
-            f"Mean fitness gain per iteration: \
-            {np.mean(self.fitness_gain_per_iteration)}"
-        )
-        print(
-            f"Number of iterations until best fitness: \
-            {self.nbr_iteration_best_fitness}"
-        )
-        print(
-            f"Average variation within each parametrization: \
-            {self.measured_noise}")
+        # TODO: workaround for mixed type values
+        try:
+            print("Percentage of explored space:"
+                  f"{self.size_explored_space[0]}")
+            print("Percentage of static moves:"
+                  f"{self.size_explored_space[1]}")
+            print("Cost of global exploration:"
+                  f"{self.global_exploration_cost[1]}")
+            print(
+                f"Mean fitness gain per iteration: \
+                {np.mean(self.fitness_gain_per_iteration)}"
+            )
+            print(
+                f"Number of iterations until best fitness: \
+                {self.nbr_iteration_best_fitness}"
+            )
+            print(
+                f"Average variation within each parametrization: \
+                {self.measured_noise}")
+        except TypeError:
+            print("Some statistics are yet unavailable for mixed"
+                  "types variables.")
         print("--- Heuristic specific summary ---")
         print(f"{self.heuristic.summary(self.history)}")
 

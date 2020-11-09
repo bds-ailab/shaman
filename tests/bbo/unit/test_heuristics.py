@@ -87,7 +87,12 @@ class AsyncParabola:
         """
         Computes the value of the parabola at data point array_2d
         """
-        random_time = np.round(np.abs(np.random.normal(size=1, loc=3, scale=0.5)))[0]
+        random_time = np.round(
+            np.abs(
+                np.random.normal(
+                    size=1,
+                    loc=3,
+                    scale=0.5)))[0]
         time.sleep(random_time)
         return array_2d[0] ** 2 + array_2d[1] ** 2
 
@@ -113,7 +118,8 @@ class TestHeuristic(unittest.TestCase):
         """
         Tests that the "choose_next_parameter" method raises a NotImplementedError.
         """
-        self.assertRaises(NotImplementedError, self.heuristic.choose_next_parameter, {})
+        with self.assertRaises(NotImplementedError):
+            self.heuristic.choose_next_parameter({}, [])
 
     def test_summary(self):
         """
@@ -449,7 +455,8 @@ class TestExhaustiveSearch(unittest.TestCase):
         Tests that the exhaustive search heuristic tests all the parametrization when the budget is
         equal to the size of the parametric grid.
         """
-        parametric_grid = np.array([np.arange(-5, 5, 1), np.arange(-6, 6, 1),]).T
+        parametric_grid = np.array(
+            [np.arange(-5, 5, 1), np.arange(-6, 6, 1), ]).T
         bb_obj = BBOptimizer(
             black_box=self.fake_black_box,
             parameter_space=parametric_grid,
@@ -461,7 +468,8 @@ class TestExhaustiveSearch(unittest.TestCase):
         exhaustive_grid = np.array(np.meshgrid(*parametric_grid)).T.reshape(
             -1, len(parametric_grid)
         )
-        np.testing.assert_array_equal(bb_obj.history["parameters"][2:], exhaustive_grid)
+        np.testing.assert_array_equal(
+            bb_obj.history["parameters"][2:], exhaustive_grid)
 
 
 if __name__ == "__main__":

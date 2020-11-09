@@ -2,10 +2,7 @@ version: "3.1"
 
 services:
   controller:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.slurm.controller
-    image: sphrbthyk/shaman_project:slurm-controller
+    image: sphrbthyk/shaman-slurm-controller
     container_name: controller
     privileged: true
     hostname: controller
@@ -14,10 +11,7 @@ services:
       - secrets:/secrets
 
   compute1:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.slurm.compute
-    image: sphrbthyk/shaman_project:slurm-compute
+    image: sphrbthyk/shaman-slurm-compute
     depends_on:
       - controller
     container_name: compute1
@@ -29,10 +23,7 @@ services:
       - slurm_fs:/slurm_fs
 
   compute2:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.slurm.compute
-    image: sphrbthyk/shaman_project:slurm-compute
+    image: sphrbthyk/shaman-slurm-compute
     depends_on:
       - controller
     container_name: compute2
@@ -44,10 +35,7 @@ services:
       - slurm_fs:/slurm_fs
 
   shaman_engine:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.slurm.optimization
-    image: sphrbthyk/shaman_project:slurm-optimization
+    image: sphrbthyk/shaman-slurm-optimization
     container_name: worker
     privileged: true
     hostname: worker
@@ -83,10 +71,7 @@ services:
       --eval 'rs.initiate({_id: "rs0", members: [{_id: 0, host : "mongo:27017"}]})'
 
   ui:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.ui
-    image: sphrbthyk/shaman_project:ui
+    image: sphrbthyk/shaman-ui
     container_name: ui
     privileged: true
     hostname: ui
@@ -95,10 +80,7 @@ services:
       - "3000:3000"
 
   api:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.api
-    image: sphrbthyk/shaman_project:api
+    image: sphrbthyk/shaman-api
     container_name: api
     privileged: true
     hostname: api

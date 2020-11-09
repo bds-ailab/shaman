@@ -27,6 +27,7 @@ import numpy as np
 from numpy.random import uniform
 
 from bbo.heuristics.heuristics import Heuristic
+from loguru import logger
 
 
 class SimulatedAnnealing(Heuristic):
@@ -208,6 +209,11 @@ class SimulatedAnnealing(Heuristic):
             current_fitness = history["fitness"][
                 np.equal(history["parameters"], current_parameters).all(axis=1)
             ]
+            # If there is more than one, pick the first one
+            try:
+                current_fitness = current_fitness[0]
+            except TypeError:
+                pass
         # the next parameters as taken from the history
         # parameters one step back
         next_parameter = history["parameters"][-1]

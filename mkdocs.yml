@@ -1,0 +1,49 @@
+site_name: SHAMan project
+
+theme:
+  name: material
+  highlightjs: true
+  hljs_languages:
+    - yaml
+
+plugins:
+  - mknotebooks
+
+markdown_extensions:
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+  - admonition
+  - pymdownx.inlinehilite
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - pymdownx.arithmatex:
+      generic: true
+
+extra_javascript:
+  - javascripts/config.js
+  - https://polyfill.io/v3/polyfill.min.js?features=es6
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+
+nav:
+  - Home: "index.md"
+  - "User Guide":
+      - "Installing SHAMan": "user-guide/install.md"
+      - "Registering a new component": "user-guide/registering.md"
+      - "Launching an experiment": "user-guide/launching.md"
+  - "Technical guide":
+      - "Architecture": "technical-guide/architecture.md"
+      - "Optimization engine": "technical-guide/optimization-engine.md"
+  - "Stand-alone black-box optimization library":
+      - "Introduction to black-box optimization": "bbo/introduction.md"
+      - "Available heuristics": "bbo/heuristics.md"
+      - "Noise reduction": "bbo/noise-reduction.md"
+      - "Pruning strategies": "bbo/pruning-strategies.md"
+      - "Adding a new heuristic": "bbo/adding-heuristic.md"
+  - Cookbooks:
+      - "Optimization of I/O accelerators": "cookbooks/ioaccelerators.md"
+      - "Stand-alone optimization of ML model": "cookbooks/ml_model.ipynb"
+  - About:
+      - "License": "about/license.md"
+      - "Publications": "about/publications.md"
+      - "About the author": "about/about.md"

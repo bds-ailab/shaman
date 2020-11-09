@@ -93,7 +93,6 @@ class GeneticAlgorithm(Heuristic):
             )
             # Mate those two parents to compute a new child
             child = self.crossover_method(parent_1, parent_2)
-
             # Is there a mutation at this round? Compute the probability
             # using a bernouilli random
             # variable
