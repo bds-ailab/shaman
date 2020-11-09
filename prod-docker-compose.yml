@@ -36,9 +36,6 @@ services:
       - "3000:3000"
 
   api:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.api
     image: sphrbthyk/shaman-api
     container_name: api
     privileged: true
