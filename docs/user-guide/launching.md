@@ -76,14 +76,71 @@ It requires:
 
 ### Writing a configuration file
 
-#### Optimizer parametrization
+SHAMan's configuration file comes with five sections and is written using a `yaml` format:
 
-#### Noise reduction strategies
+- `experiment`: contains information about the experiment.
+  *Possible options*: 
+    - `default_first`: set to True if the first parameter tested by the optimizer
 
-#### Pruning strategies
+- `bbo`: parametrizes the optimizer. The possible options are the **different arguments taken by the optimizer**. All the arguments described in the file will be passed as *kwargs* of the `BBOptimizer` class (see section [stand-alone optimization](..\bbo\introduction.md) of the documentation).
+
+- `noise_reduction`: parametrizes the noise reduction features of the optimizer. The possible arguments are the different noise reduction strategies available in `bbo`, as well as their specific *kwargs*. For more details on how to use noise reduction with `bbo`, see [section](..\bbo\noise-reduction.md).
+
+- `pruning`: parametrizes the pruning strategy features of the optimizer (see [section](..\bbo\pruning-strategies.md) for more details).
+  *Possible options*:
+    - `max_step_duration`: the maximum elapsed time before stopping the parametrization. Can either be:
+        - A numpy estimator (for example, `numpy.median`, `numpy.mean`, *etc*). Runs that go above the value of the estimator computed on the already tested execution times are interrupted.
+        - A float value (for example, 5), which corresponds to an elapsed time in seconds
+        - The `default` string, which corresponds to stopping runs that take longer than the default value. The option **default_first** in the `experiment` section must be set to `True`.
+
+- `components`: the selected component and the defined parametric grid, using the `min`, `max` and `step` format. 
+
+An example of a configuration file is written below: 
+
+``` yaml
+experiment:
+  default_first: True
+
+bbo:
+  heuristic: genetic_algorithm
+  initial_sample_size: 2
+  selection_method: bbo.heuristics.genetic_algorithm.selections.tournament_pick
+  crossover_method: bbo.heuristics.genetic_algorithm.crossover.single_point_crossover
+  mutation_method: bbo.heuristics.genetic_algorithm.mutations.mutate_chromosome_to_neighbor
+  pool_size: 5
+  mutation_rate: 0.4
+  elitism: False
+
+noise_reduction:
+  resampling_policy: simple_resampling
+  nbr_resamples: 3
+  fitness_aggregation: simple_fitness_aggregation
+  estimator: numpy.median
+
+pruning:
+  max_step_duration: numpy.median
+
+components:
+  component_1:
+    param_1:
+      min: 1
+      max: 20
+      step: 1
+    param_2:
+      min: 1
+      max: 15
+      step: 3
+```
+
+This example configuration file launches an experiment which:
+
+* Runs the default parametrization first
+* Uses genetic algorithms (tournament pick, single point crossover, random walk for mutation)
+* Uses simple resampling, with 3 resampling per parametrization, and the median as an estimator for parametrization with the same parametrization.
+* Uses pruning and stops every run that takes longer than the median measured on the data points.
+* Uses `component_1` and `param_1` can take any value from 1 to 20, while `param_2` can take any value from 1 to 15 but with an interval of 3 between each value.
+
 
 ## Vizualizing an experiment
 
-Once the experiment has been launched through either of the two methods described above, it can be vizualized in the Web interface.
-
-TODO
+Once the experiment has been launched through either of the two methods described above, it can be vizualized in the Web interface, where different statistics are displayed. If the experiment is still running, the evolution is available in real-time.
