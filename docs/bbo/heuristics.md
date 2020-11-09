@@ -29,7 +29,7 @@ while ix < N:
 
 As can be seen from the definition above, the first required step is to regress or interpolate the already existing data point. Any regression or interpolation function can be used to build the surrogate, as long as it provides a computationally cheap approximation of the black-box function. In our case, any regression function that possess a `fit` and `predict` method can be used, which means that any regression function from the `sklearn` package can be used.
 
-However, some acquisitions functions require some of the information yielded by specific regression techniques, and they thus can't all be used interchangeably. It is for example the case with maximum probability of improvement and expected improvement, as we will see later: those functions require the statistical assumptions made by Kriging regression and can't be used without it. In terms of development, if you want to use maximum probability of improvement or expected improvement as acquisition function, you will have to use a function which `predict` method returns both the value of the prediction and its standard error.
+However, some acquisition functions require some of the information yielded by specific regression techniques, and they thus can't all be used interchangeably. It is for example the case with maximum probability of improvement and expected improvement: these functions require the statistical assumptions made by Kriging regression and can't be used without it. In terms of development, if you want to use maximum probability of improvement or expected improvement as the acquisition function, you will have to use a function which `predict` method returns both the value of the prediction and its standard error.
 
 ### Next parameter strategies
 
@@ -71,7 +71,7 @@ The version implemented in `bbo` computes the $MPI$ for every data point and the
 
 #### Expected improvement
 
-This method both encodes exploration (exploring spaces with a high variance) and exploitation (exploring spaces with a low mean). Not only it takes into account whether or not the next point will induce a smaller value for $f$ but it also considers the gain from the switch. Unlike $MPI$ which only looks for a smaller value, $EI$ takes into account the difference between the old and the new data point.
+This method both encodes exploration (exploring spaces with a high variance) and exploitation (exploring spaces with a low mean). Not only does it take into account whether or not the next point will induce a smaller value for $f$ but it also considers the gain from the switch. Unlike $MPI$ which only looks for a smaller value, $EI$ takes into account the difference between the old and the new data point.
 					
 For each point of the parametric space, we can define the improvement as:
 					
@@ -106,7 +106,7 @@ As with MPI, the EI is computed over all data points and then optimized with bru
 
 ### Examples
 
-Like in the [introduction](introduction.md) example, we will optimize the Ackley function, using all three acquisition function and Gaussian Processes as the surrogate function.
+Like in the [introduction](introduction.md) example, we will optimize the Ackley function, using all three acquisition functions and Gaussian Processes as the surrogate function.
 
 ``` python
 import numpy as np
@@ -184,7 +184,7 @@ bb_obj = BBOptimizer(black_box = fake_black_box,
 
 #### Using a custom acquisition function
 
-It is possible to build a custom acquisition function by creating a function that accept the two arguments <code>function</code> and <code>ranges</code>. We're gonna build a function that randomly selects a data point in the grid at each iteration (not recommended at all in production :wink:).
+It is possible to build a custom acquisition function by creating a function that accepts the two arguments <code>function</code> and <code>ranges</code>. We're going to build a function that randomly selects a data point in the grid at each iteration (not recommended at all in production :wink:).
 
 ``` python
 from numpy.random import uniform
@@ -218,10 +218,7 @@ which can probabilistically accept a worse solution than the current one. The pr
 accepting a value worse than the current one decreases with the number of iterations: this
 introduces the notion of the system's "temperature" (hence the analogy of with metal annealing).
 
-The temperature is a value that decreases overtime according to a cooling schedule which defines
-how the temperature decrease per iteration. As the temperature lowers, the probability of moving
-upward (*i.e.* accepting a worse solution) decreases until it reaches 0 and the system cannot
-move anymore.
+The temperature is a value that decreases overtime according to a cooling schedule which defines how the temperature decreases per iteration. As the temperature lowers, the probability of moving upward (*i.e.* accepting a worse solution) decreases until it reaches 0 and the system cannot move anymore.
 
 ### General principles
 
@@ -252,12 +249,12 @@ From this definition, we see that three functions need to be defined in order to
 
 * ** The neighboring function <code>neighbor</code>**: given a data point in the sample space, this function returns a point that can be considered as a neighboring data point.
 
-* **The acceptance probability function <code>probability_acceptance</code>**: this function decides the probability of accepting a value lower than the current state. It has to have the following property $lim_{T \rightarrow 0} \mathbb{P}(P(y_{new}, y_{old}, T)) = 1$, so that the probability of accepting worse solution goes down as the temperature reduces.
+* **The acceptance probability function <code>probability_acceptance</code>**: this function decides the probability of accepting a value lower than the current state. It has to have the following property $lim_{T \rightarrow 0} \mathbb{P}(P(y_{new}, y_{old}, T)) = 1$, so that the probability of accepting a worse solution goes down as the temperature reduces.
 
-* **The cooling schedule of cooling function <code>cooling_schedule</code>**: this function computes at iteration $k$.
+* **The cooling schedule or cooling function <code>cooling_schedule</code>**: this function computes at iteration $k$.
 
 ### Neighboring functions
-Any metric can be used to compute the neighbor of a parameter on the grid. There is only one option for now: the <code>hop_to_next_value</code> function which performs a rabdom walk on the parameter grid. The neighboring functions are available in the module `bbo.heuristics.simulated_annealing.neighbor_functions`.
+Any metric can be used to compute the neighbor of a parameter on the grid. There is only one option for now: the <code>hop_to_next_value</code> function which performs a random walk on the parameter grid. The neighboring functions are available in the module `bbo.heuristics.simulated_annealing.neighbor_functions`.
 
 ### Acceptance probability function
 
@@ -269,7 +266,7 @@ $$\mathcal{P} = exp(\frac{y_{old} - y_{new}}{T_k})$$ $T_k$ being the temperature
 
 
 ### Cooling schedules
-A cooling schedule is a decreasing function. Various different implementation of cooling schedules exist in the literature, with no clear concensus on the best one. Each cooling schedule depend on a cooldown factor, here noted $\alpha$, and an initial temperature $T_0$.
+A cooling schedule is a decreasing function. Various different implementation of cooling schedules exist in the literature, with no clear consensus on the best one. Each cooling schedule depend on a cooldown factor, here noted $\alpha$, and an initial temperature $T_0$.
 
 In `bbo`, the following schedules have been implemented:
 
@@ -426,7 +423,7 @@ From this algorithm, we can deduce we need three types of functions:
 
 ### Parent selections
 
-While various techniques exist for selecting the parents, <code>BBO</code> implements two possible methods:
+While various techniques exist to select the parents, <code>BBO</code> implements two possible methods:
 
 * **Probabilistic pick/Roulette Wheel selection**: it consists in picking out the fittest parametrization according to a random law proportional to their fitness value. 
 
@@ -437,12 +434,12 @@ While various techniques exist for selecting the parents, <code>BBO</code> imple
 Of course, similar to all the heuristics, you can implement your own selection method. The selection functions can be found at <code>bbo.heuristics.genetic_algorithm.selections</code>.
 
 ### Crossovers
-Crossover is the method by which the two parametrization will merge in order to create a new one. The most common method, as inspired by biology, is to use **single-point crossover**, which consists into randomly splitting each parametrization in two and concatenating the two parents. Variants of this technique are called *n-*points crossover and consist in cutting the parents into $n$ parts and alternatively concatenating them. `bbo` integrates simple and double point crossover.
+Crossover is the method by which the two parametrizations will merge in order to create a new one. The most common method, as inspired by biology, is to use **single-point crossover**, which consists into randomly splitting each parametrization in two and concatenating the two parents. Variants of this technique are called *n-*points crossover and consist in cutting the parents into $n$ parts and alternatively concatenating them. `bbo` integrates simple and double point crossover.
 
 The crossovers functions can be found at <code>heuristics.genetic_algorithm.crossover</code>.
 
 ### Mutations
-Mutation is a random event that can happen to the offspring and modify some its values. This ensures some randomness in the breeding process and enforces the **exploration** property of the genetic algorithm. The probability of the event happening is called the **mutation rate**. There are an infinite number of ways to mutate a parametrization into another one. Identically to simulated annealing, `bbo` comes with a mutation as a random walk: an offspring can randomly (according to a Bernouilli of parameter <code>mutation_rate</code>) turn itself into one of its neighbor's on the parameter grid. The mutation functions can be found at <code>bbo.heuristics.genetic_algorithm.mutations</code>.
+Mutation is a random event that can happen to the offspring and modify some of its values. This ensures some randomness in the breeding process and enforces the **exploration** property of the genetic algorithm. The probability of the event happening is called the **mutation rate**. There are an infinite number of ways to mutate a parametrization into another one. Identically to simulated annealing, `bbo` comes with a mutation as a random walk: an offspring can randomly (according to a Bernouilli of parameter <code>mutation_rate</code>) turn itself into one of its neighbor's on the parameter grid. The mutation functions can be found at <code>bbo.heuristics.genetic_algorithm.mutations</code>.
 
 ### Examples
 

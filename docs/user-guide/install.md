@@ -15,7 +15,7 @@ The demo version of the application can be run by calling:
 docker-compose -f demo-docker-compose.yml up
 ```
 
-This command deploys every services according to the architecture described in the [architecture](../technical-guide/architecture.md) section.
+This command deploys every service according to the architecture described in the [architecture](../technical-guide/architecture.md) section. It deploys three Slurm nodes, one controller and two compute nodes.
 
 !!! tip
     To enable data persistence, a volume must be declared in the docker-compose file for the mongo database entry.
@@ -61,4 +61,4 @@ Then run a script to run the worker:
     ```nohup ./deploy/start-worker.env &```
 
 !!! tip
-    If you want to run SHAMan without the Web interface (see [here](user-guide/launching.md)), you **do not need to start the worker**. 
+    If you want to run SHAMan without the Web interface (see [here](./launching.md)), you **do not need to start the worker**. 

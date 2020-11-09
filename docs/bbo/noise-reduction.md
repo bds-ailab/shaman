@@ -13,11 +13,11 @@ with $f(x)$ representing the "true" execution time for parametrization $x$, whil
 
 ## Available resampling method
 
-To deal with the possible noise introduced when measuring the performance of the application, you can add to `bbo` a resampling component, which re-evaluates serveral times the same parametrization in order to have a more precise idea of the performance value for this parametrization. Two different types of resampling are available.
+To deal with the possible noise introduced when measuring the performance of the application, you can add to `bbo` a resampling component, which re-evaluates several times the same parametrization in order to have a more precise idea of the performance value for this parametrization. Two different types of resampling are available.
 
 ### Aggregation functions
 
-To perform resampling, an aggregation function is necessary to be selected so that the decisions made by the optimizer can be based on an aggregated performance function. Two available aggregation methods are the `mean` and the `median`. The aggregation method is given to the class `BBOptimizer` using the `fitness_aggregation` argument. It can take as value **any Python function** for computing an aggregation. If this value is not specified, the default behavior of `bbo` is to use the mean as aggregator of the fitness values within the same parametrization.
+To perform resampling, an aggregation function is necessary to be selected so that the decisions made by the optimizer can be based on an aggregated performance function. Two available aggregation methods are the `mean` and the `median`. The aggregation method is given to the class `BBOptimizer` using the `fitness_aggregation` argument. It can take as value **any Python function** to compute an aggregation. If this value is not specified, the default behavior of `bbo` is to use the mean as aggregator of the fitness values within the same parametrization.
 
 By defining a black-box like in the introduction section,
 
@@ -88,7 +88,7 @@ bb_obj = BBOptimizer(
 
 ### Dynamic resampling
 
-Dynamic resampling consists in **resampling a parametrization until the 95% confidence interval around the mean decreases to a certain width**, selected by the user as percentage of the mean around this point. This method is more flexible that static resampling, as it adapts to the noise present on the machine at this time. When measured at a time when the system is particularly noisy, the parametrization is repeated many times and when the system is idle, the parametrization is less repeated. To use dynamic resampling with `bbo`, you need to set the argument `resampling_strategy` to `dynamic_resampling` and `percentage` to define the width of the confidence interval as a function of the mean.
+Dynamic resampling consists in **resampling a parametrization until the 95% confidence interval around the mean decreases to a certain width**, selected by the user as percentage of the mean around this point. This method is more flexible than static resampling, as it adapts to the noise present on the machine at this time. When measured at a time when the system is particularly noisy, the parametrization is repeated many times and when the system is idle, the parametrization is repeated less. To use dynamic resampling with `bbo`, you need to set the argument `resampling_strategy` to `dynamic_resampling` and `percentage` to define the width of the confidence interval as a function of the mean.
 
 In the example below, resampling happens until the width of the 95% confidence interval falls below 10% of the mean of the fitness value measured at this point.
 

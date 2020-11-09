@@ -33,7 +33,7 @@ The search can be divided in two steps:
 
 More details on the different heuristics and how to use them with `bbo`are available [here](heuristics.md).
 
-As there are many possible state-of-art heuristics, `bbo` relies on plugins to make it easy to add new heuristics or new hyperparameters to existing heuristics, as is explained in [here](adding-heuristic.md).
+As there are many possible state-of-the-art heuristics, `bbo` relies on plugins to make it easy to add new heuristics or new hyperparameters to existing heuristics, as is explained in [here](adding-heuristic.md).
 
 ## Install
 
@@ -90,7 +90,7 @@ fake_black_box = FakeBlackBox()
 parametric_grid = np.array([np.arange(-10, 10, 1), np.arange(-5, 5, 1)]).T
 ```
 
-The optimization process is made by an object of class `BBOptimizer`. This class is the common interface for all of the heuristics: after specifiying the wanted heuristic *via* the argument `heuristic`,the specificity of each heuristic is passed as an argument upon the initialization of this object.
+The optimization process is made by an object of class `BBOptimizer`. This class is the common interface for all of the heuristics: after specifying the wanted heuristic *via* the argument `heuristic`,the specificity of each heuristic is passed as an argument upon the initialization of this object.
 
 ``` python
  # Parametrize the BlackBox optimizer as you need
