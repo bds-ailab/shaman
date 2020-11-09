@@ -63,7 +63,7 @@ Once the application is up and running, visit `localhost:3000` and check that yo
 
 :warning: This version requires a working install of docker, the possibility to install Python libraries on a node that has access to the Slurm cluster (login node or compute node).
 
-An ansible playbook is available to deploy the application in a production ready mode, where every services but the optimization engine and the slurm nodes are dockerized. A config file, indicating the different names of the cluster nodes, must be filled out beforehand.
+The deployment of SHAMan is production is described in the documentation.
 
 # Registering a new component
 
@@ -125,4 +125,4 @@ More details about the available heuristics, the architecture and how it works i
 
 # Maintainers
 
-# Contributing
+If you have any questions regarding this project, please contact [Sophie Robert](mailto:sophie.robert@atos.net).
