@@ -11,7 +11,7 @@ SHAMan is an out-of-the-box Web application to perform black-box auto-tuning of 
 
 # Main goal and features
 
-SHAMan is a framework to perform auto-tuning of configurable component run-ning on HPC distributed systems. It performs the auto-tuning loop by parametriz-ing the component, submitting the job through the Slurm workload manager,and getting the corresponding execution time. Using the combination of the his-tory (parametrization and execution time), the framework then uses black-boxoptimization to select the next most appropriate parametrization, up until thenumber of allocated runs is over.
+SHAMan is a framework to perform auto-tuning of configurable component running on HPC distributed systems. It performs the auto-tuning loop by parametrizing the component, submitting the job through the Slurm workload manager, and getting the corresponding execution time. Using the combination of the history (parametrization and execution time), the framework then uses black-box optimization to select the next most appropriate parametrization, up until the number of allocated runs is over.
 
 This framework integrates three state-of-art heuristics, as well as noise reduction strategies to deal with the possible interference of shared resources for large scale HPC systems, and pruning strategies to limit the time spent by the optimization process.
 
@@ -21,13 +21,13 @@ Compared to already existing softwares, it provides these main advantages:
 
 :rocket: **Easy to extend**: the optimization engine uses a plug-in architecture and the development of the heuristic is thus the only development cost
 
-:rocket: **Integrated within the HPC ecosystem**: the framework relies on the Slurmworkload manager to run HPC applications. The microservice architectureenables it to have no concurrent interactions with the cluster and the appli-cation itself.
+:rocket: **Integrated within the HPC ecosystem**: the framework relies on the Slurmworkload manager to run HPC applications. The microservice architecture enables it to have no concurrent interactions with the cluster and the application itself.
 
-:rocket: **Flexible for a wide range of use-cases**: new components can be registeredthrough a generalist configuration file.
+:rocket: **Flexible for a wide range of use-cases**: new components can be registered through a generalist configuration file.
 
-:rocket: **Integrates noise reduction strategies**: because of their highly dynamic natureand the complexity of applications and software stacks, HPC systems aresubject to many interference when running in production, which results in a different performance measure for each run even with the same system’sparametrization. Noise reduction strategies are included in the framework toperform well even in the case of strong interference.
+:rocket: **Integrates noise reduction strategies**: because of their highly dynamic nature and the complexity of applications and software stacks, HPC systems are subject to many interference when running in production, which results in a different performance measure for each run even with the same system’s parametrization. Noise reduction strategies are included in the framework to perform well even in the case of strong interference.
 
-:rocket: **Integrates pruning strategies**: runs with unsuited parametrization are aborted,to speed-up the convergence process
+:rocket: **Integrates pruning strategies**: runs with unsuited parametrization are aborted, to speed-up the convergence process
 
 # Basic architecture
 
@@ -63,7 +63,7 @@ Once the application is up and running, visit `localhost:3000` and check that yo
 
 :warning: This version requires a working install of docker, the possibility to install Python libraries on a node that has access to the Slurm cluster (login node or compute node).
 
-The deployment of SHAMan is production is described in the documentation.
+The deployment of SHAMan in production is described in the documentation.
 
 # Registering a new component
 
