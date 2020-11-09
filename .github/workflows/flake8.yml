@@ -37,4 +37,4 @@ jobs:
       # Run flake 8 linter
       - name: Run flake8 linter
         run: |
-          flake8 . --exit-zero --exclude tests
+          flake8 . --exclude tests
