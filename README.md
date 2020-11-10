@@ -64,7 +64,7 @@ Once the application is up and running, visit `localhost:3000` and check that yo
 
 :warning: This version requires a working install of docker, the possibility to install Python libraries on a node that has access to the Slurm cluster (login node or compute node).
 
-The deployment of SHAMan in production is described in the documentation.
+The deployment of SHAMan in production is described in the [documentation](https://shaman-app.readthedocs.io/en/latest/user-guide/install/).
 
 # Registering a new component
 
@@ -118,11 +118,11 @@ To launch an experiment through the `/create` menu of the Web interface, the opt
 
 Once the experiment is created and launched, it is available for real-time vizualization in the `/launch` menu of the Web interface.
 
-For an explaination on how to launch an experiment using a command line interface, go to xxx.
+For an explaination on how to launch an experiment using a command line interface, go to [the documentation](https://shaman-app.readthedocs.io/en/latest/user-guide/launching/).
 
 # Documentation
 
-More details about the available heuristics, the architecture and how it works is available in the documentation.
+More details about this project are accessible [here](https://shaman-app.readthedocs.io/en/latest).
 
 # Maintainers
 
