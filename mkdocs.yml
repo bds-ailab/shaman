@@ -10,16 +10,16 @@ theme:
 plugins:
   - mknotebooks
 
-markdown_extensions:
-  - pymdownx.emoji:
-      emoji_index: !!python/name:materialx.emoji.twemoji
-      emoji_generator: !!python/name:materialx.emoji.to_svg
-  - admonition
-  - pymdownx.inlinehilite
-  - pymdownx.highlight
-  - pymdownx.superfences
-  - pymdownx.arithmatex:
-      generic: true
+# markdown_extensions:
+#   - pymdownx.emoji:
+#       emoji_index: !!python/name:materialx.emoji.twemoji
+#       emoji_generator: !!python/name:materialx.emoji.to_svg
+#   - admonition
+#   - pymdownx.inlinehilite
+#   - pymdownx.highlight
+#   - pymdownx.superfences
+#   - pymdownx.arithmatex:
+#       generic: true
 
 extra_javascript:
   - javascripts/config.js
