@@ -5,7 +5,8 @@
 ![Tests](https://github.com/SphRbtHyk/shaman_project/workflows/Unittests/badge.svg)
 ![flake-8](https://github.com/SphRbtHyk/shaman_project/workflows/Flake8/badge.svg)
 ![Docker builds](https://github.com/SphRbtHyk/shaman_project/workflows/Docker%20builds/badge.svg)
-![Documentation](https://github.com/SphRbtHyk/shaman_project/workflows/Documentation/badge.svg)
+[![Documentation Status](https://readthedocs.org/projects/shaman-app/badge/?version=latest)](https://shaman-app.readthedocs.io/en/latest/?badge=latest)
+
 
 SHAMan is an out-of-the-box Web application to perform black-box auto-tuning of custom computer components running on a distributed system, for an application submitted by a user. It relies on black-box auto-tuning to find the components' parametrization that are the most efficient in terms of execution time.
 
