@@ -49,7 +49,7 @@ export default {
           icon: 'report.png',
           title: 'Read the documentation',
           text: 'Access the user and the technical documentation',
-          link: 'https://shaman-app.readthedocs.io/en/latest/'
+          link: '/documentation'
         },
         {
           icon: 'molecules.png',
