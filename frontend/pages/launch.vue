@@ -76,7 +76,7 @@
                       :name="'parameter_min_' + parameterName"
                       min="0"
                       required
-                      class="h-6 w-12 font-bold border-pink-900 border-2
+                      class="h-6 w-24 font-bold border-pink-900 border-2
                 rounded-sm text-center text-pink-600 mr-4  m-auto"
                     />
                     <input
@@ -85,7 +85,7 @@
                       :name="'parameter_max_' + parameterName"
                       min="0"
                       required
-                      class="h-6 w-12 font-bold border-pink-900 border-2 rounded-sm text-center text-pink-600 mr-4  m-auto"
+                      class="h-6 w-24 font-bold border-pink-900 border-2 rounded-sm text-center text-pink-600 mr-4  m-auto"
                     />
                     <input
                       :id="'parameter_step_' + parameterName"
@@ -93,7 +93,7 @@
                       :name="'parameter_step_' + parameterName"
                       min="0"
                       required
-                      class="h-6 w-12 font-bold border-pink-900 border-2 rounded-sm text-center text-pink-600 mr-4  m-auto"
+                      class="h-6 w-24 font-bold border-pink-900 border-2 rounded-sm text-center text-pink-600 mr-4  m-auto"
                     />
                   </div>
                 </div>

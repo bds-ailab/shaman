@@ -19,6 +19,26 @@ components:
         env_var: True
         type: int
         default: 20971520
+  fastio:
+    plugin: fastio=yes
+    header: clush -w $(hostname) -l root 'sync ; echo 3 > /proc/sys/vm/drop_caches'
+    parameters:
+      SRO_SEQUENCE_LENGTH:
+        env_var: True
+        type: int
+        default: 100
+      SRO_DSC_BINSIZE:
+        env_var: True
+        type: int
+        default: 1048576
+      SRO_CLUSTER_THRESHOLD:
+        env_var: True
+        type: int
+        default: 2
+      SRO_PREFETCH_SIZE:
+        env_var: True
+        type: int
+        default: 20971520
   sbb_small_io_10:
     command: "#SBB targets=/fs1/roberts flavor=ram_10 trash-data=1"
     parameters:

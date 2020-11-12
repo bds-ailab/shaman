@@ -277,11 +277,7 @@ export default {
           {
             description: 'Gain compared to default',
             value:
-              parseFloat(this.experiment.improvement_default).toFixed(2) +
-              '%' +
-              '(Default time:' +
-              this.defaultTime +
-              's)',
+              parseFloat(this.experiment.improvement_default).toFixed(2) + '%',
             tooltip:
               'Time gain compared to the default parametrization, expressed in percentage.'
           },
