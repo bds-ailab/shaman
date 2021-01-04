@@ -5,36 +5,35 @@
     NOTE: An experiment is a column because its direct child are positioned vertically
   -->
   <div>
-    <!-- Start of execution results row.
+    <div
+      class="flex w-full bg-blue-600 text-white h-20 m-auto text-2xl items-center justify-center"
+    >
+      Experiment <b>{{ experimentName }}</b> with component
+      <b>{{ componentName }}</b>
+    </div>
+    <div>
+      <!-- Start of execution results row.
       NOTE: It is a row because its elements are positioned horinzontally
     -->
-    <div class="flex flex-wrap justify-around">
-      <div>
-        <b>Experiment step:</b> {{ experimentStep }}
-        <p v-if="experimentStatus === 'created'" key="created">
-          <i class="fas fa-sync text-blue-600"></i>Staging the experiment
-        </p>
-        <p v-if="experimentStatus === 'running'" key="running">
-          <i class="fas fa-sync fa-spin text-orange-600"></i>
-        </p>
-        <p v-if="experimentStatus === 'finished'" key="finished">
-          <i class="fas fa-sync fa-check-circle text-green-600"></i>
-        </p>
-        <p v-if="experimentStatus === 'failed'" key="failed">
-          <i class="fas fa-times-circle text-red-600"></i>
-        </p>
-        <p v-if="experimentStatus === 'stopped'" key="stopped">
-          <i class="fas fa-square text-purple-600"></i>
-        </p>
+      <div class="flex flex-wrap">
+        <div class="flex flex-row w-2/3 mb-2 justify-center md:justify-start">
+          <InfoBox :data="experimentInfo" title="Experiment information">
+          </InfoBox>
+
+          <InfoBox :data="gainInfo" title="Gain"> </InfoBox>
+        </div>
+        <div class="flex flex-wrap mx-auto">
+          <OptimalConfiguration
+            :bestParameters="bestParameters"
+            :optimalTime="bestTime"
+          ></OptimalConfiguration>
+        </div>
       </div>
-      <div md="2"><b>Experiment start:</b> {{ experimentStart }}</div>
-      <div md="2"><b>Experiment name:</b> {{ experimentName }}</div>
     </div>
 
-    <div class="flex flex-wrap justify-center">
-      <!--Start of KPI row. -->
-      <div class="flex flex-wrap justify-left mt-2 ">
-        <div class="w-full lg:w-1/6 xl:w-1/6">
+    <div class="flex flex-col">
+      <div class="flex flex-row justify-around">
+        <div>
           <input
             type="checkbox"
             id="rawDataCheckbox"
@@ -45,65 +44,12 @@
             >Plot raw data</label
           >
         </div>
-        <AccordionText id="expParam" title="Optimizer">
-          <div>
-            <li v-for="(value, key) in experimentParameters" :key="key">
-              <span>
-                <b>{{ key }} </b> {{ value }}</span
-              >
-            </li>
-          </div>
-        </AccordionText>
-
-        <AccordionText id="noiseParam" title="Noise reduction">
-          <li v-for="(value, key) in noiseReductionParameters" :key="key">
-            <span>
-              <b>{{ key }} </b> {{ value }}</span
-            >
-          </li>
-        </AccordionText>
-        <AccordionText id="sbatch" title="Sbatch">
-          <div>
-            <pre v-highlightjs>
-            <code class="bash">
-            {{ sbatch }}
-            </code>
-            </pre>
-          </div>
-        </AccordionText>
-        <AccordionText id="censoring" title="Pruning strategy">
-          <div>
-            <li v-for="(value, key) in pruningStrategyParameters" :key="key">
-              <span>
-                <b>{{ key }} </b> {{ value }}</span
-              >
-            </li>
-          </div>
-        </AccordionText>
-      </div>
-
-      <div class="w-full xl:w-5/6 lg:w-5/6">
-        <div class="flex flex-row items-center">
-          <div class="ml-2 flex flex-row">
-            <b>Optimal parameters:</b>
-            <div
-              class="ml-2 flex flex-row"
-              v-for="bestParam in bestParameters"
-              :key="bestParam"
-            >
-              <div class="ml-2" v-for="(param, name) in bestParam" :key="param">
-                <b>{{ name }}</b
-                >: {{ param }}
-              </div>
-            </div>
-          </div>
-          <div class="ml-6 flex flex-row">
-            <b>Optimal performance</b>
-            <div class="ml-2">{{ bestTime }}</div>
-          </div>
+        <div class="text-xl font-semibold pt-3">
+          <i class="fas fa-square text-purple-600"></i> Stop experiment
         </div>
-
-        <div id="wrapper">
+      </div>
+      <div class="flex flex-row">
+        <div id="wrapper" class="w-5/6">
           <div id="time-chart">
             <apexchart
               type="area"
@@ -125,18 +71,44 @@
             ></apexchart>
           </div>
         </div>
-      </div>
-      <!-- Results are inside a column because they are positioned vertically -->
-      <div class="w-full lg:w-1/6 xl:w-1/6">
-        <div class="flex flex-col">
-          <KPIBox
-            v-for="kpi in kpiInfo"
-            :key="kpi.description"
-            :value="kpi.value"
-            :description="kpi.description"
-            :tooltip="kpi.tooltip"
-            class="mx-auto"
-          ></KPIBox>
+        <div class="w-1/6">
+          <ModalBox id="sbatch" title="Sbatch">
+            <div>
+              <pre v-highlightjs>
+            <code class="bash">
+            {{ sbatch }}
+            </code>
+            </pre>
+            </div>
+          </ModalBox>
+
+          <ModalBox id="expParam" title="Optimizer">
+            <div>
+              <li v-for="(value, key) in experimentParameters" :key="key">
+                <span>
+                  <b>{{ key }} </b> {{ value }}</span
+                >
+              </li>
+            </div>
+          </ModalBox>
+
+          <ModalBox id="noiseParam" title="Noise reduction">
+            <li v-for="(value, key) in noiseReductionParameters" :key="key">
+              <span>
+                <b>{{ key }} </b> {{ value }}</span
+              >
+            </li>
+          </ModalBox>
+
+          <ModalBox id="censoring" title="Pruning strategy">
+            <div>
+              <li v-for="(value, key) in pruningStrategyParameters" :key="key">
+                <span>
+                  <b>{{ key }} </b> {{ value }}</span
+                >
+              </li>
+            </div>
+          </ModalBox>
         </div>
       </div>
     </div>
@@ -145,11 +117,12 @@
 
 <script>
 import axios from 'axios'
-import KPIBox from '../components/KPIBox'
-import AccordionText from '../components/AccordionText'
+import InfoBox from '../components/InfoBox'
+import OptimalConfiguration from '../components/OptimalConfiguration'
+import ModalBox from '../components/ModalBox'
 
 export default {
-  components: { KPIBox, AccordionText },
+  components: { InfoBox, OptimalConfiguration, ModalBox },
   props: {
     name: {
       default: 'no name',
@@ -164,6 +137,29 @@ export default {
     return {
       experiment: {},
       rawData: true
+    }
+  },
+  methods: {
+    getExperimentIcon(experimentStatus) {
+      let icon = ''
+      switch (experimentStatus) {
+        case 'created':
+          icon = '<i class="fas fa-sync text-blue-600"></i>'
+          break
+        case 'running':
+          icon = '<i class="fas fa-sync fa-spin text-orange-600"></i>'
+          break
+        case 'finished':
+          icon = '<i class="fas fa-sync fa-check-circle text-green-600"></i>'
+          break
+        case 'failed':
+          icon = '<i class="fas fa-times-circle text-red-600"></i>'
+          break
+        case 'stopped':
+          icon = '<i class="fas fa-square text-purple-600"></i>'
+          break
+      }
+      return icon
     }
   },
   computed: {
@@ -236,10 +232,38 @@ export default {
         }
       }
     },
+    experimentInfo() {
+      return {
+        'Experiment start': this.experimentStart,
+        'Experiment step': this.experimentStep,
+        Status: this.getExperimentIcon(this.experimentStatus)
+      }
+    },
+    gainInfo() {
+      return {
+        'Gain compared to default': this.gainDefault,
+        'Average noise': this.averageNoise,
+        'Explored space': this.experiment.explored_space + ' %'
+      }
+    },
     sbatch() {
       return this.experiment.sbatch
         ? this.experiment.sbatch // .replace('\n', '<br>')
         : ''
+    },
+    gainDefault() {
+      if (this.experiment.improvement_default) {
+        return this.experiment.improvement_default.toFixed(2) + ' %'
+      } else {
+        return '0' + ' %'
+      }
+    },
+    averageNoise() {
+      if (this.experiment.average_noise) {
+        return this.experiment.average_noise.toFixed(2) + ' s'
+      } else {
+        return '0' + ' s'
+      }
     },
     step() {
       if (this.experiment.parameters) {
@@ -265,60 +289,6 @@ export default {
     },
     experimentName() {
       return this.experiment.experiment_name
-    },
-    kpiInfo() {
-      if (this.experiment) {
-        return [
-          {
-            description: 'Optimized component',
-            value: this.experiment.component,
-            tooltip: 'The name of the optimized component'
-          },
-          {
-            description: 'Gain compared to default',
-            value:
-              parseFloat(this.experiment.improvement_default).toFixed(2) + '%',
-            tooltip:
-              'Time gain compared to the default parametrization, expressed in percentage.'
-          },
-          {
-            description: 'Average noise',
-            value: parseFloat(this.experiment.average_noise).toFixed(3) + 's',
-            tooltip: 'Standard error within each tested parametrization'
-          },
-          {
-            description: 'Explored space',
-            value: parseFloat(this.experiment.explored_space).toFixed(3) + '%',
-            tooltip:
-              'Ratio of different tested parametrization compared to the total of possible parametrizations'
-          }
-        ]
-      } else {
-        return [
-          {
-            description: 'Optimized component',
-            value: '',
-            tooltip: 'The name of the optimized component'
-          },
-          {
-            description: 'Gain compared to default',
-            tooltip:
-              'Time gain compared to the default parametrization, expressed in percentage.',
-            value: 0
-          },
-          {
-            description: 'Average noise',
-            value: 0,
-            tooltip: 'Standard error within each tested parametrization'
-          },
-          {
-            description: '% of explored space',
-            tooltip:
-              'Ratio of different tested parametrization compared to the total of possible parametrizations',
-            value: 0
-          }
-        ]
-      }
     },
     resampledNbr() {
       return this.experiment.resampled_nbr
