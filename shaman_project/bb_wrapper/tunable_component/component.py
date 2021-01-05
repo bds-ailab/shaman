@@ -302,11 +302,11 @@ class TunableComponent:
         # If the slurm submission step is blocking (i.e. wait is enabled)
         # The sub_ps retuning a succes code means that the job was
         # successfully run
-        if not sub_ps.returncode == 0:
-            logger.critical(
-                f"Could not run job {job_id}: \n stderr: {output_stderr}")
-            raise Exception(
-                f"Could not run job {job_id}: \n stderr: {output_stderr}")
+        # if not sub_ps.returncode == 0:
+        #     logger.critical(
+        #         f"Could not run job {job_id}: \n stderr: {output_stderr}")
+        #     raise Exception(
+        #         f"Could not run job {job_id}: \n stderr: {output_stderr}")
         if wait:
             logger.info(f"Successfully ran jobid {job_id}")
         return job_id

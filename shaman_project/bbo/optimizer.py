@@ -26,6 +26,7 @@ from bbo.heuristics.simulated_annealing.simulated_annealing import \
     SimulatedAnnealing
 from bbo.heuristics.genetic_algorithm.genetic_algorithm import GeneticAlgorithm
 from bbo.heuristics.exhaustive_search.exhaustive_search import ExhaustiveSearch
+from bbo.heuristics.random_search.random_search import RandomSearch
 from bbo.initial_parametrizations import (
     uniform_random_draw,
     latin_hypercube_sampling,
@@ -53,6 +54,7 @@ class BBOptimizer:
         "simulated_annealing": SimulatedAnnealing,
         "genetic_algorithm": GeneticAlgorithm,
         "exhaustive_search": ExhaustiveSearch,
+        "random_search": RandomSearch
     }
 
     # Dictionary of the different methods that can be used to sample

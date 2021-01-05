@@ -49,7 +49,7 @@ def l_bfgs_b_minimizer(func, ranges, **kwargs):
     """
     bounds = [(min(range_), max(range_)) for range_ in ranges]
     x_0 = uniform_random_draw(1, ranges)
-    min_ = minimize(func, x0=x_0, method="L-BFGS-B", bounds=bounds)
+    min_ = minimize(func, x0=x_0, method="Powell", bounds=bounds)
     return min_.x
 
 
