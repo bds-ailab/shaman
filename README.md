@@ -126,4 +126,4 @@ More details about this project are accessible [here](https://shaman-app.readthe
 
 # Maintainers
 
-If you have any questions regarding this project, please contact [Sophie Robert](mailto:sophie.robert@atos.net). UI and logo are designed by [Sébastien Barkiri](www.sebastienbakirci.myportfolio.com).
+If you have any questions regarding this project, please contact [Sophie Robert](mailto:sophie.robert@atos.net). UI and logo are designed by [Sébastien Bakirci](www.sebastienbakirci.myportfolio.com).
