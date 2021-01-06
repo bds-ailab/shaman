@@ -1,4 +1,4 @@
-<img src="https://github.com/SphRbtHyk/shaman_project/blob/next/frontend/assets/logo.svg" width="130">
+<img src="https://github.com/SphRbtHyk/shaman_project/blob/next/frontend/assets/logo.svg" width="300">
 
 # The SHAMan application
 
