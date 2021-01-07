@@ -12,13 +12,20 @@ from shaman_core.models.component_model import (
     TunableParameter,
     TunableComponentsModel,
 )
+from bb_wrapper.tunable_component.plugins.parse_execution_time import parse_slurm_times
 
 
 TEST_MODEL = {
-    "plugin": "test",
     "header": "test",
     "command": "test",
     "ld_preload": "test",
+}
+
+TEST_MODEL_FAKE_TARGET = {
+    "header": "test",
+    "command": "test",
+    "ld_preload": "test",
+    "custom_target": "dont_exist"
 }
 
 
@@ -223,6 +230,20 @@ class TestComponentModels(unittest.TestCase):
         """
         TEST_MODEL.update({"parameters": TEST_PARAMETERS_OK})
         tunable_component = TunableComponentModel(**TEST_MODEL)
+
+    def test_load_target(self):
+        """Tests that the get_target function is properly loaded when given no value.
+        """
+        TEST_MODEL.update({"parameters": TEST_PARAMETERS_OK})
+        tunable_component = TunableComponentModel(**TEST_MODEL)
+        self.assertEqual(tunable_component.get_target, parse_slurm_times)
+
+    def test_load_wrong_target(self):
+        """Tests that loading the wrong target returns an import error.
+        """
+        TEST_MODEL_FAKE_TARGET.update({"parameters": TEST_PARAMETERS_OK})
+        with self.assertRaises(ModuleNotFoundError):
+            TunableComponentModel(**TEST_MODEL_FAKE_TARGET).get_target
 
     def test_parameters_suffix(self):
         """Tests that when there is a suffix, everything is ok.

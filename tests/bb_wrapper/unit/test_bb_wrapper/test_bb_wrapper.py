@@ -246,39 +246,7 @@ class TestBBWrapper(unittest.TestCase):
         self.assertDictEqual(
             self.bb_wrapper.default_parameters,
             default_parameters)
-
-    def test_parse_slurm_times(self):
-        """Tests that the slurm times are properly parsed from a slurm out file.
-        """
-        time = self.bb_wrapper._parse_slurm_times(TEST_SLURMS / "slurm-42.out")
-        self.assertEqual(time, 1508.085)
-
-    def test_parse_slurm_times_except_no_time(self):
-        """ Test the "_parse_slurm_times" method raises a ValueError if the slurm output file does
-        not contains the time."""
-        self.assertRaises(
-            ValueError,
-            self.bb_wrapper._parse_slurm_times,
-            TEST_SLURMS / "slurm-666.out",
-        )
-
-    def test_parse_slurm_times_except_no_file(self):
-        """ Test the "_parse_slurm_times" method raises a FileNotFoundError if the slurm output file
-        does not exist."""
-        self.assertRaises(
-            FileNotFoundError,
-            self.bb_wrapper._parse_slurm_times,
-            TEST_SLURMS / "slurm-00.out",
-        )
-
-    def test_parse_milliseconds(self):
-        """Tests that parsing milliseconds work as expected.
-        """
-        time = BBWrapper.parse_milliseconds("01m01.01s")
-        self.assertEqual(time, 61.001)
-        time = BBWrapper.parse_milliseconds("123m45.67s")
-        self.assertEqual(time, 7425.067)
-
+            
     @patch("subprocess.run")
     def test_parse_job_elapsed_time(self, mock_stdout):
         """Tests that parsing a job elapsed time through a subprocess call calling the
