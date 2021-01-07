@@ -397,7 +397,7 @@ class TestSHAManExperiment(unittest.TestCase):
 
     @patch("httpx.get", side_effect=mocked_requests_get)
     @patch("bb_wrapper.tunable_component.component.TunableComponent.submit_sbatch")
-    @patch("bb_wrapper.bb_wrapper.BBWrapper._parse_slurm_times")
+    @patch("bb_wrapper.tunable_component.plugins.parse_execution_time.parse_slurm_times")
     def test_setup_optimizer_async_default(
         self, mock_submit, mock_parse, mocked_requests_get
     ):
@@ -468,7 +468,7 @@ class TestSHAManExperiment(unittest.TestCase):
 #         se.bb_optimizer.best_parameters_in_grid = [2, 2]
 #         se.bb_optimizer.best_fitness = 2
 #         se.bb_optimizer.launched = True
-#         se.bb_wrapper.default_execution_time = 10
+#         se.bb_wrapper.default_target_value = 10
 #         expected_summary = """Optimal time: 2
 # Improvement compared to default:80.0%
 # Optimal parametrization: [{'param_1': 2, 'param_2': 2}]
@@ -741,7 +741,7 @@ class TestSHAManAPI(unittest.TestCase):
 
     @patch("httpx.get", side_effect=mocked_requests_get)
     @patch("bb_wrapper.tunable_component.component.TunableComponent.submit_sbatch")
-    @patch("bb_wrapper.bb_wrapper.BBWrapper._parse_slurm_times")
+    @patch("bb_wrapper.tunable_component.plugins.parse_execution_time.parse_slurm_times")
     def test_improvement_default(
             self, mock_submit, mock_parse, mocked_requests_get):
         """Tests that the improvement is properly computed."""
@@ -763,7 +763,7 @@ class TestSHAManAPI(unittest.TestCase):
 
     @patch("httpx.get", side_effect=mocked_requests_get)
     @patch("bb_wrapper.tunable_component.component.TunableComponent.submit_sbatch")
-    @patch("bb_wrapper.bb_wrapper.BBWrapper._parse_slurm_times")
+    @patch("bb_wrapper.tunable_component.plugins.parse_execution_time.parse_slurm_times")
     def test_update_history_dict(
             self, mock_submit, mock_parse, mocked_requests_get):
         """
@@ -781,7 +781,7 @@ class TestSHAManAPI(unittest.TestCase):
         }
         expected_dict = {
             "jobids": 10,
-            "execution_time": 1.0,
+            "fitness": 1.0,
             "parameters": {"param_1": 3, "param_2": 4},
             "truncated": False,
             "resampled": False,
@@ -808,7 +808,7 @@ class TestSHAManAPI(unittest.TestCase):
 
     @patch("httpx.get", side_effect=mocked_requests_get)
     @patch("bb_wrapper.tunable_component.component.TunableComponent.submit_sbatch")
-    @patch("bb_wrapper.bb_wrapper.BBWrapper._parse_slurm_times")
+    @patch("bb_wrapper.tunable_component.plugins.parse_execution_time.parse_slurm_times")
     @patch("httpx.Client.put", side_effect=mocked_requests_put)
     def test_update_history(
         self, mock_update, mock_parse, mock_submit, mocked_requests_get
@@ -827,7 +827,7 @@ class TestSHAManAPI(unittest.TestCase):
         )
         update_dict = {
             "jobids": 10,
-            "execution_time": 3,
+            "fitness": 3,
             "parameters": {"param_1": 1, "param_2": 2},
             "truncated": False,
             "resampled": False,
@@ -853,7 +853,7 @@ class TestSHAManAPI(unittest.TestCase):
 
     @patch("httpx.get", side_effect=mocked_requests_get)
     @patch("bb_wrapper.tunable_component.component.TunableComponent.submit_sbatch")
-    @patch("bb_wrapper.bb_wrapper.BBWrapper._parse_slurm_times")
+    @patch("bb_wrapper.tunable_component.plugins.parse_execution_time.parse_slurm_times")
     @patch("httpx.Client.put", side_effect=mocked_requests_put)
     def test_update_history_fail(
         self, mock_update, mock_parse, mock_submit, mocked_requests_get
@@ -872,7 +872,7 @@ class TestSHAManAPI(unittest.TestCase):
         )
         update_dict = {
             "jobids": 10,
-            "execution_time": 3,
+            "fitness": 3,
             "parameters": {"param_1": 1, "param_2": 2},
             "truncated": False,
             "resampled": False,
@@ -898,7 +898,7 @@ class TestSHAManAPI(unittest.TestCase):
 
     @patch("httpx.get", side_effect=mocked_requests_get)
     @patch("bb_wrapper.tunable_component.component.TunableComponent.submit_sbatch")
-    @patch("bb_wrapper.bb_wrapper.BBWrapper._parse_slurm_times")
+    @patch("bb_wrapper.tunable_component.plugins.parse_execution_time.parse_slurm_times")
     def test_end_dict(self, mock_parse, mock_submit, mocked_requests_get):
         """Tests that the improvement is properly computed."""
         mock_submit.return_value = 10
@@ -920,15 +920,15 @@ class TestSHAManAPI(unittest.TestCase):
         }
         se.bb_optimizer.history = fake_history
         expected_dict = {
-            "averaged_execution_time": [2.0, 2.0, 3.0],
-            "min_execution_time": [2.0, 2.0, 3.0],
-            "max_execution_time": [2.0, 2.0, 3.0],
-            "std_execution_time": [0.5, 0.0],
+            "averaged_fitness": [2.0, 2.0, 3.0],
+            "min_fitness": [2.0, 2.0, 3.0],
+            "max_fitness": [2.0, 2.0, 3.0],
+            "std_fitness": [0.5, 0.0],
             "resampled_nbr": [1, 1, 1],
             "improvement_default": 80.0,
             "elapsed_time": 0.0,
             "default_run": {
-                "execution_time": 10.0,
+                "fitness": 10.0,
                 "job_id": 10,
                 "parameters": {"param_1": 1, "param_2": "/home/"},
             },
@@ -941,7 +941,7 @@ class TestSHAManAPI(unittest.TestCase):
 
     @patch("httpx.get", side_effect=mocked_requests_get)
     @patch("bb_wrapper.tunable_component.component.TunableComponent.submit_sbatch")
-    @patch("bb_wrapper.bb_wrapper.BBWrapper._parse_slurm_times")
+    @patch("bb_wrapper.tunable_component.plugins.parse_execution_time.parse_slurm_times")
     @patch("httpx.Client.put", side_effect=mocked_requests_put)
     def test_end(self, mock_put, mock_parse, mock_submit, mocked_requests_get):
         """
@@ -970,7 +970,7 @@ class TestSHAManAPI(unittest.TestCase):
 
     @patch("httpx.get", side_effect=mocked_requests_get)
     @patch("bb_wrapper.tunable_component.component.TunableComponent.submit_sbatch")
-    @patch("bb_wrapper.bb_wrapper.BBWrapper._parse_slurm_times")
+    @patch("bb_wrapper.tunable_component.plugins.parse_execution_time.parse_slurm_times")
     @patch("httpx.Client.put", side_effect=mocked_requests_put)
     def test_end_fail(self, mock_put, mock_parse,
                       mock_submit, mocked_requests_get):

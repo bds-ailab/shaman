@@ -5,7 +5,6 @@ Tests that the BBWrapper class behaves as expected.
 import unittest
 from unittest.mock import patch
 
-import subprocess
 from pathlib import Path
 from shutil import copy
 from bb_wrapper.bb_wrapper import BBWrapper
@@ -239,14 +238,14 @@ class TestBBWrapper(unittest.TestCase):
         # Check that the default jobid is properly stored
         self.assertEqual(self.bb_wrapper.default_jobid, 42)
         # Check that the execution time is properly stored
-        self.assertEqual(self.bb_wrapper.default_execution_time, 1508.085)
+        self.assertEqual(self.bb_wrapper.default_target_value, 1508.085)
         # Check that the default parameters of the accelerator are properly
         # stored
         default_parameters = {"param_1": 1, "param_2": "/home/"}
         self.assertDictEqual(
             self.bb_wrapper.default_parameters,
             default_parameters)
-            
+
     @patch("subprocess.run")
     def test_parse_job_elapsed_time(self, mock_stdout):
         """Tests that parsing a job elapsed time through a subprocess call calling the

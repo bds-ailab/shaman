@@ -4,8 +4,6 @@ time associated with each parametrization and is compatible with the BBO
 standards by having a compute method."""
 
 from pathlib import Path
-import re
-from time import sleep
 from shutil import copyfile
 import subprocess
 from shlex import split
@@ -58,7 +56,7 @@ class BBWrapper:
         # The jobid of the run using default parameters
         self.default_jobid = None
         # The execution time of the run using default parameters
-        self.default_execution_time = None
+        self.default_target_value = None
         # The default paremeters
         self.default_parameters = None
 
