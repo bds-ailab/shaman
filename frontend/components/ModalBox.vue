@@ -1,19 +1,24 @@
 <template>
   <!-- Copyright 2020 BULL SAS All rights reserved -->
   <!-- Button trigger modal -->
-  <div
-    class="m-2 w-full sm:w-1/6 md:w-1/6 lg:w-1/6 px-2 mt-2 border-2 border-pink-700 rounded-lg"
-  >
+  <div :id="id" class="rounded-md mt-4 bg-gray-100 shadow-sm h-13">
     <div
       class="items-center justify-center p-4 font-bold text-center m-auto"
       v-b-modal="id"
     >
       {{ title }}
+      <br />
+      <i class="fas fa-plus-circle"></i>
     </div>
 
-    <b-modal :id="id" :title="title" ok-only>
-      <p class="my-4"><slot></slot></p>
-    </b-modal>
+    <b-popover
+      :target="id"
+      triggers="hover"
+      placement="left"
+      custom-class="wide-popover"
+    >
+      <template><slot></slot></template>
+    </b-popover>
   </div>
 </template>
 
@@ -31,3 +36,10 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.wide-popover {
+  max-width: 600px;
+  font-size: 1rem;
+}
+</style>
