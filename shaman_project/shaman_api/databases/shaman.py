@@ -100,7 +100,7 @@ class ExperimentDatabase:
                 },
                 "$push": {
                     "jobids": result["jobids"],
-                    "execution_time": result["execution_time"],
+                    "fitness": result["fitness"],
                     "parameters": result["parameters"],
                     "truncated": result["truncated"],
                     "resampled": result["resampled"],
