@@ -1,6 +1,7 @@
 # Copyright 2020 BULL SAS All rights reserved
 """Defines a pydantic model that represents a tunable component."""
 from pathlib import Path
+import importlib
 from typing import Dict, Optional, Any
 import builtins
 import httpx
@@ -84,7 +85,18 @@ class TunableComponentModel(BaseModel):
     command: Optional[str]
     ld_preload: Optional[str]
     parameters: Dict[str, TunableParameter]
-    custom_component: Optional[str]
+    custom_target: Optional[str] = "parse_execution_time.parse_slurm_times"
+
+    @property
+    def get_target(self):
+        """Import the function target.
+        Defaults to the parse slurm times in the plugins package.
+        """
+        plugin_path = "bb_wrapper.tunable_component.plugins."
+        split_target_name = self.custom_target.split(".")
+        module_path = plugin_path + split_target_name[0]
+        module = importlib.import_module(module_path)
+        return getattr(module, split_target_name[1])
 
 
 class TunableComponentsModel(BaseConfiguration, BaseModel):

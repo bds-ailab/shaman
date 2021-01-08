@@ -12,7 +12,7 @@ class MongoModel(BaseModel):
 class DefaultRun(MongoModel):
     """Schema for the default run of an experiment."""
 
-    execution_time: float
+    fitness: float
     job_id: int
     parameters: dict
 
@@ -55,10 +55,10 @@ class FinalResult(MongoModel):
 
     average_noise: float
     default_run: DefaultRun
-    averaged_execution_time: List[float]
-    min_execution_time: List[float]
-    max_execution_time: List[float]
-    std_execution_time: List[float]
+    averaged_fitness: List[float]
+    min_fitness: List[float]
+    max_fitness: List[float]
+    std_fitness: List[float]
     resampled_nbr: List[int]
     improvement_default: float
     elapsed_time: float
@@ -72,17 +72,17 @@ class DetailedExperiment(Experiment):
 
     jobids: List[int] = None
     parameters: List[dict] = None
-    execution_time: List[float] = None
+    fitness: List[float] = None
     truncated: List[float] = None
     resampled: List[bool] = None
     initialization: List[bool] = None
     experiment_parameters: dict = None
     average_noise: float = None
     default_run: DefaultRun = None
-    averaged_execution_time: List[float] = None
-    min_execution_time: List[float] = None
-    max_execution_time: List[float] = None
-    std_execution_time: List[float] = None
+    averaged_fitness: List[float] = None
+    min_fitness: List[float] = None
+    max_fitness: List[float] = None
+    std_fitness: List[float] = None
     resampled_nbr: List[int] = None
     improvement_default: float = None
     component: str = None
@@ -103,7 +103,7 @@ class IntermediateResult(MongoModel):
 
     jobids: int
     parameters: Dict
-    execution_time: float
+    fitness: float
     truncated: bool
     resampled: bool
     initialization: bool

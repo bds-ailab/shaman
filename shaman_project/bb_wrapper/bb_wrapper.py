@@ -4,8 +4,6 @@ time associated with each parametrization and is compatible with the BBO
 standards by having a compute method."""
 
 from pathlib import Path
-import re
-from time import sleep
 from shutil import copyfile
 import subprocess
 from shlex import split
@@ -58,7 +56,7 @@ class BBWrapper:
         # The jobid of the run using default parameters
         self.default_jobid = None
         # The execution time of the run using default parameters
-        self.default_execution_time = None
+        self.default_target_value = None
         # The default paremeters
         self.default_parameters = None
 
@@ -152,11 +150,9 @@ class BBWrapper:
         job_id = self.component.submit_sbatch(self.sbatch_file, wait=True)
         # Add the ran jobid to the list of jobids
         self.jobids.append(job_id)
-        execution_time = float(
-            self._parse_slurm_times(Path.cwd() / f"slurm-{job_id}.out")
-        )
-        logger.debug(f"Application elapsed time: {execution_time}")
-        return execution_time
+        target_value = self.component.get_target(job_id)
+        logger.debug(f"Application target value: {target_value}")
+        return target_value
 
     def run_default(self) -> float:
         """Launch the black-box with the default parameters, as specified in
@@ -177,12 +173,10 @@ class BBWrapper:
         self.default_jobid = job_id
         # Store the default parameters
         self.default_parameters = self.default_component.parameters
-        execution_time = float(
-            self._parse_slurm_times(Path.cwd() / f"slurm-{job_id}.out")
-        )
-        logger.debug(f"Default application elapsed time: {execution_time}")
-        self.default_execution_time = execution_time
-        return execution_time
+        target_value = self.default_component.get_target(job_id)
+        logger.debug(f"Default application target value: {target_value}")
+        self.default_target_value = target_value
+        return target_value
 
     def step_cost_function(self) -> float:
         """Defines a custom cost function in order to be able to use BBO
@@ -197,58 +191,6 @@ class BBWrapper:
         """If the .compute method of the black-box is called scancel the last
         job."""
         self.scancel_job(self.component.submitted_jobids[-1])
-
-    def _parse_slurm_times(self, out_file=str) -> float:
-        """Parses the slurm times associated with the file slurm-job_id.out.
-
-        Args:
-            out_file (str): The job slurm output file path to parse.
-
-        Returns:
-            float: The time real value
-        """
-        real_time = None
-        try:
-            logger.debug(f"Parsing file {out_file}")
-            logger.debug("Waiting 10 seconds to wait for .out to be written")
-            sleep(10)
-            with open(out_file, "r") as file:
-                lines = file.readlines()
-                for line in lines:
-                    logger.debug(f"Line content: {line}")
-                    if line.startswith("real"):
-                        logger.debug(f"Parsing line containing time {line}")
-                        time = re.split("\t", line)[-1].strip()
-                        logger.debug(f"Parsing time string {time}")
-                        real_time = self.parse_milliseconds(time)
-                        logger.debug(f"Found time: {real_time}")
-                        if real_time:
-                            return real_time
-            raise ValueError(
-                "Could not parse time of slurm output,"
-                f"content set to {real_time} !"
-            )
-        except FileNotFoundError:
-            raise FileNotFoundError("Slurm output was not generated.")
-
-    @staticmethod
-    def parse_milliseconds(string_time: str) -> float:
-        """Given a string date with the format MMmSS.MSs (as returned by the
-        linux time command), parses it to seconds.
-
-        Args:
-            string_time (str): The date to parse
-
-        Returns:
-            The number of elapsed seconds
-        """
-        minutes = int(string_time.split("m")[0])
-        string_time = string_time.replace(str(minutes) + "m", "")
-        seconds = int(string_time.split(".")[0])
-        milliseconds_string = string_time.split(".")[1]
-        milliseconds_string = milliseconds_string.replace("s", "")
-        milliseconds = int(milliseconds_string)
-        return minutes * 60 + seconds + milliseconds / 1000
 
     @staticmethod
     def parse_job_elapsed_time(job_id: int) -> float:

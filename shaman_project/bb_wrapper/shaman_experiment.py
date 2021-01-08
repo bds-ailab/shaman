@@ -139,7 +139,7 @@ class SHAManExperiment:
         if self.configuration.pruning:
             pruning = True
             max_step_cost = (
-                self.bb_wrapper.default_execution_time
+                self.bb_wrapper.default_target_value
                 if self.configuration.pruning.max_step_duration == "default"
                 else self.configuration.pruning.max_step_duration
             )
@@ -264,8 +264,8 @@ class SHAManExperiment:
         _, best_time = self.best_performance
         return float(
             round(
-                (self.bb_wrapper.default_execution_time - best_time)
-                / self.bb_wrapper.default_execution_time,
+                (self.bb_wrapper.default_target_value - best_time)
+                / self.bb_wrapper.default_target_value,
                 2,
             )
             * 100
@@ -297,7 +297,7 @@ class SHAManExperiment:
         return IntermediateResult(
             **{
                 "jobids": self.bb_wrapper.component.submitted_jobids[-1],
-                "execution_time": list(history["fitness"])[-1],
+                "fitness": list(history["fitness"])[-1],
                 "parameters": self.build_parameter_dict(
                     self.configuration.component_parameter_names,
                     history["parameters"].tolist(),
@@ -348,15 +348,15 @@ class SHAManExperiment:
         best_parameters, best_fitness = self.best_performance
         return FinalResult(
             **{
-                "averaged_execution_time": self.bb_optimizer.averaged_fitness,
-                "min_execution_time": self.bb_optimizer.min_fitness,
-                "max_execution_time": self.bb_optimizer.max_fitness,
-                "std_execution_time": self.bb_optimizer.measured_noise,
+                "averaged_fitness": self.bb_optimizer.averaged_fitness,
+                "min_fitness": self.bb_optimizer.min_fitness,
+                "max_fitness": self.bb_optimizer.max_fitness,
+                "std_fitness": self.bb_optimizer.measured_noise,
                 "resampled_nbr": self.bb_optimizer.resampled_nbr,
                 "improvement_default": self.improvement_default,
                 "elapsed_time": self.bb_optimizer.elapsed_time,
                 "default_run": {
-                    "execution_time": self.bb_wrapper.default_execution_time,
+                    "fitness": self.bb_wrapper.default_target_value,
                     "job_id": self.bb_wrapper.default_jobid,
                     "parameters": self.bb_wrapper.default_parameters,
                 },

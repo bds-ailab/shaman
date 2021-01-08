@@ -24,6 +24,7 @@ from collections import OrderedDict
 from loguru import logger
 from shaman_core.models.component_model import TunableComponentsModel
 
+
 # Save current environment as variable
 ENV = os.environ.copy()
 
@@ -83,8 +84,8 @@ class TunableComponent:
                 f"There is no component with the name {name}. If you want to use it, \
                   add it to the configuration file. {error_message}"
             )
-        # Load the configuration of the component
-
+        # Load the function to perform the parsing
+        self.get_target = self.description.get_target
         self.parameters_description = self.description.parameters
         # Extract the description of the parameters for the component
         self.parameters = self.sanitize_parameters(parameters)
@@ -126,7 +127,7 @@ class TunableComponent:
             cmd_line += f"{suffix} "
         return cmd_line
 
-    @property
+    @ property
     def cmd_line(self) -> str:
         """Collects all the parameters with a flag and a value and arrange them
         in order to build a command line that can be used to launch the

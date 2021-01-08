@@ -49,7 +49,7 @@ class ExhaustiveSearch(Heuristic):
         except IndexError:
             return parametric_grid[-1]
 
-    def summary(self):
+    def summary(self, *args, **kwargs):
         """Summarizes the grid search."""
         print(f"Number of tested parametrization: {self.nbr_tested}")
 

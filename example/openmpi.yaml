@@ -1,0 +1,20 @@
+components:
+  openmpi:
+    custom_target: parse_osu_output.parse_osu_output
+    parameters:
+      SRO_SEQUENCE_LENGTH:
+        env_var: True
+        type: int
+        default: 100
+      SRO_DSC_BINSIZE:
+        env_var: True
+        type: int
+        default: 1048576
+      SRO_CLUSTER_THRESHOLD:
+        env_var: True
+        type: int
+        default: 2
+      SRO_PREFETCH_SIZE:
+        env_var: True
+        type: int
+        default: 20971520

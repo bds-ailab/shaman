@@ -54,6 +54,8 @@ In the example above, the top of the program is appended by adding `LD_PRELOAD=l
 
 An additional parameter is the `header`, which specifies a command to be run between each optimization run. An example can be a system call to clean the cache, to ensure independence between runs.
 
+The parameter `custom_target` specifies the path to a module which defines how to get the target value. It is defined as a function, located in a module under `bb_wrapper.tunable_component.plugins`. It has to be a function which takes as input the jobid and outputs this measure. The default behavior is the parsing of the execution time, as parsed from the output of the `time` command.
+
 ### Description of the component's parameters
 
 The second part of the component configuration file deals with the description of the parameters of the components. The parameters can either be passed as:

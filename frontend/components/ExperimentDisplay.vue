@@ -340,7 +340,7 @@ export default {
     },
     defaultTime() {
       if (this.experiment.default_run) {
-        return this.experiment.default_run.execution_time
+        return this.experiment.default_run.fitness
       } else {
         return 0
       }
@@ -393,22 +393,22 @@ export default {
       if ((this.experimentStatus === 'finished') & !this.rawData) {
         return [
           {
-            data: this.experiment.averaged_execution_time,
+            data: this.experiment.averaged_fitness,
             name: 'Averaged execution time'
           },
           {
-            data: this.experiment.min_execution_time,
+            data: this.experiment.min_fitness,
             name: 'Min execution times'
           },
           {
-            data: this.experiment.max_execution_time,
+            data: this.experiment.max_fitness,
             name: 'Max execution time'
           }
         ]
       } else {
         return [
           {
-            data: this.experiment.execution_time,
+            data: this.experiment.fitness,
             name: 'Execution time'
           }
         ]
@@ -429,7 +429,7 @@ export default {
     this.ws.onmessage = (event) => {
       const expUpdate = JSON.parse(event.data)
       this.$set(this.experiment, 'parameters', expUpdate.parameters)
-      this.$set(this.experiment, 'execution_time', expUpdate.execution_time)
+      this.$set(this.experiment, 'fitness', expUpdate.fitness)
       this.$set(
         this.experiment,
         'improvement_default',
