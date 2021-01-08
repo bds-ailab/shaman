@@ -24,7 +24,7 @@ The preferred way of launching an optimization experiment is through the Web int
 
 - **Pruning strategies**: this option stops **jobs that take longer than a certain threshold**, either longer than **the default parametrization** or **the current median execution time**.
 
-- **Noise reduction strategies**: this option resamples parametrization a certain number of times to smooth out possible noise. The resampling can be **static** (i.e. fixed number of resamples) or **dynamic** (i.e. the parametrization is repeated until the 95% confidence interval is below a fixed threshold). The fitness aggregation function is the transformation applied to execution times corresponding to the same parametrization (it can be either the **mean** or **median**).
+- **Noise reduction strategies**: this option resamples parametrization a certain number of times to smooth out possible noise. The resampling can be **static** (i.e. fixed number of resamples) or **dynamic** (i.e. the parametrization is repeated until the 95% confidence interval is below a fixed threshold). The fitness aggregation function is the transformation applied to target metric corresponding to the same parametrization (it can be either the **mean** or **median**).
 
 - **Initialization steps**: this field specifies the number of parametrization sampled using a *Latin Hypercube Design* before starting the optimization heuristic. 
 
