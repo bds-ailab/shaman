@@ -8,8 +8,14 @@
     <div
       class="flex w-full bg-blue-600 text-white h-20 m-auto text-2xl items-center justify-center"
     >
-      Experiment <b>{{ experimentName }}</b> with component
-      <b>{{ componentName }}</b>
+      Experiment
+      <b
+        ><pre> {{ experimentName }} </pre></b
+      >
+      with component
+      <b
+        ><pre> {{ componentName }} </pre></b
+      >
     </div>
     <div>
       <!-- Start of execution results row.

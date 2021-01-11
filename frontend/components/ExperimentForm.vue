@@ -1,6 +1,5 @@
 <template>
   <div class="flex flex-col">
-    <p class="text-2xl">Select experiment parameters</p>
     <div
       class="border-b-2 p-4 mx-auto w-1/3"
       v-tooltip.right="
@@ -96,26 +95,6 @@
         </div>
       </div>
     </div>
-    <div
-      v-tooltip.right="
-        'Maximum number of iterations the application will run for. Note that the initialization budget will be added to this value.'
-      "
-      class="border-b-2 p-4 mx-auto"
-    >
-      <label for="nbr_iteration" class="font-bold text-xl"
-        >Number of iterations:</label
-      >
-
-      <input
-        id="iterations"
-        type="number"
-        name="nbr_iteration"
-        min="2"
-        max="200"
-        required
-        class="h-6 w-12 font-bold border-pink-900 border-2 rounded-sm text-center text-pink-600"
-      />
-    </div>
   </div>
 </template>
 
@@ -149,6 +128,7 @@ export default {
     axios.get('/components/parameters').then((response) => {
       this.componentsObject = response.data
       this.componentsName = Object.keys(this.componentsObject)
+      console.log(this.componentsName)
     })
   },
   methods: {

@@ -1,22 +1,55 @@
 <template>
   <!-- Copyright 2020 BULL SAS All rights reserved -->
   <div>
-    <form v-if="!experimentFilled">
-      <ExperimentForm />
-      <div class="mx-auto">
-        <button
-          v-on:click="experimentFilled = true"
-          type="submit"
-          class="border-2 rounded-md bg-pink-600 p-4 text-2xl text-white"
-        >
-          Validate experiment parameters
-        </button>
+    <form ref="form" @submit.prevent="submitExperiment">
+      <!-- Fill out parameters of the experiment -->
+      <div class="flex flex-row justify-around">
+        <div>
+          <button v-on:click="showExperiment()">
+            <span
+              v-bind:class="{
+                underline: experimentShow,
+                'no-underline': !experimentShow
+              }"
+              >Parametrize experiment</span
+            >
+          </button>
+        </div>
+        <div>
+          <button v-on:click="showBBO()">
+            <span
+              v-bind:class="{ underline: bboShow, 'no-underline': !bboShow }"
+              >Parametrize optimizer</span
+            >
+          </button>
+        </div>
+        <div>
+          <button v-on:click="validate()">
+            <i class="fas fa-check-circle"></i>
+            Finalize experiment
+          </button>
+        </div>
       </div>
+      <ExperimentForm v-show="experimentShow & !validateExperiment" />
+
+      <!-- Fill out parameters of BBO -->
+      <BBOForm v-if="bboShow & !validateExperiment" :options="formOptions" />
+
+      <div v-if="validateExperiment" class="flex flex-col justify-items-center">
+        <ValidateForm />
+        <div class="mx-auto">
+          <button
+            type="submit"
+            class="border-2 rounded-md bg-pink-600 p-4 text-xl text-white"
+          >
+            Run the experiment
+          </button>
+        </div>
+      </div>
+
+      <!-- Validate form + give name to the experiment -->
     </form>
 
-    <form v-if="experimentFilled">
-      <BBOForm :options="formOptions" />
-    </form>
     <!-- <form ref="form" @submit.prevent="submitExperiment" v-if="componentsName">
     
       <div class="flex flex-wrap justify-center">
@@ -197,16 +230,20 @@
 import axios from 'axios'
 import ExperimentForm from '../components/ExperimentForm'
 import BBOForm from '../components/BBOForm'
+import ValidateForm from '../components/ValidateForm'
 
 export default {
-  components: { ExperimentForm, BBOForm },
+  components: { ExperimentForm, BBOForm, ValidateForm },
   async asyncData({ $content, params }) {
     const formOptionsFile = await $content('experimentFormOptions').fetch()
+    // console.log(formOptionsFile.form_options)
     return { formOptions: formOptionsFile.form_options }
   },
   data() {
     return {
-      experimentFilled: false,
+      experimentShow: true,
+      bboShow: false,
+      everythingFilled: false,
       code: 'Write your sbatch here !',
       componentsName: null,
       selected_component: 'unknown',
@@ -236,6 +273,21 @@ export default {
   methods: {
     onCmCodeChange(newCode) {
       this.code = newCode
+    },
+    showExperiment() {
+      this.experimentShow = true
+      this.bboShow = false
+      this.validateExperiment = false
+    },
+    showBBO() {
+      this.experimentShow = false
+      this.bboShow = true
+      this.validateExperiment = false
+    },
+    validate() {
+      this.experimentShow = false
+      this.bboShow = false
+      this.validateExperiment = true
     },
     submitExperiment() {
       const formData = new FormData(this.$refs.form) // reference to form element
