@@ -11,6 +11,7 @@ import importlib
 import ast
 
 import numpy as np
+from loguru import logger
 import yaml
 
 
@@ -159,4 +160,5 @@ class SHAManConfig(BaseConfiguration):
         array_parameters = list()
         for parameter_range in self.component_parameters.values():
             array_parameters.append(np.array(parameter_range.parameter_range))
+        logger.debug(f"Parameter space: {array_parameters}")
         return np.array(array_parameters, dtype=object)
