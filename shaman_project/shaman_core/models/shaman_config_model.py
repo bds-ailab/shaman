@@ -6,10 +6,12 @@ from pydantic import BaseModel, validator, root_validator
 from pydantic.dataclasses import dataclass
 
 from typing import Dict, Optional, List, Any
+from enum import Enum
 import importlib
 import ast
 
 import numpy as np
+from loguru import logger
 import yaml
 
 
@@ -61,12 +63,23 @@ class PruningParameters(BaseModel):
                     )
 
 
+class StepTypeEnum(str, Enum):
+    """Defines an enumeration for the type of parameter in the
+    parameter range. Possible values are:
+    - additive
+    - multiplicative
+    """
+    additive = "additive"
+    multiplicative = "multiplicative"
+
+
 class ParameterRange(BaseModel):
     """Contains the possible tested range of the parameters."""
 
     min: int
     max: int
     step: int
+    step_type: StepTypeEnum = StepTypeEnum.additive
 
     @root_validator
     def check_range(cls, values):
@@ -81,7 +94,15 @@ class ParameterRange(BaseModel):
     @property
     def parameter_range(self) -> List:
         """Creates a parameter range given the grid information."""
-        return np.arange(self.min, self.max + 1, self.step)
+        if self.step_type == "additive":
+            return np.arange(self.min, self.max + 1, self.step)
+        elif self.step_type == "multiplicative":
+            range_ = list()
+            val_ = self.min
+            while val_ <= self.max:
+                range_.append(val_)
+                val_ = val_ * self.step
+            return np.array(range_)
 
 
 @dataclass
@@ -139,4 +160,5 @@ class SHAManConfig(BaseConfiguration):
         array_parameters = list()
         for parameter_range in self.component_parameters.values():
             array_parameters.append(np.array(parameter_range.parameter_range))
-        return np.array(array_parameters)
+        logger.debug(f"Parameter space: {array_parameters}")
+        return np.array(array_parameters, dtype=object)

@@ -1,20 +1,46 @@
 components:
-  openmpi:
-    custom_target: parse_osu_output.parse_osu_output
+  openmpi_1024:
+    custom_target: parse_osu_output.parse_osu_output_1024
     parameters:
-      SRO_SEQUENCE_LENGTH:
+      OMPI_MCA_coll_tuned_allgather_algorithm:
         env_var: True
         type: int
-        default: 100
-      SRO_DSC_BINSIZE:
+        default: 0
+      OMPI_MCA_coll_tuned_allgather_algorithm_segmentsize:
         env_var: True
         type: int
-        default: 1048576
-      SRO_CLUSTER_THRESHOLD:
+        default: 0
+      OMPI_MCA_coll_tuned_allgather_algorithm_tree_fanout:
         env_var: True
         type: int
-        default: 2
-      SRO_PREFETCH_SIZE:
+        default: 4
+  openmpi_8:
+    custom_target: parse_osu_output.parse_osu_output_8
+    parameters:
+      OMPI_MCA_coll_tuned_allgather_algorithm:
         env_var: True
         type: int
-        default: 20971520
+        default: 0
+      OMPI_MCA_coll_tuned_allgather_algorithm_segmentsize:
+        env_var: True
+        type: int
+        default: 0
+      OMPI_MCA_coll_tuned_allgather_algorithm_tree_fanout:
+        env_var: True
+        type: int
+        default: 4
+  openmpi_1048576:
+    custom_target: parse_osu_output.parse_osu_output_1048576
+    parameters:
+      OMPI_MCA_coll_tuned_allgather_algorithm:
+        env_var: True
+        type: int
+        default: 0
+      OMPI_MCA_coll_tuned_allgather_algorithm_segmentsize:
+        env_var: True
+        type: int
+        default: 0
+      OMPI_MCA_coll_tuned_allgather_algorithm_tree_fanout:
+        env_var: True
+        type: int
+        default: 4

@@ -32,6 +32,15 @@ def run(
 ) -> None:
     """Run an optimization experiment."""
     # Create an experiment by initializing an object of class ShamanExperiment
+    logger.debug(
+        f"Experiment parametrization: Component name {component_name} | \
+        Nbr iteration {nbr_iteration} | \
+        Sbatch file {sbatch_file} | \
+        Sbatch dir {sbatch_dir} | \
+        Slurm dir {slurm_dir} | \
+        Result file {result_file} | \
+        Configuration file {configuration_file}"
+    )
     experiment = SHAManExperiment(
         component_name=component_name,
         nbr_iteration=nbr_iteration,
@@ -44,15 +53,7 @@ def run(
     )
     # Log the beginning of the experiment
     logger.info(f"Running experiment {experiment_name}")
-    logger.debug(
-        f"Experiment parametrization: Component name {component_name} | \
-        Nbr iteration {nbr_iteration} | \
-        Sbatch file {sbatch_file} | \
-        Sbatch dir {sbatch_dir} | \
-        Slurm dir {slurm_dir} | \
-        Result file {result_file} | \
-        Configuration file {configuration_file}"
-    )
+
     # Catch possible keyyboard interrupt
     try:
         logger.info(f"Launching experiment {experiment_name}")
