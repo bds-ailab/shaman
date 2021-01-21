@@ -1,5 +1,5 @@
 # Copyright 2020 BULL SAS All rights reserved
-FROM sphrbthyk/slurm-dependencies:latest
+FROM sphrbthyk/shaman-slurm-dependencies:latest
 
 # Copy the configuration file
 COPY docker/config/slurm.conf /etc/slurm/
