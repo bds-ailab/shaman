@@ -9,6 +9,7 @@ services:
     volumes:
       # tochange
       - /shaman/mongo_data:/data/db
+      - /shaman/mongo_backup:/dump
     restart: on-failure
     ports:
       - "27020:27017"
