@@ -328,7 +328,7 @@ class TestSHAManExperiment(unittest.TestCase):
         # SLURM_DIR folder
         self.assertListEqual(
             [file_.name for file_ in SLURM_DIR.glob("*")],
-            ["slurm-42.out", "slurm-666.out"],
+            ["slurm-666.out"],
         )
         # Check that the current working directory does not have any slurm files
         self.assertFalse(
