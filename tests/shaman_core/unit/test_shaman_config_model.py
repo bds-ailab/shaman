@@ -74,10 +74,11 @@ class TestSHAManModelVanilla(unittest.TestCase):
         self.assertDictEqual(shaman_config.bbo_parameters, expected_kwargs)
 
     def test_parameter_space(self):
-        """Tests that the parameter space is properly parsed."""
+        """Tests that the parameter space is properly parsed, for both multiplicative
+        and additive"""
         shaman_config = SHAManConfig.from_yaml(VANILLA_CONFIG, "component_1")
         expected_parameter_space = numpy.array(
-            [numpy.array([1, 2]), numpy.array([1, 2, 3])]
+            [numpy.array([1, 2]), numpy.array([2, 4, 8])], dtype=object
         )
         assert_array_equal(
             expected_parameter_space[0], shaman_config.component_parameter_space[0]

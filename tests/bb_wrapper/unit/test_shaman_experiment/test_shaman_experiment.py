@@ -326,9 +326,9 @@ class TestSHAManExperiment(unittest.TestCase):
         se.clean()
         # Check that calling the cleaning method moves the slurm outputs to the
         # SLURM_DIR folder
-        self.assertEqual(
+        self.assertListEqual(
             [file_.name for file_ in SLURM_DIR.glob("*")],
-            ["slurm-42.out", "slurm-666.out"],
+            ["slurm-666.out", "slurm-42.out"],
         )
         # Check that the current working directory does not have any slurm files
         self.assertFalse(

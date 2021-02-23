@@ -310,6 +310,8 @@ class TunableComponent:
                 f"Could not run job {job_id}: \n stderr: {output_stderr}")
         if wait:
             logger.info(f"Successfully ran jobid {job_id}")
+        # Close the stdout file descriptor
+        os.close(slave)
         return job_id
 
     def sanitize_parameters(self, parameters: dict) -> dict:
@@ -333,12 +335,13 @@ class TunableComponent:
         # iomodules' name
         # Iterate over the description of the parameters
         for param, param_value in self.parameters_description.items():
+            logger.debug(f"Param value {param_value}")
             # Get the description of this parameter
             # Check if the parameter exist in the parameter argument
             if not parameters.get(param):
                 if not param_value.optional:
                     # If the parameter is not optional
-                    if param_value.default:
+                    if param_value.default is not None:
                         # Check if there is a default value for this parameter
                         # If the parameter is optional, do not take its value
                         parameters[param] = param_value.default
