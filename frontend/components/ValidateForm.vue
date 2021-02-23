@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col mt-8">
-    <div class="mx-auto">
+    <div class="mx-auto mb-4">
       <label for="experiment_name" class="font-bold text-xl"
         >Experiment name:</label
       >

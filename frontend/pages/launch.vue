@@ -2,49 +2,27 @@
   <!-- Copyright 2020 BULL SAS All rights reserved -->
   <div>
     <form ref="form" @submit.prevent="submitExperiment">
-      <!-- Fill out parameters of the experiment -->
-      <div class="flex flex-row justify-around">
-        <div>
-          <button v-on:click="showExperiment()">
-            <span
-              v-bind:class="{
-                underline: experimentShow,
-                'no-underline': !experimentShow
-              }"
-              >Parametrize experiment</span
-            >
-          </button>
-        </div>
-        <div>
-          <button v-on:click="showBBO()">
-            <span
-              v-bind:class="{ underline: bboShow, 'no-underline': !bboShow }"
-              >Parametrize optimizer</span
-            >
-          </button>
-        </div>
-        <div>
-          <button v-on:click="validate()">
-            <i class="fas fa-check-circle"></i>
-            Finalize experiment
-          </button>
-        </div>
+      <div class="flex justify-center mb-4">
+        <button
+          type="submit"
+          class="border-2 rounded-md bg-pink-600 p-4 text-l text-white"
+        >
+          Run the experiment
+        </button>
       </div>
-      <ExperimentForm v-show="experimentShow & !validateExperiment" />
 
-      <!-- Fill out parameters of BBO -->
-      <BBOForm v-if="bboShow & !validateExperiment" :options="formOptions" />
-
-      <div v-if="validateExperiment" class="flex flex-col justify-items-center">
-        <ValidateForm />
-        <div class="mx-auto">
-          <button
-            type="submit"
-            class="border-2 rounded-md bg-pink-600 p-4 text-xl text-white"
-          >
-            Run the experiment
-          </button>
-        </div>
+      <div>
+        <b-tabs content-class="mt-3" fill>
+          <b-tab title="Tuned system" active>
+            <ExperimentForm />
+          </b-tab>
+          <b-tab title="Optimizer">
+            <BBOForm :options="formOptions" />
+          </b-tab>
+          <b-tab title="Experiment">
+            <ValidateForm />
+          </b-tab>
+        </b-tabs>
       </div>
 
       <!-- Validate form + give name to the experiment -->
