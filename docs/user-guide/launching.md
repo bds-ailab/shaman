@@ -37,6 +37,9 @@ The preferred way of launching an optimization experiment is through the Web int
 !!! tip
     Launching an experiment through the command line interface gives access to more options to tune the optimizer, but it is also riskier because there is no configuration check before running the experiment. Beware !
 
+!!! warning
+    Before running the `shaman-optimize` command, you must source the environment file written during the [installation step](install.md).
+
 Launching an optimization experiment can also be done through the command line interface `shaman-optimize`.
 
 ``` shell
