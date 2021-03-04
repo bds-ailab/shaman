@@ -31,6 +31,11 @@ from bbo.initial_parametrizations import (
     latin_hypercube_sampling,
     hybrid_lhs_uniform_sampling,
 )
+from bbo.stop_criteria import (
+    ImprovementCriterion,
+    DistanceMovementCriterion,
+    CountMovementCriterion
+)
 from bbo.noise_reduction.resampling_policies import (
     SimpleResampling,
     DynamicResamplingParametric,
@@ -63,6 +68,14 @@ class BBOptimizer:
         "hybrid_lhs_uniform_sampling": hybrid_lhs_uniform_sampling,
     }
 
+    # Dictionary of the different methods that can be used as stop
+    # criterion for the optimization process
+    __stop_criteria__ = {
+        "improvement_criterion": ImprovementCriterion,
+        "count_movement": CountMovementCriterion,
+        "distance_movement": DistanceMovementCriterion
+    }
+
     # Dictionary of the different resampling policies
     __resampling_policies__ = {
         "simple_resampling": SimpleResampling,
@@ -84,6 +97,7 @@ class BBOptimizer:
         heuristic,
         time_out=None,
         max_iteration=100,
+        stop_criterion=None,
         perf_function=None,
         initial_sample_size=10,
         initial_draw_method="hybrid_lhs_uniform_sampling",
@@ -253,6 +267,21 @@ class BBOptimizer:
             self.step_cost_function = self.black_box.cost_function
         else:
             self.step_cost_function = None
+
+        # If there is stop criterion, ensure that it is valid
+        # And set it as value of the attribute stop_criterion
+        # ELse, set the attribute stop_criterion always to True
+        if stop_criterion:
+            try:
+                self.stop_criterion = self.__stop_criteria__[
+                    stop_criterion](**self.options)
+            except KeyError:
+                raise ValueError(
+                    f"{stop_criterion} is not among possible choices."
+                    f"Possible choices are: {self.__stop_criteria__.keys()}")
+        else:
+            self.stop_criterion = False
+
         # If there is a resampling strategy, ensure that it is valid
         # If there is no resampling strategy, set it to simple with
         # a resampling number of 1
@@ -404,6 +433,8 @@ class BBOptimizer:
             conditions.append(self.elapsed_time < self.time_out)
         if self.heuristic.stop:
             conditions.append(not self.heuristic.stop)
+        if self.stop_criterion:
+            conditions.append(self.stop_criterion.stop_rule(self.history))
         return all(conditions)
 
     def _async_optimization_step(self, parameter):
@@ -471,10 +502,8 @@ class BBOptimizer:
             None, but applies the callback on the history
             attribute of the class
         """
-        logger.debug(f"Evaluating performance of parametrization {parameter}")
         # evaluate the value of the newly selected parameters
         perf = self.compute_result(parameter)
-        logger.debug(f"Corresponding performance: {perf}")
         # store the new parameters
         self._append_parameters(parameter)
         # store the new performance
@@ -486,13 +515,12 @@ class BBOptimizer:
         """Initalizes the black-box algorithm using the selected strategy and
         the number of initial data points."""
         logger.debug("Initializing parameter space")
-        logger.debug(f"Parameter space given by user: {self.parameter_space}")
         # Draw parameters according to the initialization method and compute
         # fitness value
         initial_parameters = self.initial_selection(
             self.initial_sample_size, self.parameter_space
         )
-        logger.debug("Selected initial parameter space: {initial_parameters}")
+        logger.debug(f"Selected initial parameter space: {initial_parameters}")
         step = 0
         while step < self.initial_sample_size:
             # Perform optimization step using the initial parametrization
@@ -665,7 +693,7 @@ class BBOptimizer:
                 callback(self.history)
             # update number of iterations
             self.nbr_iteration += 1
-        self.elapsed_time = time.time() - chronometer_start
+            self.elapsed_time = time.time() - chronometer_start
         # Store the best parameters and the best fitness
         self.best_parameters_in_grid, self.best_fitness = \
             self._get_best_performance()
