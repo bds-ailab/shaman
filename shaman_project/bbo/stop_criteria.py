@@ -48,7 +48,7 @@ class StopCriterion:
 class ImprovementCriterion(StopCriterion):
     """
     Implements a stop criterion based on the notion of improvements.
-    This class outputs false (ie: do not stop the optimization
+    This class outputs true (ie: do not stop the optimization
     process) if the improvement in the
     fitness function is below the value threshold for over
     stop_window iterations. The improvement is defined as
@@ -79,7 +79,7 @@ class ImprovementCriterion(StopCriterion):
         self.stop_window = stop_window
 
     def stop_rule(self, history):
-        """This method outputs false (ie: do not stop the optimization
+        """This method outputs true (ie: do not stop the optimization
         process) if the improvement in the
         fitness function is below the value threshold for over
         stop_window iterations. The improvement is defined as
@@ -134,7 +134,7 @@ class CountMovementCriterion(StopCriterion):
         self.stop_window = stop_window
 
     def stop_rule(self, history):
-        """This method outputs false (ie: do not stop the optimization
+        """This method outputs true (ie: do not stop the optimization
         process) if the number of distinct parametrizations is below the
         threshold nbr_parametrizations over a stop_window number of
         iterations.
@@ -181,7 +181,7 @@ class DistanceMovementCriterion(StopCriterion):
         self.stop_window = stop_window
 
     def stop_rule(self, history):
-        """This method outputs false (ie: do not stop the optimization
+        """This method outputs true (ie: do not stop the optimization
         process) if the average distance between the parametrizations tested
         is below the threshold distance over a stop_window number of
         iterations.

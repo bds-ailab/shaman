@@ -6,9 +6,9 @@ services:
     image: mongo:4.0
     container_name: mongo
     hostname: mongo
-    # volumes:
-    # tochange
-    # - /shaman/mongo_data:/data/db
+    volumes:
+      # tochange
+      - /shaman/mongo_data:/data/db
     restart: on-failure
     ports:
       - "27020:27017"
