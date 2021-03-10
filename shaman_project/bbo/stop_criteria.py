@@ -102,7 +102,7 @@ class ImprovementCriterion(StopCriterion):
         if len(fitness) <= self.stop_window:
             return True
         current_improvement = self.improvement_estimator(
-            fitness[:self.stop_window])
+            fitness[:-self.stop_window])
         improvement_in_iterations = self.improvement_estimator(
             fitness[-self.stop_window:])
         improvement_ratio = (
