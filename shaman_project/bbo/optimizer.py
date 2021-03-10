@@ -174,6 +174,12 @@ class BBOptimizer:
             Defaults to performing a simple aggregation using the mean
             as the estimator.
 
+          stop_criterion (str, optional): The name of the stop criterion to
+            apply to stop the optimization process before the whole budget is
+            exhausted. The possible stop criterion are available in the
+            dictionary __stop_criteria__. It defaults to not having any
+            stop criterion other than the exhaustion based.
+
         Other arguments which are specific to the selected heuristics can
         be passed upon initialization of the object.
         """
