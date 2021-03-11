@@ -124,6 +124,11 @@ class ExperimentForm(MongoModel):
     experiment_name: str
     heuristic: str
     initial_sample_size: int
+    stop_criterion: Optional[str]
+    improvement_threshold: Optional[float]
+    improvement_estimator: Optional[str]
+    nbr_parametrizations: Optional[int]
+    stop_window: Optional[int]
     max_step_duration: Optional[str]
     resampling_policy: Optional[str]
     fitness_aggregation: Optional[str]

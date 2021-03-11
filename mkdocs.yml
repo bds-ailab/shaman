@@ -40,6 +40,7 @@ nav:
       - "Available heuristics": "bbo/heuristics.md"
       - "Noise reduction": "bbo/noise-reduction.md"
       - "Pruning strategies": "bbo/pruning-strategies.md"
+      - "Stop criterion": "bbo/stop-criterion.md"
       - "Adding a new heuristic": "bbo/adding-heuristic.md"
   - Cookbooks:
       - "Optimization of I/O accelerators": "cookbooks/ioaccelerators.md"
