@@ -265,8 +265,6 @@ class TunableComponent:
         # Run the script using subprocess
         master, slave = pty.openpty()
         logger.info(f"Submitting sbatch with command line {cmd_line}")
-        logger.debug(
-            f"Submitting sbatch with environment variables {self.var_env}")
         sub_ps = subprocess.Popen(
             split(cmd_line), stdout=slave, stderr=slave, env=self.var_env
         )
@@ -335,7 +333,6 @@ class TunableComponent:
         # iomodules' name
         # Iterate over the description of the parameters
         for param, param_value in self.parameters_description.items():
-            logger.debug(f"Param value {param_value}")
             # Get the description of this parameter
             # Check if the parameter exist in the parameter argument
             if not parameters.get(param):

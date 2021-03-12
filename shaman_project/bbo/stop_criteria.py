@@ -20,6 +20,7 @@ The implemented criteria are:
 """
 import itertools
 import numpy as np
+from loguru import logger
 
 
 class StopCriterion:
@@ -105,6 +106,11 @@ class ImprovementCriterion(StopCriterion):
             fitness[:-self.stop_window])
         improvement_in_iterations = self.improvement_estimator(
             fitness[-self.stop_window:])
+        logger.debug("Current performance measured by"
+                     f"{self.improvement_estimator}: {current_improvement}")
+        logger.debug("Current performance measured by"
+                     f"{self.improvement_estimator} over the last"
+                     f"{self.step_window}: {improvement_in_iterations}")
         improvement_ratio = (
             current_improvement - improvement_in_iterations)\
             / current_improvement
