@@ -29,15 +29,15 @@ class StopCriterion:
     criterion should inherit from.
     """
 
-    def stop_rule(self, history):
+    def stop_rule(self, history, initial_sample_size):
         """Given the previous optimization history, returns False if the
         optimization should stop, and else should evaluate to True.
 
         Args:
             history (dict): A dictionary describing the BBO optimization
                 history.
-            stop_window (int): The number of iterations
-                the improvement should be computed on.
+            initial_sample_size (int): The number of iterations
+                that should be ignored to compute the improvement on.
 
         Returns:
             bool: whether or not the optimization process should be
@@ -79,7 +79,7 @@ class ImprovementCriterion(StopCriterion):
         self.improvement_estimator = improvement_estimator
         self.stop_window = stop_window
 
-    def stop_rule(self, history):
+    def stop_rule(self, history, initial_sample_size):
         """This method outputs true (ie: do not stop the optimization
         process) if the improvement in the
         fitness function is below the value threshold for over
@@ -91,12 +91,14 @@ class ImprovementCriterion(StopCriterion):
         Args:
             history (dict): A dictionary describing the BBO optimization
                 history.
+            initial_sample_size (int): The number of iterations
+                that should be ignored to compute the improvement on.
 
         Returns:
             bool: whether or not the optimization process should be
                 stopped given the history.
         """
-        fitness = history["fitness"]
+        fitness = history["fitness"][initial_sample_size:]
         # If the number of iterations for the interval is below the
         # already computed parametrization, return False
         # (aka: do not stop the optimization process)
@@ -110,7 +112,7 @@ class ImprovementCriterion(StopCriterion):
                      f"{self.improvement_estimator}: {current_improvement}")
         logger.debug("Current performance measured by"
                      f"{self.improvement_estimator} over the last"
-                     f"{self.step_window}: {improvement_in_iterations}")
+                     f"{self.stop_window}: {improvement_in_iterations}")
         improvement_ratio = (
             current_improvement - improvement_in_iterations)\
             / current_improvement
@@ -139,7 +141,7 @@ class CountMovementCriterion(StopCriterion):
         self.nbr_parametrizations = nbr_parametrizations
         self.stop_window = stop_window
 
-    def stop_rule(self, history):
+    def stop_rule(self, history, initial_sample_size):
         """This method outputs true (ie: do not stop the optimization
         process) if the number of distinct parametrizations is below the
         threshold nbr_parametrizations over a stop_window number of
@@ -148,12 +150,14 @@ class CountMovementCriterion(StopCriterion):
         Args:
             history (dict): A dictionary describing the BBO optimization
                 history.
+            initial_sample_size (int): The number of iterations
+                that should be ignored to compute the improvement on.
 
         Returns:
             bool: whether or not the optimization process should be
                 stopped given the history.
         """
-        parametrization = history["parameters"]
+        parametrization = history["parameters"][initial_sample_size:]
         # If the number of iterations for the interval is below the
         # already computed parametrization, return False
         # (aka: do not stop the optimization process)
@@ -186,7 +190,7 @@ class DistanceMovementCriterion(StopCriterion):
         self.distance = distance
         self.stop_window = stop_window
 
-    def stop_rule(self, history):
+    def stop_rule(self, history, initial_sample_size):
         """This method outputs true (ie: do not stop the optimization
         process) if the average distance between the parametrizations tested
         is below the threshold distance over a stop_window number of
@@ -195,12 +199,14 @@ class DistanceMovementCriterion(StopCriterion):
         Args:
             history (dict): A dictionary describing the BBO optimization
                 history.
+            initial_sample_size (int): The number of iterations
+                that should be ignored to compute the improvement on.
 
         Returns:
             bool: whether or not the optimization process should be
                 stopped given the history.
         """
-        parametrization = history["parameters"]
+        parametrization = history["parameters"][initial_sample_size:]
         # If the number of iterations for the interval is below the
         # already computed parametrization, return False
         # (aka: do not stop the optimization process)

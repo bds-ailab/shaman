@@ -441,15 +441,14 @@ class BBOptimizer:
             conditions.append(not self.heuristic.stop)
         # If there is a stop criterion
         if self.stop_criterion:
-            logger.debug("There is a stop criterion")
             # If the optimization has gone at least
             # the init sample size + the window
-            if self.total_iteration >= \
-                    (self.initial_sample_size +
-                        self.stop_criterion.stop_window):
-                logger.debug(
-                    f"Stop criterion evaluating to {self.stop_criterion.stop_rule(self.history)}")
-                conditions.append(self.stop_criterion.stop_rule(self.history))
+            if self.nbr_iteration >= self.stop_criterion.stop_window:
+                conditions.append(
+                    self.stop_criterion.stop_rule(
+                        history=self.history,
+                        initial_sample_size=self.initial_sample_size)
+                )
         return all(conditions)
 
     def _async_optimization_step(self, parameter):
