@@ -42,7 +42,7 @@ async def create_shaman_experiment(experiment: InitExperiment):
     status_code=200,
 )
 async def get_shaman_experiments(
-    limit: int = 1000, offset: Optional[int] = None
+    limit: int = 2000, offset: Optional[int] = None
 ) -> List[Experiment]:
     """Receive experiment data inside POST request and store experiment inside
     SHAMAN MongoDB database."""
