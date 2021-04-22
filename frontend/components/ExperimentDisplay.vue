@@ -288,7 +288,14 @@ export default {
       }
     },
     experimentStep() {
-      return this.step + '/' + this.totalSteps
+      if (
+        (this.experimentStatus === 'finished') &
+        (this.step < this.totalSteps)
+      ) {
+        return this.step + '/' + this.totalSteps + ' (early stop)'
+      } else {
+        return this.step + '/' + this.totalSteps
+      }
     },
     experimentStart() {
       return this.experiment.experiment_start

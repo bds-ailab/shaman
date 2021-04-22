@@ -233,7 +233,8 @@ class TestOptimizer(unittest.TestCase):
         )
         # Test the append method
         bb_obj._append_parameters([1, 3])
-        np.testing.assert_array_equal(bb_obj.history["parameters"], np.array([1, 3]))
+        np.testing.assert_array_equal(
+            bb_obj.history["parameters"], np.array([1, 3]))
 
     def test_append_performance(self):
         """
@@ -252,7 +253,8 @@ class TestOptimizer(unittest.TestCase):
         # Tests the append method
         bb_obj._append_fitness(10)
         np.testing.assert_array_equal(
-            bb_obj.history["fitness"], np.array(np.array([10, 5, 4, 2, 15, 20, 10]))
+            bb_obj.history["fitness"], np.array(
+                np.array([10, 5, 4, 2, 15, 20, 10]))
         )
 
     def test_append_performance_new_history(self):
@@ -793,7 +795,8 @@ class TestOptimizer(unittest.TestCase):
         )
         test_parameter = np.array([10, 10, 10])
         bb_obj._optimization_step(test_parameter)
-        np.testing.assert_array_equal(bb_obj.history["parameters"][-1], test_parameter)
+        np.testing.assert_array_equal(
+            bb_obj.history["parameters"][-1], test_parameter)
         self.assertEqual(bb_obj.history["fitness"][-1], 200)
 
     def test_optimization_callback(self):
@@ -925,7 +928,8 @@ class TestOptimizer(unittest.TestCase):
         )
         bb_obj.optimize()
         np.testing.assert_array_equal(
-            bb_obj.history["fitness"], np.array([16.0, 61.0, 61.0, 16.0, 9.0, 9.0, 0.0])
+            bb_obj.history["fitness"], np.array(
+                [16.0, 61.0, 61.0, 16.0, 9.0, 9.0, 0.0])
         )
 
     def test_fitness_aggregation_std(self):
@@ -955,7 +959,8 @@ class TestOptimizer(unittest.TestCase):
             "resampled": np.array([True, True, True, True, True, True]),
             "initialization": np.array([True, True, True, True, True, True]),
         }
-        aggregated_history = bb_obj.fitness_aggregation.transform(bb_obj.history)
+        aggregated_history = bb_obj.fitness_aggregation.transform(
+            bb_obj.history)
         np.testing.assert_array_equal(
             aggregated_history["fitness"], np.array([0.0, 0.0, 0.0, 9.0, 0.0])
         )
@@ -1002,6 +1007,43 @@ class TestOptimizer(unittest.TestCase):
         """
         Tests that the number of resampling is properly computed over each parametrization.
         """
+
+    def test_stop_criterion_unknown(self):
+        """Tests that initializing a BBOptimizer object with an unknown stop criterion returns
+        a ValueError error.
+        """
+        with self.assertRaises(ValueError):
+            BBOptimizer(
+                black_box=self.parabola,
+                heuristic="surrogate_model",
+                max_iteration=nbr_iteration,
+                initial_sample_size=2,
+                parameter_space=parameter_space,
+                next_parameter_strategy=expected_improvement,
+                regression_model=GaussianProcessRegressor,
+                stop_criterion="unknown_criterion"
+            )
+
+    def test_stop_criterion(self):
+        """Tests that if the stop criterion is matched, the optimization
+        is stopped early and does not reach the maximum number of iterations
+        """
+        np.random.seed(5)
+        bb_obj = BBOptimizer(
+            black_box=self.parabola,
+            heuristic="surrogate_model",
+            max_iteration=50,
+            initial_sample_size=2,
+            parameter_space=parameter_space,
+            next_parameter_strategy=expected_improvement,
+            regression_model=GaussianProcessRegressor,
+            stop_criterion="improvement_criterion",
+            stop_window=4,
+            improvement_estimator=min,
+            improvement_threshold=0.1
+        )
+        bb_obj.optimize()
+        self.assertTrue(len(bb_obj.history["fitness"]) < 51)
 
 
 if __name__ == "__main__":

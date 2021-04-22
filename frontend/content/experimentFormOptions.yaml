@@ -85,6 +85,78 @@ form_options:
                     max: 10
                     step: 1
 
+  stop_criterion:
+    section: bbo
+    type: checkbox
+    label: 'Use a stop criterion ?'
+    description: 'If checked, the optimization process can be stopped before all the iterations have been performed, using a stop criterion. '
+    derived_options:
+      stop_criterion:
+        varname: 'stop_criterion'
+        type: 'radio'
+        options:
+          improvement_based:
+            varname: improvement_criterion
+            label: 'Improvement criterion'
+            description: 'Stop the optimization process when there is no improvement of p% over n iterations.'
+            options:
+              stop_window:
+                label: 'Range of iterations'
+                type: number
+                options:
+                  stop_window:
+                    varname: stop_window
+                    min: 5
+                    max: 200
+                    step: 1
+              improvement:
+                label: Ratio of improvement betweeen n iterations
+                type: number
+                options:
+                  improvement_threshold:
+                    varname: improvement_threshold
+                    min: 0
+                    max: 1
+                    step: 0.1
+              estimator:
+                label: 'Estimator to use for computing the improvement.'
+                varname: improvement_estimator
+                type: radio
+                options:
+                  mean:
+                    varname: numpy.mean
+                    label: 'Mean'
+                  median:
+                    varname: numpy.median
+                    label: 'Median'
+                  min:
+                    varname: numpy.min
+                    label: 'Min'
+
+          count_based:
+            varname: count_movement
+            label: 'Parametrization count criterion'
+            description: 'Stop the optimization process is the number of different parametrization is below a set threshold'
+            options:
+              stop_window:
+                label: 'Range of iterations'
+                type: number
+                options:
+                  stop_window:
+                    varname: stop_window
+                    min: 5
+                    max: 200
+                    step: 1
+              nbr_parametrizations:
+                label: Number of distinct parametrization
+                type: number
+                options:
+                  nbr_parametrizations:
+                    varname: nbr_parametrizations
+                    min: 0
+                    max: 100
+                    step: 1
+
   initial_sample_size:
     section: bbo
     varname: initial_sample_size

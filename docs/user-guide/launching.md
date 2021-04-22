@@ -96,7 +96,7 @@ SHAMan's configuration file comes with five sections and is written using a `yam
         - A float value (for example, 5), which corresponds to an elapsed time in seconds
         - The `default` string, which corresponds to stopping runs that take longer than the default value. The option **default_first** in the `experiment` section must be set to `True`.
 
-- `components`: the selected component and the defined parametric grid, using the `min`, `max` and `step` format. 
+- `components`: the selected component and the defined parametric grid, using the `min`, `max` and `step` format. If the value is set to `multiplicative` the step option is used as multiplicatively.
 
 An example of a configuration file is written below: 
 
