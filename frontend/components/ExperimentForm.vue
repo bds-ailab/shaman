@@ -30,6 +30,7 @@
           <label for="component" class="mt-2"> Select a component: </label>
           <select
             id="component"
+            name="component_name"
             v-model="selected_component"
             v-tooltip.right="'The component to optimize'"
             required
