@@ -247,7 +247,7 @@ class SHAManExperiment:
 
     @property
     def best_performance(self) -> float:
-        """Returns the current best noise.
+        """Returns the current best performance.
 
         Returns:
             float: The best time.
