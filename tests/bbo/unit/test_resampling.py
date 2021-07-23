@@ -15,9 +15,6 @@ from bbo.noise_reduction.resampling_policies import (
 )
 
 
-def resampling_schedule(nbr_it):
-    return 1 / np.log(1 + nbr_it)
-
 
 class TestResampling(unittest.TestCase):
     """Tests the proper implementation of the parent resampling
@@ -95,7 +92,7 @@ class TestDynamicResampling(unittest.TestCase):
         """Tests the good definition of the resampling schedule.
         """
         dynamic_resampling = DynamicResampling(
-            percentage=0.5, resampling_schedule=resampling_schedule
+            percentage=0.5, resampling_schedule="logarithmic"
         )
         self.assertEqual(0.5 / np.log(2), dynamic_resampling.resampling_schedule(1))
 
@@ -111,7 +108,7 @@ class TestDynamicResampling(unittest.TestCase):
         dynamic_resampling = DynamicResampling(
             percentage=0.5,
             allow_resampling_start=5,
-            allow_resampling_schedule=resampling_schedule,
+            allow_resampling_schedule="logarithmic",
         )
         self.assertEqual(5 / np.log(2), dynamic_resampling.allow_resampling_schedule(1))
 
@@ -178,7 +175,7 @@ class TestDynamicResamplingParametric(unittest.TestCase):
         self.assertFalse(test_dynamic_resampling.resample(history))
         # With a resampling schedule, there is a resampling
         test_dynamic_resampling = DynamicResamplingParametric(
-            0.2, resampling_schedule=resampling_schedule
+            0.2, resampling_schedule="logarithmic"
         )
         self.assertTrue(test_dynamic_resampling.resample(history))
 

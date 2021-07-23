@@ -9,6 +9,16 @@ import numpy as np
 from scipy.stats import binom
 
 
+# Define resampling schedules
+def logarithmic_schedule(nbr_it):
+    return 1 / np.log(1 + nbr_it)
+
+
+__SCHEDULES__ = {
+    "logarithmic": logarithmic_schedule
+}
+
+
 class ResamplingPolicy:
     """Abstract parent class for Resampling policies, that all resampling
     implementations must inherit from."""
@@ -104,7 +114,7 @@ class DynamicResampling(ResamplingPolicy):
         # of the schedule
         if resampling_schedule:
             self.resampling_schedule = lambda x: percentage * \
-                resampling_schedule(x)
+                __SCHEDULES__[resampling_schedule](x)  
         else:
             self.resampling_schedule = lambda x: percentage
         # If there is a allow resampling schedule,
@@ -112,7 +122,7 @@ class DynamicResampling(ResamplingPolicy):
         # Note that the schedule is limited to 2
         if allow_resampling_schedule:
             self.allow_resampling_schedule = (
-                lambda x: allow_resampling_start * allow_resampling_schedule(x)
+                lambda x: allow_resampling_start * __SCHEDULES__[allow_resampling_schedule](x)
             )
         else:
             self.allow_resampling_schedule = lambda x: allow_resampling_start
