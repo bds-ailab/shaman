@@ -446,7 +446,8 @@ class BBOptimizer:
             if self.nbr_iteration >= self.stop_criterion.stop_window:
                 conditions.append(
                     self.stop_criterion.stop_rule(
-                        history=self.fitness_aggregation.transform(self.history),
+                        history=\
+                            self.fitness_aggregation.transform(self.history),
                         initial_sample_size=self.initial_sample_size)
                 )
         return all(conditions)
