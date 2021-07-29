@@ -60,8 +60,8 @@ shaman-api = "shaman_api.cli:cli"
 shaman-install = "bb_wrapper.tunable_component.install_component:cli"
 shaman-optimize = "bb_wrapper.run_experiment:cli"
 
-[tool.autopep8]
-max_line_length = 80
+[tool.black]
+line-length = 79
 
 [build-system]
 requires = ["poetry>=0.12"]

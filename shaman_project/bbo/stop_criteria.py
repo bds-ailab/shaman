@@ -98,11 +98,11 @@ class ImprovementCriterion(StopCriterion):
             bool: whether or not the optimization process should be
                 stopped given the history.
         """
-        fitness = history["fitness"][initial_sample_size:]
+        fitness = history["fitness"]
         # If the number of iterations for the interval is below the
         # already computed parametrization, return False
         # (aka: do not stop the optimization process)
-        if len(fitness) <= self.stop_window:
+        if len(fitness) <= (self.stop_window + initial_sample_size):
             return True
         current_improvement = self.improvement_estimator(
             fitness[:-self.stop_window])

@@ -13,6 +13,7 @@ compute "probability of improvements" or expected gains.
 # Ignore unused argument kwargs
 # pylint: disable=unused-argument
 
+from loguru import logger
 import numpy as np
 from scipy.optimize import minimize
 from scipy.special import erf
@@ -164,7 +165,8 @@ def compute_expected_improvement(current_optimum, means, stds):
         expected_imp = (current_optimum - flattened_means) * _norm_cdf(
             current_optimum, flattened_means, stds
         ) + stds * _norm_pdf(current_optimum, flattened_means, stds)
-        expected_imp[stds == 0] = 0.0
+        # Set all stds below 10^-3 to 0
+        expected_imp[stds < 0.001] = 0.0
     return expected_imp
 
 
@@ -208,6 +210,7 @@ def expected_improvement(func, ranges, previous_evaluations):
         )
     current_optimum = min(previous_evaluations)
     expected_imp = compute_expected_improvement(current_optimum, mean, sigma)
+    logger.debug(f"Max of expected improvement: {max(expected_imp)}")
     if np.sum(expected_imp) == 0:
         return combination_ranges[np.random.choice(
             np.arange(len(combination_ranges)))]

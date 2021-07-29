@@ -6,7 +6,26 @@ impact of these parameters on the performance function.
 This allows to be less dependent on the cluster's noise.
 """
 import numpy as np
-from scipy.stats import binom
+
+
+# Define resampling schedules
+def logarithmic_schedule(nbr_it):
+    return 1 / np.log(1 + nbr_it)
+
+
+def exponential_schedule(nbr_it):
+    return 0.98 ** nbr_it
+
+
+def constant(nbr_it):
+    return 1
+
+
+__SCHEDULES__ = {
+    "logarithmic": logarithmic_schedule,
+    "constant": constant,
+    "exponential": exponential_schedule,
+}
 
 
 class ResamplingPolicy:
@@ -67,10 +86,8 @@ class SimpleResampling(ResamplingPolicy):
         last_elem = parameters_array[-1]
         # Check if there are enough resampling for the last_elem
         return (
-            np.sum(
-                np.all(
-                    parameters_array == last_elem,
-                    axis=1)) < self.nbr_resamples
+            np.sum(np.all(parameters_array == last_elem, axis=1))
+            < self.nbr_resamples
         )
 
 
@@ -102,20 +119,29 @@ class DynamicResampling(ResamplingPolicy):
         # If there is a resampling schedule,
         # the percentage is used as the start
         # of the schedule
+        print(f"resampling schedule: {resampling_schedule}")
         if resampling_schedule:
-            self.resampling_schedule = lambda x: percentage * \
-                resampling_schedule(x)
+            if resampling_schedule in __SCHEDULES__.keys():
+                self.resampling_schedule = (
+                    lambda x: percentage
+                    * __SCHEDULES__[resampling_schedule](x)
+                )
+            else:
+                raise KeyError("Unknown resampling schedule.")
         else:
             self.resampling_schedule = lambda x: percentage
         # If there is a allow resampling schedule,
         # the schedule starts at allow_resampling_start
         # Note that the schedule is limited to 2
+        self.allow_resampling_schedule = allow_resampling_schedule
         if allow_resampling_schedule:
-            self.allow_resampling_schedule = (
-                lambda x: allow_resampling_start * allow_resampling_schedule(x)
-            )
-        else:
-            self.allow_resampling_schedule = lambda x: allow_resampling_start
+            if allow_resampling_schedule in __SCHEDULES__.keys():
+                self.allow_resampling_schedule = (
+                    lambda x: allow_resampling_start
+                    * __SCHEDULES__[allow_resampling_schedule](x)
+                )
+            else:
+                raise KeyError("Unknown resampling schedule.")
 
     @staticmethod
     def process_last_elem(history):
@@ -131,8 +157,9 @@ class DynamicResampling(ResamplingPolicy):
         # Get the last element and its corresponding fitness values
         last_elem = parameters_array[-1]
         print(f"Parameter under consideration: {last_elem}")
-        last_elem_fitness = fitness_array[np.all(
-            parameters_array == last_elem, axis=1)]
+        last_elem_fitness = fitness_array[
+            np.all(parameters_array == last_elem, axis=1)
+        ]
         # Get its number of repetitions
         last_elem_nbr = np.sum(np.all(parameters_array == last_elem, axis=1))
         # Get the total number of iterations
@@ -163,6 +190,15 @@ class DynamicResampling(ResamplingPolicy):
 
     def allow_resampling(self, history):
         """Defines if resampling should be allowed or not."""
+        if self.allow_resampling_schedule:
+            if self.last_elem_nbr < 2:
+                return True
+            current_median = np.median(history["fitness"])
+            return (
+                np.median(self.last_elem_fitness)
+                <= self.allow_resampling_schedule(self.total_nbr)
+                * current_median
+            )
         return True
 
     def ic_length(self):
@@ -190,31 +226,17 @@ class DynamicResamplingParametric(DynamicResampling):
     def ic_length(self):
         """Computes the IC at threshold % for the fitness contained in
         last_elem_fitness."""
-        return 2 * 1.96 * np.std(self.last_elem_fitness) / \
-            np.sqrt(self.last_elem_nbr)
+        return (
+            2
+            * 1.96
+            * np.std(self.last_elem_fitness)
+            / np.sqrt(self.last_elem_nbr)
+        )
 
     def ic_threshold(self):
         """Computes the threshold value for the IC length."""
         percentage = self.resampling_schedule(self.total_nbr)
         return np.abs(percentage * np.mean(self.last_elem_fitness))
-
-
-class DynamicResamplingParametric2(DynamicResamplingParametric):
-    """Dynamic resampling using parametric tests."""
-
-    def __init__(self, percentage, *args, **kwargs):
-        """Initialize an object of class DynamicResamplingParametric2, which
-        inherits from the class DynamicResamplingParametric and adds a check on
-        the value of the fitness before performing the resampling."""
-        super().__init__(percentage, *args, **kwargs)
-
-    def allow_resampling(self, history):
-        """Compares the current value to other statistics to the history."""
-        current_median = np.median(history["fitness"])
-        return (
-            np.median(self.last_elem_fitness)
-            <= self.allow_resampling_schedule(self.total_nbr) * current_median
-        )
 
 
 class DynamicResamplingNonParametric(DynamicResampling):
@@ -224,7 +246,7 @@ class DynamicResamplingNonParametric(DynamicResampling):
     Taken from: http://www.stat.umn.edu/geyer/old03/5102/notes/rank.pdf
     """
 
-    def __init__(self, percentage, threshold, *args, **kwargs):
+    def __init__(self, percentage, *args, **kwargs):
         """Initialize an object of class DynamicResamplingNonParametric.
 
         Args:
@@ -237,62 +259,19 @@ class DynamicResamplingNonParametric(DynamicResampling):
             raise ValueError(
                 "Dynamic resampling percentage argument should be positive."
             )
-        if not 0 <= threshold <= 1:
-            raise ValueError("Threshold should be positive and inferior to 1.")
         super().__init__(percentage, *args, **kwargs)
-        self.threshold = threshold
-
-    def get_interval_rank(self):
-        """Get the rank of the individuals matching the closest to the
-        requested interval.
-
-        Taken from: http://www.stat.umn.edu/geyer/old03/5102/notes/rank.pdf
-        """
-        probs = 1 - 2 * binom.cdf(
-            np.arange(self.last_elem_nbr / 2), self.last_elem_nbr, 1 / 2
-        )
-        return np.argmin(np.sqrt((self.threshold - probs) ** 2))
-
-    def get_ci_bounds(self):
-        """Return CI bounds at threshold %."""
-        # Compute the location of the first and last value of the distribution
-        threshold_location = self.get_interval_rank()
-        # Return bounds based on threshold
-        return (
-            self.last_elem_fitness[threshold_location],
-            self.last_elem_fitness[-(threshold_location + 1)],
-        )
 
     def ic_length(self):
-        """Computes the length CI at threshold % for the fitness contained in
+        """Computes the IC at threshold % for the fitness contained in
         last_elem_fitness."""
-        # Get bounds of CI
-        inf_bound, sup_bound = self.get_ci_bounds()
-        # Compute the length of the IC
-        return sup_bound - inf_bound
+        return (
+            2
+            * 1.253
+            * np.std(self.last_elem_fitness)
+            / np.sqrt(self.last_elem_nbr)
+        )
 
     def ic_threshold(self):
         """Computes the threshold value for the IC length."""
         percentage = self.resampling_schedule(self.total_nbr)
         return np.abs(percentage * np.median(self.last_elem_fitness))
-
-
-class DynamicResamplingNonParametric2(DynamicResamplingNonParametric):
-    """Dynamic resampling relying on non-parametric confidence interval + stop
-    rule for non-promising parametrizations."""
-
-    def __init__(self, percentage, threshold, *args, **kwargs):
-        """Initialize an object of class DynamicResamplingParametric2, which
-        inherits from the class DynamicResamplingParametric and adds a check on
-        the value of the fitness before performing the resampling."""
-        super().__init__(percentage, threshold, *args, **kwargs)
-
-    def allow_resampling(self, history):
-        """Compares the current value to other statistics to the history."""
-        if self.last_elem_nbr < 2:
-            return True
-        current_median = np.median(history["fitness"])
-        return (
-            np.median(self.last_elem_fitness)
-            <= self.allow_resampling_schedule(self.total_nbr) * current_median
-        )

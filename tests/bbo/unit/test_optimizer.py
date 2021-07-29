@@ -929,7 +929,7 @@ class TestOptimizer(unittest.TestCase):
         bb_obj.optimize()
         np.testing.assert_array_equal(
             bb_obj.history["fitness"], np.array(
-                [16.0, 61.0, 61.0, 16.0, 9.0, 9.0, 0.0])
+                [16., 61., 61.,  9.,  9.,  0.,  0.])
         )
 
     def test_fitness_aggregation_std(self):
@@ -990,7 +990,7 @@ class TestOptimizer(unittest.TestCase):
         bb_obj.optimize()
         np.testing.assert_array_equal(
             bb_obj.history["fitness"],
-            np.array([16.0, 61.0, 61.0, 61.0, 61.0, 61.0, 16.0]),
+            np.array([16.0, 61.0, 61.0, 61.0, 61.0, 61.0, 9.0]),
         )
 
     def test_measured_noise_property(self):
