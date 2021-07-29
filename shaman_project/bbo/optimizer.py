@@ -682,14 +682,14 @@ class BBOptimizer:
         # start chronometer at beginning of experiment
         chronometer_start = time.time()
         # Perform initialization
-        logger.debug(f"Initialization of parameter space")
+        logger.debug("Initialization of parameter space")
         self._initialize(callbacks)
         # Store last parameter in current_parameters variable
         current_parameters, _ = self._get_best_performance()
         # Initialize the loop with one data point
         current_parameters = self._select_next_parameters(current_parameters)
         # while the stop criterion has not yet been met
-        logger.debug(f"Starting optimization process")
+        logger.debug("Starting optimization process")
         while self.stop_rule:
             # Perform optimization step, either synchronously or asynchronously
             if self.async_optimization:
