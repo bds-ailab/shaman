@@ -6,7 +6,6 @@ impact of these parameters on the performance function.
 This allows to be less dependent on the cluster's noise.
 """
 import numpy as np
-from scipy.stats import binom
 
 
 # Define resampling schedules
@@ -15,14 +14,18 @@ def logarithmic_schedule(nbr_it):
 
 
 def exponential_schedule(nbr_it):
-    return 0.98**nbr_it
+    return 0.98 ** nbr_it
 
 
 def constant(nbr_it):
     return 1
 
 
-__SCHEDULES__ = {"logarithmic": logarithmic_schedule, "constant": constant, "exponential": exponential_schedule}
+__SCHEDULES__ = {
+    "logarithmic": logarithmic_schedule,
+    "constant": constant,
+    "exponential": exponential_schedule,
+}
 
 
 class ResamplingPolicy:
@@ -83,7 +86,8 @@ class SimpleResampling(ResamplingPolicy):
         last_elem = parameters_array[-1]
         # Check if there are enough resampling for the last_elem
         return (
-            np.sum(np.all(parameters_array == last_elem, axis=1)) < self.nbr_resamples
+            np.sum(np.all(parameters_array == last_elem, axis=1))
+            < self.nbr_resamples
         )
 
 
@@ -118,9 +122,10 @@ class DynamicResampling(ResamplingPolicy):
         print(f"resampling schedule: {resampling_schedule}")
         if resampling_schedule:
             if resampling_schedule in __SCHEDULES__.keys():
-                self.resampling_schedule = lambda x: percentage * __SCHEDULES__[
-                    resampling_schedule
-                ](x)
+                self.resampling_schedule = (
+                    lambda x: percentage
+                    * __SCHEDULES__[resampling_schedule](x)
+                )
             else:
                 raise KeyError("Unknown resampling schedule.")
         else:
@@ -152,7 +157,9 @@ class DynamicResampling(ResamplingPolicy):
         # Get the last element and its corresponding fitness values
         last_elem = parameters_array[-1]
         print(f"Parameter under consideration: {last_elem}")
-        last_elem_fitness = fitness_array[np.all(parameters_array == last_elem, axis=1)]
+        last_elem_fitness = fitness_array[
+            np.all(parameters_array == last_elem, axis=1)
+        ]
         # Get its number of repetitions
         last_elem_nbr = np.sum(np.all(parameters_array == last_elem, axis=1))
         # Get the total number of iterations
@@ -189,7 +196,8 @@ class DynamicResampling(ResamplingPolicy):
             current_median = np.median(history["fitness"])
             return (
                 np.median(self.last_elem_fitness)
-                <= self.allow_resampling_schedule(self.total_nbr) * current_median
+                <= self.allow_resampling_schedule(self.total_nbr)
+                * current_median
             )
         return True
 
@@ -218,7 +226,12 @@ class DynamicResamplingParametric(DynamicResampling):
     def ic_length(self):
         """Computes the IC at threshold % for the fitness contained in
         last_elem_fitness."""
-        return 2 * 1.96 * np.std(self.last_elem_fitness) / np.sqrt(self.last_elem_nbr)
+        return (
+            2
+            * 1.96
+            * np.std(self.last_elem_fitness)
+            / np.sqrt(self.last_elem_nbr)
+        )
 
     def ic_threshold(self):
         """Computes the threshold value for the IC length."""
@@ -251,8 +264,12 @@ class DynamicResamplingNonParametric(DynamicResampling):
     def ic_length(self):
         """Computes the IC at threshold % for the fitness contained in
         last_elem_fitness."""
-        return 2 * 1.253 * \
-            np.std(self.last_elem_fitness) / np.sqrt(self.last_elem_nbr)
+        return (
+            2
+            * 1.253
+            * np.std(self.last_elem_fitness)
+            / np.sqrt(self.last_elem_nbr)
+        )
 
     def ic_threshold(self):
         """Computes the threshold value for the IC length."""
