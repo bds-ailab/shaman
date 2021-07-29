@@ -39,9 +39,7 @@ from bbo.stop_criteria import (
 from bbo.noise_reduction.resampling_policies import (
     SimpleResampling,
     DynamicResamplingParametric,
-    DynamicResamplingParametric2,
     DynamicResamplingNonParametric,
-    DynamicResamplingNonParametric2,
 )
 from bbo.noise_reduction.fitness_transformation import (
     FitnessTransformation,
@@ -80,9 +78,7 @@ class BBOptimizer:
     __resampling_policies__ = {
         "simple_resampling": SimpleResampling,
         "dynamic_resampling": DynamicResamplingParametric,
-        "dynamic_resampling_2": DynamicResamplingParametric2,
         "dynamic_resampling_non_parametric": DynamicResamplingNonParametric,
-        "dynamic_resampling_non_parametric_2": DynamicResamplingNonParametric2,
     }
 
     # Dictionnary of the different fitness aggregation strategies
@@ -530,13 +526,11 @@ class BBOptimizer:
     def _initialize(self, callbacks=[lambda x: x]):
         """Initalizes the black-box algorithm using the selected strategy and
         the number of initial data points."""
-        logger.debug("Initializing parameter space")
         # Draw parameters according to the initialization method and compute
         # fitness value
         initial_parameters = self.initial_selection(
             self.initial_sample_size, self.parameter_space
         )
-        logger.debug(f"Selected initial parameter space: {initial_parameters}")
         step = 0
         while step < self.initial_sample_size:
             # Perform optimization step using the initial parametrization
@@ -688,12 +682,14 @@ class BBOptimizer:
         # start chronometer at beginning of experiment
         chronometer_start = time.time()
         # Perform initialization
+        logger.debug(f"Initialization of parameter space")
         self._initialize(callbacks)
         # Store last parameter in current_parameters variable
         current_parameters, _ = self._get_best_performance()
         # Initialize the loop with one data point
         current_parameters = self._select_next_parameters(current_parameters)
         # while the stop criterion has not yet been met
+        logger.debug(f"Starting optimization process")
         while self.stop_rule:
             # Perform optimization step, either synchronously or asynchronously
             if self.async_optimization:

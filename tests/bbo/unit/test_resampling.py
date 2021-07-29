@@ -3,6 +3,7 @@
 """
 
 import unittest
+from bbo.noise_reduction import resampling_policies
 import numpy as np
 
 from bbo.noise_reduction.resampling_policies import (
@@ -11,7 +12,6 @@ from bbo.noise_reduction.resampling_policies import (
     DynamicResampling,
     DynamicResamplingParametric,
     DynamicResamplingNonParametric,
-    DynamicResamplingNonParametric2,
 )
 
 
@@ -95,12 +95,6 @@ class TestDynamicResampling(unittest.TestCase):
             percentage=0.5, resampling_schedule="logarithmic"
         )
         self.assertEqual(0.5 / np.log(2), dynamic_resampling.resampling_schedule(1))
-
-    def test_allow_resampling_schedule_None(self):
-        """Tests that the allow resampling schedule behaves as expected when set to None.
-        """
-        dynamic_resampling = DynamicResampling(percentage=0.5)
-        self.assertEqual(1, dynamic_resampling.allow_resampling_schedule(1))
 
     def test_allow_resampling_schedule(self):
         """Tests that the allow resampling schedule behaves as expected when set to a value.
@@ -281,23 +275,35 @@ class TestDynamicNonParametricResampling(unittest.TestCase):
         }
 
 
-class TestDynamicNonParametricResampling2(unittest.TestCase):
-    """Tests the behavior of the non parametric resampling method.
+class TestDynamicNonParametricResampling(unittest.TestCase):
+    """Tests the behavior of the non parametric resampling method when there is a resampling
+    schedule.
     """
 
     def test_dynamic_resampling_non_parametric_init(self):
         """Tests that the initialization of the class DynamicResamplingNonParametric behaves as expected.
         """
         with self.assertRaises(ValueError):
-            DynamicResamplingNonParametric2(percentage=-0.1, threshold=0.9)
-        with self.assertRaises(ValueError):
-            DynamicResamplingNonParametric2(percentage=0.1, threshold=1.1)
+            DynamicResamplingNonParametric(percentage=-0.1, resampling_schedule="constant")
+        with self.assertRaises(KeyError):
+            DynamicResamplingNonParametric(percentage=0.1, resampling_schedule="unknown")
+
+    def test_dynamic_resampling_non_parametric_ci_bounds(self):
+        """Tests that the CI bounds of the non parametric intervals are properly computed.
+        """
+        test_dynamic_resampling = DynamicResamplingNonParametric(0.2, resampling_schedule="constant")
+        history = {
+            "fitness": np.array([10, 5, 4, 12, 4, 5]),
+            "parameters": np.array([[1, 2], [2, 3], [1, 3], [2, 1], [2, 1], [2, 1]]),
+        }
+        test_dynamic_resampling.resample(history)
+        print(f"Interval ranks: {test_dynamic_resampling.ic_length()}")
 
     def test_dynamic_resampling_non_parametric_one_resample(self):
         """Tests that when there is only one resampling for a parametrization the parametrization
         is automatically repeated.
         """
-        test_dynamic_resampling = DynamicResamplingNonParametric2(0.2, threshold=0.9)
+        test_dynamic_resampling = DynamicResamplingNonParametric(0.2, resampling_schedule="constant")
         history = {
             "fitness": np.array([10, 5, 4, 12]),
             "parameters": np.array([[1, 2], [2, 3], [1, 3], [2, 1]]),
@@ -308,18 +314,19 @@ class TestDynamicNonParametricResampling2(unittest.TestCase):
         """Tests that there is no resampling when the median of the resampled data point is higher
         than the current median.
         """
-        test_dynamic_resampling = DynamicResamplingNonParametric2(0.2, threshold=0.9)
+        test_dynamic_resampling = DynamicResamplingNonParametric(0.2, resampling_schedule="constant")
         history = {
-            "fitness": np.array([10, 5, 4, 12, 12]),
-            "parameters": np.array([[1, 2], [2, 3], [1, 3], [2, 1], [2, 1]]),
+            "fitness": np.array([10, 5, 4, 12, 12, 12, 12]),
+            "parameters": np.array([[1, 2], [2, 3], [1, 3], [2, 1], [2, 1], [2, 1], [2, 1]]),
         }
         self.assertFalse(test_dynamic_resampling.resample(history))
+        test_dynamic_resampling.resample(history)
 
     def test_dynamic_resampling_non_parametric_resample2(self):
         """Tests that there is resampling when the size of the IC is higher than the threshold and
         the median of the resampled data point lower than the current median.
         """
-        test_dynamic_resampling = DynamicResamplingNonParametric2(0.2, threshold=0.9)
+        test_dynamic_resampling = DynamicResamplingNonParametric(0.2, resampling_schedule="constant")
         history = {
             "fitness": np.array([10, 5, 4, 2, 5, 3, 7]),
             "parameters": np.array(
@@ -327,33 +334,6 @@ class TestDynamicNonParametricResampling2(unittest.TestCase):
             ),
         }
         self.assertTrue(test_dynamic_resampling.resample(history))
-
-    def test_dynamic_resampling_effect_threshold(self):
-        """Tests that the resampling behavior depends on the error of the IC.
-        """
-        test_dynamic_resampling = DynamicResamplingNonParametric2(0.2, threshold=0.95)
-        history = {
-            "fitness": np.array([20, 5, 4, 8, 10, 12, 16, 15, 10, 12, 16, 13]),
-            "parameters": np.array(
-                [
-                    [1, 2],
-                    [2, 3],
-                    [1, 3],
-                    [2, 1],
-                    [2, 1],
-                    [2, 1],
-                    [2, 1],
-                    [2, 1],
-                    [2, 1],
-                    [2, 1],
-                    [2, 1],
-                    [2, 1],
-                ]
-            ),
-        }
-        self.assertTrue(test_dynamic_resampling.resample(history))
-        test_dynamic_resampling = DynamicResamplingNonParametric2(0.2, threshold=0.1)
-        self.assertFalse(test_dynamic_resampling.resample(history))
 
 
 if __name__ == "__main__":
