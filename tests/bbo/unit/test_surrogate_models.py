@@ -249,7 +249,7 @@ class TestSurrogateModels(unittest.TestCase):
         """
         Checks that the selection of the next parameter works properly when using EI.
         """
-        expected_new_parameter = [4, 3]
+        expected_new_parameter = [4, 4]
         surrogate_model = SurrogateModel(
             regression_model=GaussianProcessRegressor,
             next_parameter_strategy=expected_improvement,
@@ -294,7 +294,7 @@ class TestCensoredBayesian(unittest.TestCase):
         """
         Tests that censored bayesian + EI work properly
         """
-        expected_new_parameter = [4, 3]
+        expected_new_parameter = [4, 4]
         surrogate_model = SurrogateModel(
             regression_model=CensoredGaussianProcesses,
             next_parameter_strategy=expected_improvement,
