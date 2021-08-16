@@ -92,9 +92,9 @@ class TestDynamicResampling(unittest.TestCase):
         """Tests the good definition of the resampling schedule.
         """
         dynamic_resampling = DynamicResampling(
-            percentage=0.5, resampling_schedule="logarithmic"
+            percentage=0.5, resampling_schedule="exponential_99"
         )
-        self.assertEqual(0.5 / np.log(2), dynamic_resampling.resampling_schedule(1))
+        self.assertEqual(0.5*np.maximum(0.99, .8), dynamic_resampling.resampling_schedule(1))
 
     def test_allow_resampling_schedule(self):
         """Tests that the allow resampling schedule behaves as expected when set to a value.
@@ -102,9 +102,9 @@ class TestDynamicResampling(unittest.TestCase):
         dynamic_resampling = DynamicResampling(
             percentage=0.5,
             allow_resampling_start=5,
-            allow_resampling_schedule="logarithmic",
+            allow_resampling_schedule="exponential_99",
         )
-        self.assertEqual(5 / np.log(2), dynamic_resampling.allow_resampling_schedule(1))
+        self.assertEqual(5 * np.maximum(0.99, .8), dynamic_resampling.allow_resampling_schedule(1))
 
 
 class TestDynamicResamplingParametric(unittest.TestCase):
@@ -161,7 +161,7 @@ class TestDynamicResamplingParametric(unittest.TestCase):
         Tests that using a dynamic resampling schedule affects the resampling process.
         """
         history = {
-            "fitness": np.array([10, 5, 4, 10, 11, 11.5]),
+            "fitness": np.array([10, 5, 4, 13, 11, 11.5]),
             "parameters": np.array([[1, 2], [2, 3], [1, 3], [2, 1], [2, 1], [2, 1]]),
         }
         # Without a resampling schedule, there is no resampling
@@ -169,7 +169,7 @@ class TestDynamicResamplingParametric(unittest.TestCase):
         self.assertFalse(test_dynamic_resampling.resample(history))
         # With a resampling schedule, there is a resampling
         test_dynamic_resampling = DynamicResamplingParametric(
-            0.2, resampling_schedule="logarithmic"
+            0.1, resampling_schedule="exponential_99"
         )
         self.assertTrue(test_dynamic_resampling.resample(history))
 
