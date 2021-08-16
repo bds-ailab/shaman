@@ -6,25 +6,29 @@ impact of these parameters on the performance function.
 This allows to be less dependent on the cluster's noise.
 """
 import numpy as np
-
+from loguru import logger
 
 # Define resampling schedules
-def logarithmic_schedule(nbr_it):
-    return 1 / np.log(1 + nbr_it)
+def bounded_exponential_99(nbr_it):
+    return np.maximum(0.99**nbr_it, .8)
 
 
-def exponential_schedule(nbr_it):
-    return 0.98 ** nbr_it
+def bounded_exponential_9(nbr_it):
+    return np.maximum(0.9 ** nbr_it, 0.1)
 
 
 def constant(nbr_it):
     return 1
 
 
+def multiplicative_schedule(nbr_it):
+    return 1/(1 + nbr_it)
+
+
 __SCHEDULES__ = {
-    "logarithmic": logarithmic_schedule,
     "constant": constant,
-    "exponential": exponential_schedule,
+    "exponential_99": bounded_exponential_99,
+    "exponential_9": bounded_exponential_9,
 }
 
 
@@ -97,6 +101,7 @@ class DynamicResampling(ResamplingPolicy):
     def __init__(
         self,
         percentage,
+        max_resamples=None,
         resampling_schedule=None,
         allow_resampling_schedule=None,
         allow_resampling_start=1,
@@ -114,12 +119,12 @@ class DynamicResampling(ResamplingPolicy):
         self.last_elem_fitness = None
         self.last_elem_nbr = None
         self.total_nbr = None
+        self.max_resamples = max_resamples if max_resamples else 100
         # Store the percentage.
         self.percentage = percentage
         # If there is a resampling schedule,
         # the percentage is used as the start
         # of the schedule
-        print(f"resampling schedule: {resampling_schedule}")
         if resampling_schedule:
             if resampling_schedule in __SCHEDULES__.keys():
                 self.resampling_schedule = (
@@ -156,7 +161,6 @@ class DynamicResampling(ResamplingPolicy):
         fitness_array = np.array(history["fitness"])
         # Get the last element and its corresponding fitness values
         last_elem = parameters_array[-1]
-        print(f"Parameter under consideration: {last_elem}")
         last_elem_fitness = fitness_array[
             np.all(parameters_array == last_elem, axis=1)
         ]
@@ -176,6 +180,9 @@ class DynamicResampling(ResamplingPolicy):
         # Resample if there has been less than two resamples
         if self.last_elem_nbr < 2:
             return True
+        # If maximum number of resamples is exceeded, move on
+        if self.last_elem_nbr > self.max_resamples:
+            return False
         # Check if the resampling process should be enabled
         if self.allow_resampling(history):
             # Check if should be resampled
@@ -184,8 +191,6 @@ class DynamicResampling(ResamplingPolicy):
 
     def resampling_rule(self):
         """Boolean to evaluate to know if resampling must happen."""
-        print(f"IC length: {np.abs(self.ic_length())}")
-        print(f"CI threshold: {self.ic_threshold()}")
         return np.abs(self.ic_length()) > self.ic_threshold()
 
     def allow_resampling(self, history):
@@ -196,7 +201,7 @@ class DynamicResampling(ResamplingPolicy):
             current_median = np.median(history["fitness"])
             return (
                 np.median(self.last_elem_fitness)
-                <= self.allow_resampling_schedule(self.total_nbr)
+                <= self.allow_resampling_schedule((self.total_nbr - self.last_elem_nbr))
                 * current_median
             )
         return True
@@ -235,7 +240,9 @@ class DynamicResamplingParametric(DynamicResampling):
 
     def ic_threshold(self):
         """Computes the threshold value for the IC length."""
-        percentage = self.resampling_schedule(self.total_nbr)
+        percentage = self.resampling_schedule((self.total_nbr - self.last_elem_nbr))
+        logger.debug(f"Percentage for the threshold at step : {self.total_nbr} : {percentage}")
+        logger.debug(f"Measured mean: {np.mean(self.last_elem_fitness)}")
         return np.abs(percentage * np.mean(self.last_elem_fitness))
 
 
@@ -273,5 +280,5 @@ class DynamicResamplingNonParametric(DynamicResampling):
 
     def ic_threshold(self):
         """Computes the threshold value for the IC length."""
-        percentage = self.resampling_schedule(self.total_nbr)
+        percentage = self.resampling_schedule((self.total_nbr - self.last_elem_nbr))
         return np.abs(percentage * np.median(self.last_elem_fitness))
