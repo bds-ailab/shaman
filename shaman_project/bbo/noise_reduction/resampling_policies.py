@@ -8,6 +8,7 @@ This allows to be less dependent on the cluster's noise.
 import numpy as np
 from loguru import logger
 
+
 # Define resampling schedules
 def bounded_exponential_99(nbr_it):
     return np.maximum(0.99 ** nbr_it, 0.8)
@@ -129,7 +130,7 @@ class DynamicResampling(ResamplingPolicy):
             if resampling_schedule in __SCHEDULES__.keys():
                 self.resampling_schedule = \
                     lambda x: percentage * __SCHEDULES__[
-                    resampling_schedule
+                        resampling_schedule
                 ](
                     x
                 )
@@ -145,7 +146,7 @@ class DynamicResampling(ResamplingPolicy):
             if allow_resampling_schedule in __SCHEDULES__.keys():
                 self.allow_resampling_schedule = lambda x: \
                     allow_resampling_start * __SCHEDULES__[
-                    allow_resampling_schedule
+                        allow_resampling_schedule
                 ](
                     x
                 )
