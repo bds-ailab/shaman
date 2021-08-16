@@ -10,7 +10,7 @@ from loguru import logger
 
 # Define resampling schedules
 def bounded_exponential_99(nbr_it):
-    return np.maximum(0.99**nbr_it, .8)
+    return np.maximum(0.99 ** nbr_it, 0.8)
 
 
 def bounded_exponential_9(nbr_it):
@@ -22,7 +22,7 @@ def constant(nbr_it):
 
 
 def multiplicative_schedule(nbr_it):
-    return 1/(1 + nbr_it)
+    return 1 / (1 + nbr_it)
 
 
 __SCHEDULES__ = {
@@ -127,9 +127,11 @@ class DynamicResampling(ResamplingPolicy):
         # of the schedule
         if resampling_schedule:
             if resampling_schedule in __SCHEDULES__.keys():
-                self.resampling_schedule = (
-                    lambda x: percentage
-                    * __SCHEDULES__[resampling_schedule](x)
+                self.resampling_schedule = \
+                    lambda x: percentage * __SCHEDULES__[
+                    resampling_schedule
+                ](
+                    x
                 )
             else:
                 raise KeyError("Unknown resampling schedule.")
@@ -141,9 +143,11 @@ class DynamicResampling(ResamplingPolicy):
         self.allow_resampling_schedule = allow_resampling_schedule
         if allow_resampling_schedule:
             if allow_resampling_schedule in __SCHEDULES__.keys():
-                self.allow_resampling_schedule = (
-                    lambda x: allow_resampling_start
-                    * __SCHEDULES__[allow_resampling_schedule](x)
+                self.allow_resampling_schedule = lambda x: \
+                    allow_resampling_start * __SCHEDULES__[
+                    allow_resampling_schedule
+                ](
+                    x
                 )
             else:
                 raise KeyError("Unknown resampling schedule.")
@@ -201,7 +205,9 @@ class DynamicResampling(ResamplingPolicy):
             current_median = np.median(history["fitness"])
             return (
                 np.median(self.last_elem_fitness)
-                <= self.allow_resampling_schedule((self.total_nbr - self.last_elem_nbr))
+                <= self.allow_resampling_schedule(
+                    (self.total_nbr - self.last_elem_nbr)
+                )
                 * current_median
             )
         return True
@@ -217,11 +223,11 @@ class DynamicResampling(ResamplingPolicy):
 
 
 class DynamicResamplingParametric(DynamicResampling):
-    """Dynamic resampling consists in re-evaluating a parametrization until the
-    confidence interval around the mean estimator drops down to a certain size.
-    We use the definition of the 95% IC, using the unbiased variance estimator,
-
-    which gives it a length of: 2 * 1.96 * (sigma/sqrt(n))
+    """Dynamic resampling consists in re-evaluating a parametrization until
+    the confidence interval around the mean estimator drops down to a
+    certain size.
+    We use the definition of the 95% IC, using the unbiased variance
+    estimator, which gives it a length of: 2 * 1.96 * (sigma/sqrt(n))
     The parametrization is resampled until the length of the IC goes down a
     certain percentage of the mean.
 
@@ -240,8 +246,13 @@ class DynamicResamplingParametric(DynamicResampling):
 
     def ic_threshold(self):
         """Computes the threshold value for the IC length."""
-        percentage = self.resampling_schedule((self.total_nbr - self.last_elem_nbr))
-        logger.debug(f"Percentage for the threshold at step : {self.total_nbr} : {percentage}")
+        percentage = self.resampling_schedule(
+            (self.total_nbr - self.last_elem_nbr)
+        )
+        logger.debug(
+            "Percentage for the threshold at step : "
+            f"{self.total_nbr} : {percentage}"
+        )
         logger.debug(f"Measured mean: {np.mean(self.last_elem_fitness)}")
         return np.abs(percentage * np.mean(self.last_elem_fitness))
 
@@ -249,8 +260,6 @@ class DynamicResamplingParametric(DynamicResampling):
 class DynamicResamplingNonParametric(DynamicResampling):
     """Class for performing dynamic resampling using non-parametric confidence
     interval around the median.
-
-    Taken from: http://www.stat.umn.edu/geyer/old03/5102/notes/rank.pdf
     """
 
     def __init__(self, percentage, *args, **kwargs):
@@ -280,5 +289,7 @@ class DynamicResamplingNonParametric(DynamicResampling):
 
     def ic_threshold(self):
         """Computes the threshold value for the IC length."""
-        percentage = self.resampling_schedule((self.total_nbr - self.last_elem_nbr))
+        percentage = self.resampling_schedule(
+            (self.total_nbr - self.last_elem_nbr)
+        )
         return np.abs(percentage * np.median(self.last_elem_fitness))
