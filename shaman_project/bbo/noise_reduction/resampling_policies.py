@@ -128,12 +128,8 @@ class DynamicResampling(ResamplingPolicy):
         # of the schedule
         if resampling_schedule:
             if resampling_schedule in __SCHEDULES__.keys():
-                self.resampling_schedule = \
-                    lambda x: percentage * __SCHEDULES__[
-                        resampling_schedule
-                ](
-                    x
-                )
+                self.resampling_schedule = lambda x: percentage * \
+                    __SCHEDULES__[resampling_schedule](x)
             else:
                 raise KeyError("Unknown resampling schedule.")
         else:
@@ -145,11 +141,8 @@ class DynamicResampling(ResamplingPolicy):
         if allow_resampling_schedule:
             if allow_resampling_schedule in __SCHEDULES__.keys():
                 self.allow_resampling_schedule = lambda x: \
-                    allow_resampling_start * __SCHEDULES__[
-                        allow_resampling_schedule
-                ](
-                    x
-                )
+                    allow_resampling_start * \
+                    __SCHEDULES__[allow_resampling_schedule](x)
             else:
                 raise KeyError("Unknown resampling schedule.")
 
