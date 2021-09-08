@@ -640,11 +640,14 @@ pymdown-extensions = ">=7.0"
 
 [[package]]
 name = "mkdocs-material-extensions"
-version = "1.0.3"
+version = "1.0.1"
 description = "Extension pack for Python Markdown."
 category = "dev"
 optional = false
-python-versions = ">=3.6"
+python-versions = ">=3.5"
+
+[package.dependencies]
+mkdocs-material = ">=5.0.0"
 
 [[package]]
 name = "mknotebooks"
@@ -1339,7 +1342,7 @@ shaman-worker = ["arq", "prometheus-client", "httpx", "pydantic"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.6.1"
-content-hash = "42b463974bb4ede70cb0f40df29ada94f7d04f4164d64d90bd90cc805886bbb0"
+content-hash = "178e049882ab66ffe01660f9f50e5142588fd2ea77562ca5f3d4c862c59a7445"
 
 [metadata.files]
 aiocontextvars = [
@@ -1768,8 +1771,8 @@ mkdocs-material = [
     {file = "mkdocs_material-6.2.8-py2.py3-none-any.whl", hash = "sha256:c9b63d709d29778aa3dafc7178b6a8c655b00937be2594aab016d1423696c792"},
 ]
 mkdocs-material-extensions = [
-    {file = "mkdocs-material-extensions-1.0.3.tar.gz", hash = "sha256:bfd24dfdef7b41c312ede42648f9eb83476ea168ec163b613f9abd12bbfddba2"},
-    {file = "mkdocs_material_extensions-1.0.3-py3-none-any.whl", hash = "sha256:a82b70e533ce060b2a5d9eb2bc2e1be201cf61f901f93704b4acf6e3d5983a44"},
+    {file = "mkdocs-material-extensions-1.0.1.tar.gz", hash = "sha256:6947fb7f5e4291e3c61405bad3539d81e0b3cd62ae0d66ced018128af509c68f"},
+    {file = "mkdocs_material_extensions-1.0.1-py3-none-any.whl", hash = "sha256:d90c807a88348aa6d1805657ec5c0b2d8d609c110e62b9dce4daf7fa981fa338"},
 ]
 mknotebooks = [
     {file = "mknotebooks-0.6.2.post0.dev98-py3-none-any.whl", hash = "sha256:1d4c7b5a82a31b41c3b5973095601765cbf3571db6ee5921fbe390a6f8c6e8c5"},
