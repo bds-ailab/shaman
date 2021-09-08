@@ -105,23 +105,16 @@ experiment:
   default_first: True
 
 bbo:
-  heuristic: genetic_algorithm
-  initial_sample_size: 2
-  selection_method: bbo.heuristics.genetic_algorithm.selections.tournament_pick
-  crossover_method: bbo.heuristics.genetic_algorithm.crossover.single_point_crossover
-  mutation_method: bbo.heuristics.genetic_algorithm.mutations.mutate_chromosome_to_neighbor
-  pool_size: 5
-  mutation_rate: 0.4
-  elitism: False
-
-noise_reduction:
-  resampling_policy: simple_resampling
-  nbr_resamples: 3
-  fitness_aggregation: simple_fitness_aggregation
-  estimator: numpy.median
-
-pruning:
-  max_step_duration: numpy.median
+  heuristic: surrogate_model
+  regression_model: sklearn.gaussian_process.GaussianProcessRegressor
+  next_parameter_strategy: bbo.heuristics.surrogate_models.next_parameter_strategies.expected_improvement
+  initial_sample_size: 10
+  max_retry: 5
+  reevaluate: false
+  stop_criterion: improvement_criterion
+  stop_window: 5
+  improvement_estimator: numpy.min
+  improvement_threshold: 0.01
 
 components:
   component_1:
@@ -138,9 +131,7 @@ components:
 This example configuration file launches an experiment which:
 
 * Runs the default parametrization first
-* Uses genetic algorithms (tournament pick, single point crossover, random walk for mutation)
-* Uses simple resampling, with 3 resampling per parametrization, and the median as an estimator for parametrization with the same parametrization.
-* Uses pruning and stops every run that takes longer than the median measured on the data points.
+* Uses Bayesian Optimization with expected improvement as acquisition function
 * Uses `component_1` and `param_1` can take any value from 1 to 20, while `param_2` can take any value from 1 to 15 but with an interval of 3 between each value.
 
 
