@@ -644,7 +644,7 @@ version = "1.0.3"
 description = "Extension pack for Python Markdown."
 category = "dev"
 optional = false
-python-versions = "*"
+python-versions = ">=3.6"
 
 [[package]]
 name = "mknotebooks"
