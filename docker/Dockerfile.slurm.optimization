@@ -37,7 +37,8 @@ ENV LANG en_US.UTF-8
 ENV PATH="/root/.local/bin/:$PATH"
 # Install required dependencies
 RUN poetry config virtualenvs.create false && \
-    poetry install -E bbo -E bb-wrapper -E shaman-core -E shaman-worker
+    poetry install 
+#-E bbo -E bb-wrapper -E shaman-core -E shaman-worker
 
 WORKDIR /
 
