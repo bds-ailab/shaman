@@ -196,7 +196,10 @@ class DynamicResampling(ResamplingPolicy):
         if self.allow_resampling_schedule:
             if self.last_elem_nbr < 2:
                 return True
-            current_median = np.median(history["fitness"])
+            # Compute median up until the evaluated new parametrization
+            current_median = np.median(
+                history["fitness"][: (self.total_nbr - self.last_elem_nbr)]
+            )
             return (
                 np.median(self.last_elem_fitness)
                 <= self.allow_resampling_schedule(
