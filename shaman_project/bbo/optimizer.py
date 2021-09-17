@@ -809,7 +809,7 @@ class BBOptimizer:
         """Computes the standard error associated with each parametrization."""
         noise_measurement = list()
         fitness_array = np.array(self.history["fitness"])
-        parameters_array = np.array(self.history["parameters"])
+        parameters_array = np.array(self.history["parameters"]).astype(float)
         # If the length is at least one
         if len(fitness_array) > 1:
             # Get the index of the unique parametrization
@@ -922,7 +922,8 @@ class BBOptimizer:
         for arr in self.parameter_space:
             space_size = space_size * len(arr)
         # Compute the number of unique parameters
-        unique_parameters = np.unique(self.history["parameters"], axis=0)
+        parameters_array = self.history["parameters"].astype(float)
+        unique_parameters = np.unique(parameters_array, axis=0)
         # Compute the number of different visited coordinates
         percentage_explored_space = len(unique_parameters) / space_size * 100
         # Compute the number of static states
