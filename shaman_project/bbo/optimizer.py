@@ -348,7 +348,7 @@ class BBOptimizer:
             self.history["parameters"] = appended_parameters.astype(float)
         # Else
         else:
-            self.history["parameters"] = new_parameters.astype(float)
+            self.history["parameters"] = new_parameters
 
     def _append_fitness(self, new_fitness):
         """Appends new parameters to the history of previously evaluated
