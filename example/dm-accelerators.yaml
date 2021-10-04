@@ -20,7 +20,7 @@ components:
         type: int
         default: 20971520
   fastio:
-    plugin: fastio=yes
+    plugin: fastio=yes --io-drop-cache=yes
     header: clush -w $(hostname) -l root 'sync ; echo 3 > /proc/sys/vm/drop_caches'
     parameters:
       SRO_SEQUENCE_LENGTH:
