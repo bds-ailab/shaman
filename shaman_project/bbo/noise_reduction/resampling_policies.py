@@ -5,16 +5,17 @@ impact of these parameters on the performance function.
 
 This allows to be less dependent on the cluster's noise.
 """
+from loguru import logger
 import numpy as np
 
 
 # Define resampling schedules
 def logarithmic_schedule(nbr_it):
-    return 1 / np.log(1 + nbr_it)
+    return np.maximum(1.5*.99**nbr_it, .8)
 
 
 def exponential_schedule(nbr_it):
-    return 0.98 ** nbr_it
+    return np.maximum(0.9 ** nbr_it, 0.1)
 
 
 def constant(nbr_it):
@@ -97,6 +98,7 @@ class DynamicResampling(ResamplingPolicy):
     def __init__(
         self,
         percentage,
+        max_resamples=None,
         resampling_schedule=None,
         allow_resampling_schedule=None,
         allow_resampling_start=1,
@@ -114,6 +116,7 @@ class DynamicResampling(ResamplingPolicy):
         self.last_elem_fitness = None
         self.last_elem_nbr = None
         self.total_nbr = None
+        self.max_resamples = max_resamples if max_resamples else 100
         # Store the percentage.
         self.percentage = percentage
         # If there is a resampling schedule,
@@ -176,6 +179,9 @@ class DynamicResampling(ResamplingPolicy):
         # Resample if there has been less than two resamples
         if self.last_elem_nbr < 2:
             return True
+        # Don't resample if the maximum number of resamples has been reached
+        if self.last_elem_nbr > self.max_resamples:
+            return False
         # Check if the resampling process should be enabled
         if self.allow_resampling(history):
             # Check if should be resampled
@@ -236,6 +242,7 @@ class DynamicResamplingParametric(DynamicResampling):
     def ic_threshold(self):
         """Computes the threshold value for the IC length."""
         percentage = self.resampling_schedule(self.total_nbr)
+        logger.debug(f"Current percentage: {percentage}")
         return np.abs(percentage * np.mean(self.last_elem_fitness))
 
 
