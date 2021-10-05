@@ -47,6 +47,11 @@ export default {
           icon: 'fas fa-flask'
         },
         {
+          path: '/components',
+          text: 'REGISTERED COMPONENTS',
+          icon: 'fas fa-book'
+        },
+        {
           path: '/documentation',
           text: 'USER MANUAL',
           icon: 'fas fa-book'
