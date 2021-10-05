@@ -9,6 +9,9 @@ In both cases, the latest version of SHAMan pust be pulled by cloning this repos
 !!! warning
     This deployment requires a working instance of **docker** and **docker-compose**.
 
+!!! warning
+    Do not use this type of install if you want to **tune** a real system
+
 The demo version of the application can be run by calling:
 
 ```
@@ -56,15 +59,22 @@ You must then install the Python packages that make up the application. SHAMan r
 poetry install
 ```
 
-Then run a script to run the worker:
+Then you have to start the worker, by creating a file `start-worker.sh` with the content:
 
 ```
-./deploy/start-worker.env
+cd $SHAMAN_FOLDER
+arq shaman_worker.Settings
+```
+
+You can then run the worker (in a Python environment where SHAMan is installed):
+
+```
+./start-worker.sh
 ```
 
 !!! tip
     It is advised to run this script as a detached process:
-    ```nohup ./deploy/start-worker.env &```
+    ```nohup start-worker.sh &```
 
 !!! tip
     If you want to run SHAMan without the Web interface (see [here](./launching.md)), you **do not need to start the worker**. 

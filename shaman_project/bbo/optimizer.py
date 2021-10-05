@@ -342,9 +342,10 @@ class BBOptimizer:
         """
         # If there are some values already in the history
         if self.history["parameters"] is not None:
-            self.history["parameters"] = np.vstack(
+            appended_parameters = np.vstack(
                 [self.history["parameters"], new_parameters]
             )
+            self.history["parameters"] = appended_parameters.astype(float)
         # Else
         else:
             self.history["parameters"] = new_parameters
@@ -922,7 +923,8 @@ class BBOptimizer:
         for arr in self.parameter_space:
             space_size = space_size * len(arr)
         # Compute the number of unique parameters
-        unique_parameters = np.unique(self.history["parameters"], axis=0)
+        parameters_array = self.history["parameters"]
+        unique_parameters = np.unique(parameters_array, axis=0)
         # Compute the number of different visited coordinates
         percentage_explored_space = len(unique_parameters) / space_size * 100
         # Compute the number of static states
