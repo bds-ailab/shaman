@@ -7,7 +7,6 @@ This allows to be less dependent on the cluster's noise.
 """
 from loguru import logger
 import numpy as np
-from loguru import logger
 
 
 # Define resampling schedules
