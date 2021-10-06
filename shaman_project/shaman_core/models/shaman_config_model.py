@@ -120,7 +120,8 @@ class SHAManConfig(BaseConfiguration):
     pruning: Optional[PruningParameters] = None
     noise_reduction: Optional[Dict] = None
     component_parameters: Dict[str,
-                               Union[ParameterRange, List]] = dataclasses.field(init=False)
+                               Union[ParameterRange, List]] = \
+        dataclasses.field(init=False)
 
     def __post_init__(self) -> None:
         """Initialize an object of class SHAManConfig."""
