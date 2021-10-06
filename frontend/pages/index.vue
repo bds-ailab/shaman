@@ -43,7 +43,7 @@ export default {
           link: '/components',
           title: 'Registered components',
           text: 'See tunable registered components',
-          icon: 'microscope.png'
+          icon: 'jigsaw.png'
         },
         {
           icon: 'chemist.png',
