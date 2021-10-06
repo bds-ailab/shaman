@@ -32,7 +32,7 @@ cma = { optional = true, version = "^3.0.3" }
 scipy = { optional = true, version = "^1.5.2" }
 pandas = { optional = true, version = "^1.1.2" }
 loguru = "^0.5.3"
-pip = "^20.2.4"
+pip = "^21.0.0"
 install = "^1.3.4"
 
 [tool.poetry.dev-dependencies]
@@ -52,9 +52,16 @@ mknotebooks = "^0.6.2"
 [tool.poetry.extras]
 bb-wrapper = ["pydantic", "requests", "typer", "PyYAML"]
 bbo = ["numpy", "scikit-learn", "cma", "scipy", "pandas"]
-shaman-api = ["fastapi", "uvicorn", "arq", "motor", "starlette-exporter", "typer"]
+shaman-api = [
+    "fastapi",
+    "uvicorn",
+    "arq",
+    "motor",
+    "starlette-exporter",
+    "typer",
+]
 shaman-worker = ["arq", "prometheus-client", "httpx", "pydantic"]
-shaman-core = ["pydantic","httpx","pyyaml"]
+shaman-core = ["pydantic", "httpx", "pyyaml"]
 
 [tool.poetry.scripts]
 shaman-api = "shaman_api.cli:cli"
@@ -67,4 +74,3 @@ line-length = 79
 [build-system]
 requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"
-
