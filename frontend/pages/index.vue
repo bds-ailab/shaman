@@ -40,6 +40,12 @@ export default {
           link: '/browse'
         },
         {
+          link: '/components',
+          title: 'Registered components',
+          text: 'See tunable registered components',
+          icon: 'microscope.png'
+        },
+        {
           icon: 'chemist.png',
           title: 'Create new experiment',
           text: 'Define and launch a new experiment',
