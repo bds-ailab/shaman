@@ -5,7 +5,7 @@ from pathlib import Path
 from pydantic import BaseModel, validator, root_validator
 from pydantic.dataclasses import dataclass
 
-from typing import Dict, Optional, List, Any
+from typing import Dict, Optional, List, Any, Union
 from enum import Enum
 import importlib
 import ast
@@ -105,18 +105,23 @@ class ParameterRange(BaseModel):
             return np.array(range_)
 
 
+class ParameterList(BaseModel):
+    """Contains the possible values of the parameters when"""
+
+
 @dataclass
 class SHAManConfig(BaseConfiguration):
     """Contains the configuration of the SHAMan application."""
 
     experiment: ExperimentParameters
     bbo: Dict
-    components: Dict[str, Dict[str, ParameterRange]]
+    components: Dict[str, Dict[str, Union[ParameterRange, List]]]
     component_name: str
     pruning: Optional[PruningParameters] = None
     noise_reduction: Optional[Dict] = None
     component_parameters: Dict[str,
-                               ParameterRange] = dataclasses.field(init=False)
+                               Union[ParameterRange, List]] = \
+        dataclasses.field(init=False)
 
     def __post_init__(self) -> None:
         """Initialize an object of class SHAManConfig."""
@@ -156,9 +161,17 @@ class SHAManConfig(BaseConfiguration):
 
     @property
     def component_parameter_space(self) -> np.ndarray:
-        """Returns the range of the parameters."""
+        """Returns the range of the parameters, and takes into account
+        whether the specified component range is a list or a parameter
+        range."""
         array_parameters = list()
         for parameter_range in self.component_parameters.values():
-            array_parameters.append(np.array(parameter_range.parameter_range))
+            # Check if the parameter_range has been specified as a
+            # ParameterRange (min, max step)
+            if isinstance(parameter_range, ParameterRange):
+                array_parameters.append(
+                    np.array(parameter_range.parameter_range))
+            else:
+                array_parameters.append(np.sort(np.array(parameter_range)))
         logger.debug(f"Parameter space: {array_parameters}")
         return np.array(array_parameters, dtype=object)

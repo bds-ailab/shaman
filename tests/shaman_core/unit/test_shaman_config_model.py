@@ -50,7 +50,8 @@ class TestSHAManModelVanilla(unittest.TestCase):
         """Tests that loading the config from yaml behaves as expected for component_1."""
         shaman_config = SHAManConfig.from_yaml(VANILLA_CONFIG, "component_1")
         self.assertEqual(
-            shaman_config.component_parameter_names, ["param_1", "param_2"]
+            shaman_config.component_parameter_names, [
+                "param_1", "param_2", "param_3"]
         )
 
     def test_load_config_vanilla_component_2(self):
@@ -78,13 +79,18 @@ class TestSHAManModelVanilla(unittest.TestCase):
         and additive"""
         shaman_config = SHAManConfig.from_yaml(VANILLA_CONFIG, "component_1")
         expected_parameter_space = numpy.array(
-            [numpy.array([1, 2]), numpy.array([2, 4, 8])], dtype=object
+            [numpy.array([1, 2]), numpy.array(
+                [2, 4, 8]), numpy.array([1, 4, 12])],
+            dtype=object
         )
         assert_array_equal(
             expected_parameter_space[0], shaman_config.component_parameter_space[0]
         )
         assert_array_equal(
             expected_parameter_space[1], shaman_config.component_parameter_space[1]
+        )
+        assert_array_equal(
+            expected_parameter_space[2], shaman_config.component_parameter_space[2]
         )
 
     def test_bbo_init(self):
@@ -109,7 +115,8 @@ class TestSHAManModelVanilla(unittest.TestCase):
     def test_wrong_parameter_space(self):
         """Tests that when the parametric space makes no sense, an error is raised."""
         with self.assertRaises(ValueError):
-            shaman_config = SHAManConfig.from_yaml(VANILLA_CONFIG_WRONG, "component_1")
+            shaman_config = SHAManConfig.from_yaml(
+                VANILLA_CONFIG_WRONG, "component_1")
 
 
 class TestSHAManNoiseReduction(unittest.TestCase):
@@ -120,7 +127,8 @@ class TestSHAManNoiseReduction(unittest.TestCase):
     def test_noise_reduction(self):
         """Tests that the noise reduction parameters are properly parsed.
         """
-        shaman_config = SHAManConfig.from_yaml(NOISE_REDUCTION_CONFIG, "component_1")
+        shaman_config = SHAManConfig.from_yaml(
+            NOISE_REDUCTION_CONFIG, "component_1")
         expected_noise_reduction_parameters = {
             "resampling_policy": "simple_resampling",
             "estimator": "numpy.median",
@@ -135,13 +143,15 @@ class TestSHAManNoiseReduction(unittest.TestCase):
         """Tests that the noise reduction parameters are properly added to the bbo_kwargs and
         the BBOptimizer object can be initialized.
         """
-        shaman_config = SHAManConfig.from_yaml(NOISE_REDUCTION_CONFIG, "component_1")
+        shaman_config = SHAManConfig.from_yaml(
+            NOISE_REDUCTION_CONFIG, "component_1")
         # Check that the dictionary has been properly updated
         assert "nbr_resamples" in shaman_config.bbo_parameters
         assert "fitness_aggregation" in shaman_config.bbo_parameters
         assert "resampling_policy" in shaman_config.bbo_parameters
         # Check that the estimator function is properly parsed
-        self.assertEqual(shaman_config.bbo_parameters["estimator"], numpy.median)
+        self.assertEqual(
+            shaman_config.bbo_parameters["estimator"], numpy.median)
         # Check that the BBOptimizer class can be properly instanciated
         BBOptimizer(
             black_box=FakeBlackBox,
@@ -171,7 +181,8 @@ class TestSHAManPruning(unittest.TestCase):
     def test_pruning_parameters_function(self):
         """Tests that the pruning parameters are properly parsed when max_step_duration is a function.
         """
-        pruning_parameters = PruningParameters(max_step_duration="numpy.median")
+        pruning_parameters = PruningParameters(
+            max_step_duration="numpy.median")
         self.assertEqual(pruning_parameters.max_step_duration, numpy.median)
 
     def test_pruning_parameters_wrong_type(self):
