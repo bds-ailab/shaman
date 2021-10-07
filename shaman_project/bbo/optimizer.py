@@ -377,12 +377,13 @@ class BBOptimizer:
         return copied_array
 
     def infer_type_parameters(self, parameter_array):
-        """Returns a copy of the history parameters with the type inferred to the
-        best of its ability: unless the value cannot be converted to int
-        or float, the value is assumed to be a string.
+        """Returns a copy of the history parameters with the type inferred
+        to the best of its ability: unless the value cannot be converted
+        to int or float, the value is assumed to be a string.
 
         Args:
-            array (np.array of np.array): The array of array to infer the data for.
+            array (np.array of np.array): The array of array to infer the
+                data for.
 
         Returns:
             np.array: A copy of the new typed array.

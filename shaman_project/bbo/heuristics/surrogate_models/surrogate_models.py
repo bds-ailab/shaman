@@ -3,11 +3,7 @@
 optimization of a function."""
 
 # Ignore unused argument kwargs
-# pylint: disable=unused-argument
-import enum
-from operator import invert
 import numpy as np
-from numpy.lib.npyio import _savez_compressed_dispatcher
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from bbo.heuristics.heuristics import Heuristic
 
@@ -100,8 +96,8 @@ class SurrogateModel(Heuristic):
                 parameter dimension.
 
         Returns:
-            None, but save the hot encoder and the categorical range information
-                into an attribute
+            None, but save the hot encoder and the categorical range
+                information into an attribute
         """
         # Check in the ranges if there are any categorical variable
         # And store them in the list categorical_ranges
@@ -112,7 +108,8 @@ class SurrogateModel(Heuristic):
             # Check if the first value of the range is a string
             # If it is, the whole range is considered to be a categorical
             # variable
-            # Because it is re-used for decoding, the categorical index is saved
+            # Because it is re-used for decoding, the categorical index is
+            # saved
             if isinstance(range[0], str):
                 self.categorical_ranges.append(range)
                 self.categorical_index.append(True)
@@ -126,10 +123,12 @@ class SurrogateModel(Heuristic):
         if it encounters any string value, treated as a categorical variable.
 
         Args:
-            parameters_array (np.array): an array containing the tested parameters.
+            parameters_array (np.array): an array containing the tested
+                parameters.
 
         Returns:
-            np.array: the parameters array with the hot encoding when relevant.
+            np.array: the parameters array with the hot encoding when
+                relevant.
         """
         # If there are any categorical variables
         if self.categorical_ranges:
@@ -140,7 +139,9 @@ class SurrogateModel(Heuristic):
             hot_encoded = self.hot_encoder.fit_transform(
                 parameters_array[:, self.categorical_index])
             # Return a vstack concatenation of the data
-            return np.hstack([parameters_array[:, np.invert(self.categorical_index)],
+            return np.hstack([parameters_array[:,
+                                               np.invert(
+                                                   self.categorical_index)],
                               hot_encoded])
         return parameters_array
 
