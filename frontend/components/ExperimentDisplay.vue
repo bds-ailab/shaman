@@ -219,7 +219,7 @@ export default {
           }
         },
         dataLabels: {
-          enabled: true,
+          enabled: typeof labels !== 'undefined',
           formatter: (val, context) => {
             if (labels) {
               return labels[context.dataPointIndex]
