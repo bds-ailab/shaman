@@ -12,3 +12,7 @@ components:
         cmd_var: True
         type: int
         default: 5
+      test:
+        env_var: True
+        type: str
+        default: "toto"

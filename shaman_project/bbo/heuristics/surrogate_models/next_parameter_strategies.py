@@ -129,7 +129,7 @@ def maximum_probability_improvement(func, ranges, previous_evaluations):
             improvement.
     """
     combination_ranges = np.array(
-        np.meshgrid(*ranges)).T.reshape(-1, len(ranges))
+        np.meshgrid(*ranges), dtype=object).T.reshape(-1, len(ranges))
     try:
         mean, sigma = func(combination_ranges, return_std=True)
     except TypeError:
@@ -199,7 +199,7 @@ def expected_improvement(func, ranges, previous_evaluations):
     """
     # compute all possible combinations of parameters
     combination_ranges = np.array(
-        np.meshgrid(*ranges)).T.reshape(-1, len(ranges))
+        np.meshgrid(*ranges), dtype=object).T.reshape(-1, len(ranges))
     try:
         mean, sigma = func(combination_ranges, return_std=True)
     except TypeError:

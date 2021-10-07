@@ -12,6 +12,7 @@ import io
 import sys
 import unittest
 import numpy as np
+from numpy.testing._private.utils import assert_array_equal
 
 # imports for surrogate models
 from sklearn.gaussian_process import GaussianProcessRegressor
@@ -46,6 +47,26 @@ class Parabola:
         Computes the value of the parabola at data point array_2d
         """
         return array_2d[0] ** 2 + array_2d[1] ** 2
+
+
+class CategoricalParabola:
+    """
+    Black box class that will be used for testing purpose
+    """
+
+    def __init__(self):
+        """
+        Initialization of the black-box
+        """
+        print("I'm the Parabola function ! Good luck finding my optimum !")
+
+    def compute(self, array_3d):
+        """
+        Computes the value of the parabola at data point array_2d
+        """
+        if array_3d[2] == "toto":
+            return array_3d[0] ** 2 + array_3d[1] ** 2
+        return array_3d[0] ** 2 + array_3d[1] ** 2 + 20
 
 
 # Create mock class that does not have a compute method for testing purpose
@@ -115,6 +136,7 @@ class TestOptimizer(unittest.TestCase):
         """
         self.parabola = Parabola()
         self.no_compute = AintGotNoCompute()
+        self.categorical_parabola = CategoricalParabola()
 
     def test_no_compute_method(self):
         """
@@ -471,7 +493,8 @@ class TestOptimizer(unittest.TestCase):
         )
         expected_parameter = np.array([0, 1, 3])
         parameter = np.array([0.2, 0.8, 2.89])
-        actual_parameter = bb_obj.closest_parameters(parameter, parameter_space)
+        actual_parameter = bb_obj.closest_parameters(
+            parameter, parameter_space)
         np.testing.assert_array_equal(
             expected_parameter,
             actual_parameter,
@@ -1044,6 +1067,84 @@ class TestOptimizer(unittest.TestCase):
         )
         bb_obj.optimize()
         self.assertTrue(len(bb_obj.history["fitness"]) < 51)
+
+    def test_infer_type(self):
+        """Tests that the static method built to infer the types
+        of an array.
+        """
+        bb_obj = BBOptimizer(
+            black_box=self.parabola,
+            heuristic="surrogate_model",
+            max_iteration=50,
+            initial_sample_size=2,
+            parameter_space=parameter_space,
+            next_parameter_strategy=expected_improvement,
+            regression_model=GaussianProcessRegressor,
+            stop_criterion="improvement_criterion",
+            stop_window=4,
+            improvement_estimator=min,
+            improvement_threshold=0.1
+        )
+        int_array = np.array([1, 2, 3])
+        inferred_int_array = bb_obj.infer_type(int_array)
+        assert_array_equal(int_array, inferred_int_array)
+        mixed_type_array = np.array(['1', '2', 'toto'])
+        expected_mixed_type_array = np.array([1, 2, 'toto'], dtype=object)
+        inferred_mixed_type_array = bb_obj.infer_type(mixed_type_array)
+        assert_array_equal(inferred_mixed_type_array,
+                           expected_mixed_type_array)
+
+    def test_infer_type_arrays(self):
+        """Tests that the static method built to infer the types
+        of an array of arrays.
+        """
+        bb_obj = BBOptimizer(
+            black_box=self.parabola,
+            heuristic="surrogate_model",
+            max_iteration=50,
+            initial_sample_size=2,
+            parameter_space=parameter_space,
+            next_parameter_strategy=expected_improvement,
+            regression_model=GaussianProcessRegressor,
+            stop_criterion="improvement_criterion",
+            stop_window=4,
+            improvement_estimator=min,
+            improvement_threshold=0.1
+        )
+        array_to_infer = np.array([
+            ["1", "2", "3"], ["1", "toto", "2"]])
+        expected_inference = np.array(
+            [np.array([1, 2, 3]), np.array([1, "toto", 2])])
+        assert_array_equal(array_to_infer,
+                           expected_inference)
+
+    def test_optimization_categorical(self):
+        """Tests that the optimization performs correctly whenever using
+        a categorical variable.
+        """
+        np.random.seed(10)
+        categorical_parameter_space = np.array(
+            [np.arange(-5, 5, 1), np.arange(-6, 6, 1),
+             np.arange(-6, 6, 1), ["toto", "tutu"]]
+        ).T
+        bb_obj = BBOptimizer(
+            black_box=self.categorical_parabola,
+            heuristic="surrogate_model",
+            max_iteration=10,
+            initial_sample_size=2,
+            parameter_space=categorical_parameter_space,
+            next_parameter_strategy=expected_improvement,
+            regression_model=GaussianProcessRegressor,
+        )
+        bb_obj.optimize()
+        best_parameters, best_fitness = bb_obj._get_best_performance()
+        expected_best_parameters = np.array([0, 1, 1, "toto"], dtype=object)
+        expected_best_fitness = 21
+        np.testing.assert_array_equal(
+            best_parameters,
+            expected_best_parameters
+        )
+        self.assertEqual(best_fitness, expected_best_fitness)
 
 
 if __name__ == "__main__":

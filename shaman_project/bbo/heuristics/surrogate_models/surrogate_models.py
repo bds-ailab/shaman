@@ -4,8 +4,11 @@ optimization of a function."""
 
 # Ignore unused argument kwargs
 # pylint: disable=unused-argument
+import enum
+from operator import invert
 import numpy as np
-from sklearn.preprocessing import StandardScaler
+from numpy.lib.npyio import _savez_compressed_dispatcher
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from bbo.heuristics.heuristics import Heuristic
 
 
@@ -52,53 +55,117 @@ class SurrogateModel(Heuristic):
 
         # Save next parameter strategy
         self.next_parameter_strategy = next_parameter_strategy
-        # Save parameter and fitness scaler as attributes
+        # Save parameter, fitness scaler
         self.parameter_scaler = StandardScaler()
         self.fitness_scaler = StandardScaler()
+        # save hot encoder as attributes and index of categorical variables
+        # TODO: not very efficient to create it at each round
+        self.computed_ranges = False
+        self.hot_encoder = None
+        self.categorical_variables = None
+        self.categorical_ranges = None
 
-    @staticmethod
-    def _build_prediction_function(fitted_regression_model, parameter_scaler):
+    def _build_prediction_function(self):
         """Given a fitted regression model, returns a function that predicts
         the value at data point x for this model.
 
         Args:
             fitted_regression_model (object of class regression_model):
                 A fitted object of class regression_model
-            parameter_scaler (object of class Scaler): A fitted scaler to
-                transform the parameter space.
 
         Returns:
             function: The function that can be used to predict the value of x.
         """
         # define the function
         def prediction_function(data_point, *args, **kwargs):
-            x_arr = np.array(data_point)
+            x_arr = self.hot_encode(data_point)
             try:
-                scaled_arr = parameter_scaler.transform(x_arr)
-                return fitted_regression_model.predict(
+                scaled_arr = self.parameter_scaler.transform(x_arr)
+                return self.regression_model.predict(
                     scaled_arr, *args, **kwargs)
             except ValueError:
-                scaled_arr = parameter_scaler.transform(x_arr.reshape(1, -1))
-                return fitted_regression_model.predict(
+                scaled_arr = self.parameter_scaler.transform(
+                    x_arr.reshape(1, -1))
+                return self.regression_model.predict(
                     scaled_arr, *args, **kwargs)
 
         # return it
         return prediction_function
 
-    def regression_function(self, history):
+    def get_categorical_ranges(self, ranges):
+        """Compute the categorical ranges of an array.
+
+        Args:
+            ranges (numpy arrays of numpy array): the possible values of each
+                parameter dimension.
+
+        Returns:
+            None, but save the hot encoder and the categorical range information
+                into an attribute
+        """
+        # Check in the ranges if there are any categorical variable
+        # And store them in the list categorical_ranges
+        # As well as their indexes
+        self.categorical_ranges = []
+        self.categorical_index = []
+        for range in ranges:
+            # Check if the first value of the range is a string
+            # If it is, the whole range is considered to be a categorical
+            # variable
+            # Because it is re-used for decoding, the categorical index is saved
+            if isinstance(range[0], str):
+                self.categorical_ranges.append(range)
+                self.categorical_index.append(True)
+            else:
+                self.categorical_index.append(False)
+        self.computed_ranges = True
+
+    def hot_encode(self, parameters_array):
+        """
+        Given a parameter array, returns an hot encoded value of it
+        if it encounters any string value, treated as a categorical variable.
+
+        Args:
+            parameters_array (np.array): an array containing the tested parameters.
+
+        Returns:
+            np.array: the parameters array with the hot encoding when relevant.
+        """
+        # If there are any categorical variables
+        if self.categorical_ranges:
+            # Create a hot encoder on this array if it does not yet exist
+            self.hot_encoder = OneHotEncoder(
+                categories=self.categorical_ranges, sparse=False)
+            # Transform parameter array using the hot encoder
+            hot_encoded = self.hot_encoder.fit_transform(
+                parameters_array[:, self.categorical_index])
+            # Return a vstack concatenation of the data
+            return np.hstack([parameters_array[:, np.invert(self.categorical_index)],
+                              hot_encoded])
+        return parameters_array
+
+    def regression_function(self, history, ranges):
         """Fits the regression or interpolation method on the history of the
         previous evaluations and returns the associated prediction function.
 
         Args:
             history (dict): the history of the optimization, i.e. the tested
                 parameters and the associated value.
+            ranges (numpy arrays of numpy array): the possible values of each
+                parameter dimension.
 
         Returns:
            function: the function to use for regression.
         """
+        # Check if the hot encoding has already been called
+        if not self.computed_ranges:
+            # Compute the ranges if not already done
+            self.get_categorical_ranges(ranges)
+        # take parameter array and transform it using the hot encoder
+        parameters_array = self.hot_encode(history["parameters"])
         # take history and normalize it using standard scaler
         scaled_parameters = self.parameter_scaler.fit_transform(
-            history["parameters"])
+            parameters_array)
         scaled_fitness = self.fitness_scaler.fit_transform(
             history["fitness"].reshape(-1, 1)
         )
@@ -113,9 +180,7 @@ class SurrogateModel(Heuristic):
         # if not, fit the model without this parameter
         except TypeError:
             self.regression_model.fit(X=scaled_parameters, y=scaled_fitness)
-        return self._build_prediction_function(
-            self.regression_model, self.parameter_scaler
-        )
+        return self._build_prediction_function()
 
     def choose_next_parameter(self, history, ranges, *args, **kwargs):
         """Choose the next parameter by using the function passed as argument
@@ -132,7 +197,7 @@ class SurrogateModel(Heuristic):
                 reproduction of the two parents.
         """
         # Build prediction function
-        prediction_function = self.regression_function(history)
+        prediction_function = self.regression_function(history, ranges)
         # choose next parameter for this function using the strategy given as
         # input
         new_parameter = self.next_parameter_strategy(

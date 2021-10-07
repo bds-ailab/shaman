@@ -73,7 +73,7 @@
               type="area"
               height="100"
               :series="[data]"
-              :options="chartOptionsParameters"
+              :options="chartOptionsParameters(data.labels)"
             ></apexchart>
           </div>
         </div>
@@ -166,10 +166,22 @@ export default {
           break
       }
       return icon
-    }
-  },
-  computed: {
-    chartOptionsParameters() {
+    },
+    getIntHash(value) {
+      let hash = 0
+      const len = value.length
+      for (let i = 0; i < len; i++) {
+        hash = (hash << 5) - hash + value.charCodeAt(i)
+        hash |= 0 // to 32bit integer
+      }
+      return hash
+    },
+    getArrayHash(strArray) {
+      const hashedStrArray = []
+      strArray.forEach((str, i) => hashedStrArray.push(this.getIntHash(str)))
+      return hashedStrArray
+    },
+    chartOptionsParameters(labels) {
       return {
         chart: {
           height: 350,
@@ -177,19 +189,64 @@ export default {
           group: 'performance',
           id: 'time'
         },
+        tooltip: {
+          shared: true,
+          custom: (series) => {
+            const name = series.w.config.series[series.seriesIndex].name
+            if (labels) {
+              return (
+                '<div class="arrow_box">' +
+                '<span>' +
+                '<b> Parameter &#32;' +
+                name +
+                '&#32;: </b>' +
+                labels[series.dataPointIndex] +
+                '</span>' +
+                '</div>'
+              )
+            } else {
+              return (
+                '<div class="arrow_box">' +
+                '<span>' +
+                '<b> Parameter &#32;' +
+                name +
+                '&#32;: </b>' +
+                series.series[series.seriesIndex][series.dataPointIndex] +
+                '</span>' +
+                '</div>'
+              )
+            }
+          }
+        },
         dataLabels: {
-          enabled: false
+          enabled: true,
+          formatter: (val, context) => {
+            if (labels) {
+              return labels[context.dataPointIndex]
+            } else {
+              return val
+            }
+          }
         },
         yaxis: {
           labels: {
-            minWidth: 40
+            minWidth: 40,
+            formatter: (val, context) => {
+              if (labels) {
+                return ''
+              } else {
+                return val
+              }
+            }
           }
         },
         stroke: {
           curve: 'smooth'
         }
       }
-    },
+    }
+  },
+  computed: {
     chartOptionsTimes() {
       return {
         chart: {
@@ -219,7 +276,7 @@ export default {
             return (
               '<div class="arrow_box">' +
               '<span>' +
-              '<b>Elapsed time:   </b>' +
+              '<b>Performance value:   </b>' +
               series.series[series.seriesIndex][series.dataPointIndex] +
               '<span> <br/>' +
               '<b>Number of resamples:  </b>' +
@@ -364,7 +421,16 @@ export default {
       }
 
       for (const [key, value] of Object.entries(parameterObj)) {
-        serieData.push({ name: key, data: value })
+        // Check if value can be converted to a float
+        if (parseFloat(value[0])) {
+          serieData.push({ name: key, data: value })
+        } else {
+          serieData.push({
+            name: key,
+            data: this.getArrayHash(value),
+            labels: value
+          })
+        }
       }
       return serieData
     },

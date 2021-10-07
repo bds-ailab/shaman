@@ -15,6 +15,7 @@ import unittest
 import os
 import shutil
 import numpy as np
+from numpy.testing._private.utils import assert_array_equal
 
 # Example of regression function
 from sklearn.neighbors import KNeighborsRegressor
@@ -52,45 +53,26 @@ class TestAcquisitionFunctions(unittest.TestCase):
     Tests that the acquisition functions from the "next_parameter_strategies" module work properly.
     """
 
-    def setUp(self):
-        """
-        Sets up the test by regressing two functions, one using the nearest neighbor regressor
-        and one using gaussian process by using the _build_prediction_function of the
-        SurrogateModel class.
-        """
-        # k nearest neighbor regressor
-        knn = KNeighborsRegressor()
-        scaler = StandardScaler()
-        scaler.fit(fake_history["parameters"])
-        knn.fit(X=fake_history["parameters"], y=fake_history["fitness"])
-        self.knn_fun = SurrogateModel._build_prediction_function(knn, scaler)
-        # gaussian processes
-        gaussian_process = GaussianProcessRegressor()
-        gaussian_process.fit(
-            X=fake_history["parameters"],
-            y=fake_history["fitness"])
-        self.gp_fun = SurrogateModel._build_prediction_function(
-            gaussian_process, scaler
-        )
-
-    # def test_lbfgs_b(self):
+    # def setUp(self):
     #     """
-    #     Tests that the L_BFGS_B minimizer works properly.
+    #     Sets up the test by regressing two functions, one using the nearest neighbor regressor
+    #     and one using gaussian process by using the _build_prediction_function of the
+    #     SurrogateModel class.
     #     """
-    #     np.random.seed(10)
-    #     expected_min = np.array([9., 4.])
-    #     real_min = l_bfgs_b_minimizer(self.knn_fun, ranges)
-    #     np.testing.assert_array_equal(expected_min, real_min, "L-BFGS minimizer do not work as "
-    #                                                           "expected.")
-
-    # def test_cma(self):
-    #     """
-    #     Tests that the CMA minimizer works properly. Sadly, I have not figured out how to set the
-    #     internal seed of the CMA package so I can't compare its value to a set value.
-    #     """
-    #     np.random.seed(10)
-    #     cma_optimizer(self.knn_fun, ranges)
-    #     self._remove_dat()
+    #     # k nearest neighbor regressor
+    #     knn = KNeighborsRegressor()
+    #     scaler = StandardScaler()
+    #     scaler.fit(fake_history["parameters"])
+    #     knn.fit(X=fake_history["parameters"], y=fake_history["fitness"])
+    #     self.knn_fun = SurrogateModel._build_prediction_function(knn, scaler)
+    #     # gaussian processes
+    #     gaussian_process = GaussianProcessRegressor()
+    #     gaussian_process.fit(
+    #         X=fake_history["parameters"],
+    #         y=fake_history["fitness"])
+    #     self.gp_fun = SurrogateModel._build_prediction_function(
+    #         gaussian_process, scaler
+    #     )
 
     @staticmethod
     def _remove_dat():
@@ -118,27 +100,27 @@ class TestAcquisitionFunctions(unittest.TestCase):
         expected_mpi = np.array([1, 0, 0])
         np.testing.assert_array_almost_equal(expected_mpi, max_prob_imp)
 
-    def test_mpi(self):
-        """
-        Tests that the Maximum Probability Improvement function works properly when using
-        regression as gp.
-        """
-        np.random.seed(10)
-        expected_min = np.array([0, 19])
-        real_min = maximum_probability_improvement(
-            self.gp_fun, ranges, fake_history["fitness"]
-        )
-        np.testing.assert_array_equal(real_min, expected_min)
+    # def test_mpi(self):
+    #     """
+    #     Tests that the Maximum Probability Improvement function works properly when using
+    #     regression as gp.
+    #     """
+    #     np.random.seed(10)
+    #     expected_min = np.array([0, 19])
+    #     real_min = maximum_probability_improvement(
+    #         self.gp_fun, ranges, fake_history["fitness"]
+    #     )
+    #     np.testing.assert_array_equal(real_min, expected_min)
 
-    def test_mpi_no_sd_option(self):
-        """
-        Tests that the MPI function raises an error when given a function that do not support the
-        return_std option.
-        """
-        with self.assertRaises(TypeError):
-            maximum_probability_improvement(
-                self.knn_fun, ranges, fake_history["fitness"]
-            )
+    # def test_mpi_no_sd_option(self):
+    #     """
+    #     Tests that the MPI function raises an error when given a function that do not support the
+    #     return_std option.
+    #     """
+    #     with self.assertRaises(TypeError):
+    #         maximum_probability_improvement(
+    #             self.knn_fun, ranges, fake_history["fitness"]
+    #         )
 
     def test_compute_ei(self):
         """
@@ -153,22 +135,22 @@ class TestAcquisitionFunctions(unittest.TestCase):
         expected_ei = np.array([2, 0, 0])
         np.testing.assert_array_almost_equal(expected_ei, expected_imp)
 
-    def test_ei(self):
-        """
-        Tests that the Expected Improvement function works properly.
-        """
-        np.random.seed(10)
-        expected_min = np.array([0, 20])
-        real_min = expected_improvement(
-            self.gp_fun, ranges, fake_history["fitness"])
-        np.testing.assert_array_equal(real_min, expected_min)
+    # def test_ei(self):
+    #     """
+    #     Tests that the Expected Improvement function works properly.
+    #     """
+    #     np.random.seed(10)
+    #     expected_min = np.array([0, 20])
+    #     real_min = expected_improvement(
+    #         self.gp_fun, ranges, fake_history["fitness"])
+    #     np.testing.assert_array_equal(real_min, expected_min)
 
-    def test_ei_no_sd_option(self):
-        """
-        Tests that the EI function works properly.
-        """
-        with self.assertRaises(TypeError):
-            expected_improvement(self.knn_fun, ranges, fake_history["fitness"])
+    # def test_ei_no_sd_option(self):
+    #     """
+    #     Tests that the EI function works properly.
+    #     """
+    #     with self.assertRaises(TypeError):
+    #         expected_improvement(self.knn_fun, ranges, fake_history["fitness"])
 
 
 class TestSurrogateModels(unittest.TestCase):
@@ -229,7 +211,7 @@ class TestSurrogateModels(unittest.TestCase):
             regression_model=GaussianProcessRegressor,
             next_parameter_strategy=expected_improvement,
         )
-        surrogate_model.regression_function(fake_history)
+        surrogate_model.regression_function(fake_history, ranges)
 
     def test_choose_next_parameter_mpi(self):
         """
@@ -259,19 +241,6 @@ class TestSurrogateModels(unittest.TestCase):
         np.testing.assert_array_equal(
             real_new_parameter, expected_new_parameter)
 
-    # def test_choose_next_parameter_lbfgsb(self):
-    #     """
-    #     Checks that the selection of the next parameter works properly when using L-BFGS-B.
-    #     """
-    #     np.random.seed(10)
-    #     expected_new_parameter = np.array([3.974002, 3.046726])
-    #     surrogate_model = SurrogateModel(regression_model=GaussianProcessRegressor,
-    #                                      next_parameter_strategy=l_bfgs_b_minimizer)
-    #     real_new_parameter = surrogate_model.choose_next_parameter(
-    #         fake_history, ranges)
-    #     np.testing.assert_array_almost_equal(
-    #         real_new_parameter, expected_new_parameter)
-
     def test_evaluate_quality(self):
         """
         Tests that the RMSE is properly returned.
@@ -285,6 +254,49 @@ class TestSurrogateModels(unittest.TestCase):
         real_score = surrogate_model.evaluate_quality(fake_history)
         np.testing.assert_array_almost_equal(expected_score, real_score)
 
+    def test_hot_encoding(self):
+        """Tests that the hot encoding feature works as expected by
+        hot encoding an array.
+        """
+        surrogate_model = SurrogateModel(
+            regression_model=GaussianProcessRegressor,
+            next_parameter_strategy=expected_improvement,
+        )
+        ranges = np.array([[1, 2, 3], ["titi", "toto", "tutu"], [
+                          "popo", "jojo"]], dtype=object)
+        # manually get categorical ranges
+        surrogate_model.get_categorical_ranges(ranges)
+        parameter_array = np.array(
+            [[1, "tutu", "popo"], [2, "toto", "popo"], [4, "toto", "popo"]], dtype=object)
+        hot_encoded = surrogate_model.hot_encode(parameter_array)
+        assert_array_equal([[1, 0, 0, 1, 1, 0],
+                            [2, 0, 1, 0, 1, 0],
+                            [4, 0, 1, 0, 1, 0]], hot_encoded)
+
+    def test_choose_next_parameter_categorical(self):
+        """Tests that the selection of the next parameter behaves as expected
+        whenever there are any categorical variables.
+        """
+        ranges = np.array([[1, 2, 3, 4, 5, 6], ["titi", "toto", "tutu"], [
+            "popo", "jojo"]], dtype=object)
+        fake_history = {
+            "fitness": np.array([10, 5, 4, 2, 15]),
+            "parameters": np.array([[1, "tutu", "popo"],
+                                    [2, "toto", "popo"],
+                                    [4, "toto", "popo"],
+                                    [2, "titi", "jojo"],
+                                    [3, "tutu", "popo"]], dtype=object),
+            "truncated": np.array([True, True, False, False, False]),
+        }
+        expected_new_parameter = np.array([1, 'titi', 'jojo'], dtype=object)
+        surrogate_model = SurrogateModel(
+            regression_model=GaussianProcessRegressor,
+            next_parameter_strategy=expected_improvement,
+        )
+        real_new_parameter = surrogate_model.choose_next_parameter(
+            fake_history, ranges)
+        assert_array_equal(expected_new_parameter, real_new_parameter)
+
 
 class TestCensoredBayesian(unittest.TestCase):
     """Tests that censored bayesian models work as expected.
@@ -294,7 +306,7 @@ class TestCensoredBayesian(unittest.TestCase):
         """
         Tests that censored bayesian + EI work properly
         """
-        expected_new_parameter = [4, 4]
+        expected_new_parameter = [0, 3]
         surrogate_model = SurrogateModel(
             regression_model=CensoredGaussianProcesses,
             next_parameter_strategy=expected_improvement,
