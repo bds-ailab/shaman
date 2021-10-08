@@ -387,7 +387,7 @@ class BBOptimizer:
             np.array: A copy of the new typed array.
         """
         copied_array = []
-        for ix, sub_array in enumerate(parameter_array):
+        for sub_array in parameter_array:
             copied_array.append(np.array(self.infer_type(sub_array)))
         return np.array(copied_array)
 
