@@ -73,7 +73,7 @@
               type="area"
               height="100"
               :series="[data]"
-              :options="chartOptionsParameters(data.labels)"
+              :options="data.graphParameters"
             ></apexchart>
           </div>
         </div>
@@ -181,26 +181,31 @@ export default {
       strArray.forEach((str, i) => hashedStrArray.push(this.getIntHash(str)))
       return hashedStrArray
     },
-    chartOptionsParameters(labels) {
+    chartOptionsParameters(categoricalLabels) {
+      const group =
+        this.experimentStatus === 'finished' || categoricalLabels == null
+          ? 'performance'
+          : categoricalLabels
       return {
         chart: {
           height: 350,
           type: 'area',
-          group: 'performance',
+          group,
           id: 'time'
         },
         tooltip: {
           shared: true,
           custom: (series) => {
             const name = series.w.config.series[series.seriesIndex].name
-            if (labels) {
+
+            if (categoricalLabels) {
               return (
                 '<div class="arrow_box">' +
                 '<span>' +
                 '<b> Parameter &#32;' +
                 name +
                 '&#32;: </b>' +
-                labels[series.dataPointIndex] +
+                categoricalLabels[series.dataPointIndex] +
                 '</span>' +
                 '</div>'
               )
@@ -219,10 +224,10 @@ export default {
           }
         },
         dataLabels: {
-          enabled: typeof labels !== 'undefined',
+          enabled: categoricalLabels !== null,
           formatter: (val, context) => {
-            if (labels) {
-              return labels[context.dataPointIndex]
+            if (categoricalLabels) {
+              return categoricalLabels[context.dataPointIndex]
             } else {
               return val
             }
@@ -232,7 +237,7 @@ export default {
           labels: {
             minWidth: 40,
             formatter: (val, context) => {
-              if (labels) {
+              if (categoricalLabels) {
                 return ''
               } else {
                 return val
@@ -265,7 +270,7 @@ export default {
           }
         },
         tooltip: {
-          shared: true,
+          // shared: true,
           custom: (series) => {
             let resampledNbr = 1
             let truncatedNbr = 0
@@ -408,6 +413,7 @@ export default {
       const parameterObj = {}
       // Contains the data for the graphs
       const serieData = []
+
       if (this.experiment.parameters) {
         this.testedParameters.forEach(function(parameters, index) {
           for (const [key, value] of Object.entries(parameters)) {
@@ -419,16 +425,23 @@ export default {
           }
         })
       }
-
       for (const [key, value] of Object.entries(parameterObj)) {
         // Check if value can be converted to a float
         if (parseFloat(value[0])) {
-          serieData.push({ name: key, data: value })
+          console.log(value)
+          serieData.push({
+            name: key,
+            data: value,
+            labels: null,
+            graphParameters: this.chartOptionsParameters(null)
+          })
         } else {
+          console.log(value)
           serieData.push({
             name: key,
             data: this.getArrayHash(value),
-            labels: value
+            labels: value,
+            graphParameters: this.chartOptionsParameters(value)
           })
         }
       }
