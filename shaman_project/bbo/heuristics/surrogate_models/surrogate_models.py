@@ -229,10 +229,10 @@ class SurrogateModel(Heuristic):
     def summary(self, history):
         """Returns a summary of the optimization process of the surrogate
         model, by returning the final RMSE."""
-        rmse = self.regression_model.score(
-            X=history["parameters"], y=history["fitness"]
-        )
-        print(f"Final RMSE: {rmse}")
+        # rmse = self.regression_model.score(
+        #     X=history["parameters"], y=history["fitness"]
+        # )
+        # print(f"Final RMSE: {rmse}")
 
     def reset(self):
         """Resets the algorithm."""
