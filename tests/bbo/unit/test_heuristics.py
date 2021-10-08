@@ -18,6 +18,7 @@ unittests:
 import unittest
 import numpy as np
 import time
+from numpy.core.defchararray import array
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.gaussian_process import GaussianProcessRegressor
 
@@ -57,7 +58,7 @@ from bbo.heuristics.surrogate_models.regression_models import (
 # Use parabola as fake black-box
 class Parabola:
     """
-    Black box class that will be used for testing purpose
+    Black box class that will be used for testing purpose.
     """
 
     def __init__(self):
@@ -71,6 +72,29 @@ class Parabola:
         Computes the value of the parabola at data point array_2d
         """
         return array_2d[0] ** 2 + array_2d[1] ** 2
+
+
+class CategoricalParabola:
+    """Black-box class that handles categorical variables
+    and that will be used for testing purpose.
+    """
+
+    def __init__(self):
+        """
+        Initialization of the black-box
+        """
+        print("I'm the Parabola function ! Good luck finding my optimum !")
+
+    def compute(self, array_3d):
+        """
+        Computes the value of the parabola at data point array_2d
+        """
+        if array_3d[2] == "toto":
+            # Return parabola formula
+            return array_3d[0] ** 2 + array_3d[1] ** 2
+        else:
+            # Else return translated parabola
+            return array_3d[0] ** 2 + array_3d[1] ** 2 + 20
 
 
 class AsyncParabola:
@@ -145,6 +169,7 @@ class TestGeneticAlgorithms(unittest.TestCase):
         Sets up the testing procedure by initializing the parabola as the black-box function.
         """
         self.fake_black_box = Parabola()
+        self.fake_black_box_categorical = CategoricalParabola()
 
     def test_tournament_pick_single_crossover(self):
         """
@@ -152,9 +177,10 @@ class TestGeneticAlgorithms(unittest.TestCase):
         selection of the fittest parents + a single crossover method.
         """
         bb_obj = BBOptimizer(
-            black_box=self.fake_black_box,
+            black_box=self.fake_black_box_categorical,
             parameter_space=np.array(
-                [np.arange(-5, 5, 1), np.arange(-6, 6, 1), np.arange(-6, 6, 1)]
+                [np.arange(-5, 5, 1), np.arange(-6, 6, 1),
+                 np.arange(-6, 6, 1), np.array(["tutu", "toto"])]
             ).T,
             heuristic="genetic_algorithm",
             initial_sample_size=2,
@@ -174,7 +200,7 @@ class TestGeneticAlgorithms(unittest.TestCase):
         selection of the fittest parents + a single crossover method.
         """
         bb_obj = BBOptimizer(
-            black_box=self.fake_black_box,
+            black_box=self.fake_black_box_categorical,
             parameter_space=np.array(
                 [
                     np.arange(-5, 5, 1),
@@ -185,6 +211,7 @@ class TestGeneticAlgorithms(unittest.TestCase):
                     np.arange(-6, 6, 1),
                     np.arange(-5, 5, 1),
                     np.arange(-6, 6, 1),
+                    np.array(["tutu", "toto"])
                 ]
             ).T,
             heuristic="genetic_algorithm",
@@ -203,9 +230,10 @@ class TestGeneticAlgorithms(unittest.TestCase):
         selection of the fittest parents + double crossover method.
         """
         bb_obj = BBOptimizer(
-            black_box=self.fake_black_box,
+            black_box=self.fake_black_box_categorical,
             parameter_space=np.array(
-                [np.arange(-5, 5, 1), np.arange(-6, 6, 1), np.arange(-6, 6, 1)]
+                [np.arange(-5, 5, 1), np.arange(-6, 6, 1),
+                 np.arange(-6, 6, 1), np.array(["tutu", "toto"])]
             ).T,
             heuristic="genetic_algorithm",
             initial_sample_size=2,
@@ -225,13 +253,14 @@ class TestGeneticAlgorithms(unittest.TestCase):
         selection of the fittest parents + double crossover method.
         """
         bb_obj = BBOptimizer(
-            black_box=self.fake_black_box,
+            black_box=self.fake_black_box_categorical,
             parameter_space=np.array(
                 [
                     np.arange(-5, 5, 1),
                     np.arange(-6, 6, 1),
                     np.arange(-6, 6, 1),
                     np.arange(-6, 6, 1),
+                    np.array(["tutu", "toto"])
                 ]
             ).T,
             heuristic="genetic_algorithm",
@@ -258,6 +287,7 @@ class TestSimulatedAnnealing(unittest.TestCase):
         Sets up the testing procedure by initializing the parabola as the black-box function.
         """
         self.fake_black_box = Parabola()
+        self.fake_black_box_categorical = CategoricalParabola()
 
     def test_simulated_annealing_no_restart(self):
         """
@@ -265,13 +295,14 @@ class TestSimulatedAnnealing(unittest.TestCase):
         optimizer interface and without using any restart.
         """
         bb_obj = BBOptimizer(
-            black_box=self.fake_black_box,
+            black_box=self.fake_black_box_categorical,
             parameter_space=np.array(
                 [
                     np.arange(-5, 5, 1),
                     np.arange(-6, 6, 1),
                     np.arange(-6, 6, 1),
                     np.arange(-6, 6, 1),
+                    np.array(["tutu", "toto"])
                 ]
             ).T,
             heuristic="simulated_annealing",
@@ -290,13 +321,14 @@ class TestSimulatedAnnealing(unittest.TestCase):
         optimizer interface when using a restart.
         """
         bb_obj = BBOptimizer(
-            black_box=self.fake_black_box,
+            black_box=self.fake_black_box_categorical,
             parameter_space=np.array(
                 [
                     np.arange(-5, 5, 1),
                     np.arange(-6, 6, 1),
                     np.arange(-6, 6, 1),
                     np.arange(-6, 6, 1),
+                    np.array(["tutu", "toto"])
                 ]
             ).T,
             heuristic="simulated_annealing",
@@ -325,6 +357,7 @@ class TestSurrogateModels(unittest.TestCase):
         """
         self.fake_black_box = Parabola()
         self.fake_async_black_box = AsyncParabola()
+        self.fake_black_box_categorical = CategoricalParabola()
 
     def test_surrogate_model_gp_ei(self):
         """
@@ -332,13 +365,14 @@ class TestSurrogateModels(unittest.TestCase):
         BBOptimizer when using GP + EI.
         """
         bb_obj = BBOptimizer(
-            black_box=self.fake_black_box,
+            black_box=self.fake_black_box_categorical,
             parameter_space=np.array(
                 [
                     np.arange(-5, 5, 1),
                     np.arange(-6, 6, 1),
                     np.arange(-6, 6, 1),
                     np.arange(-6, 6, 1),
+                    np.array(["tutu", "toto"])
                 ]
             ).T,
             heuristic="surrogate_model",

@@ -69,7 +69,9 @@ class SimpleFitnessTransformation(FitnessTransformation):
         new_fitness = list()
         new_truncated = list()
         fitness_array = np.array(history["fitness"])
-        parameters_array = np.array(history["parameters"])
+        # HACK: convert array to string in order to compute its
+        # unique values, and then convert it using infer_types
+        parameters_array = np.array(history["parameters"]).astype(str)
         truncated_array = np.array(history["truncated"])
         # Check that there is at least two elements
         if len(fitness_array) < 2:
@@ -104,9 +106,49 @@ class SimpleFitnessTransformation(FitnessTransformation):
                 )
 
             return {
-                "parameters": np.array(new_parameters),
+                "parameters": self.infer_type_parameters(new_parameters),
                 "fitness": np.array(new_fitness),
                 "truncated": np.array(new_truncated),
                 "initialization": history["initialization"],
                 "resampled": history["resampled"],
             }
+
+    @staticmethod
+    def infer_type(array):
+        """Given an array, returns a copy with the type inferred to the
+        best of its ability: unless the value cannot be converted to int
+        or float, the value is assumed to be a string.
+
+        Args:
+            array (np.array): The array to infer the data for.
+
+        Returns:
+            np.array: A copy of the new typed array.
+        """
+        copied_array = np.zeros(shape=len(array), dtype=object)
+        for ix, value in enumerate(array):
+            try:
+                converted_value = float(value)
+                if converted_value.is_integer():
+                    converted_value = int(converted_value)
+                copied_array[ix] = converted_value
+            except ValueError:
+                copied_array[ix] = str(value)
+        return copied_array
+
+    def infer_type_parameters(self, parameter_array):
+        """Returns a copy of the history parameters with the type inferred
+        to the best of its ability: unless the value cannot be converted
+        to int or float, the value is assumed to be a string.
+
+        Args:
+            array (np.array of np.array): The array of array to infer the
+                data for.
+
+        Returns:
+            np.array: A copy of the new typed array.
+        """
+        copied_array = []
+        for ix, sub_array in enumerate(parameter_array):
+            copied_array.append(np.array(self.infer_type(sub_array)))
+        return np.array(copied_array)

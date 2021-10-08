@@ -342,13 +342,54 @@ class BBOptimizer:
         """
         # If there are some values already in the history
         if self.history["parameters"] is not None:
+            typed_new_parameters = self.infer_type(new_parameters)
             appended_parameters = np.vstack(
-                [self.history["parameters"], new_parameters]
+                [self.history["parameters"], typed_new_parameters]
             )
-            self.history["parameters"] = appended_parameters.astype(float)
-        # Else
+            self.history["parameters"] = self.infer_type_parameters(
+                appended_parameters)        # Else
         else:
             self.history["parameters"] = new_parameters
+
+    @staticmethod
+    def infer_type(array):
+        """Given an array, returns a copy with the type inferred to the
+        best of its ability: unless the value cannot be converted to int
+        or float, the value is assumed to be a string.
+
+        Args:
+            array (np.array): The array to infer the data for.
+
+        Returns:
+            np.array: A copy of the new typed array.
+        """
+        copied_array = np.zeros(shape=len(array), dtype=object)
+        for ix, value in enumerate(array):
+            try:
+                converted_value = float(value)
+                if converted_value.is_integer():
+                    converted_value = int(converted_value)
+                copied_array[ix] = converted_value
+            except ValueError:
+                copied_array[ix] = str(value)
+        return copied_array
+
+    def infer_type_parameters(self, parameter_array):
+        """Returns a copy of the history parameters with the type inferred
+        to the best of its ability: unless the value cannot be converted
+        to int or float, the value is assumed to be a string.
+
+        Args:
+            array (np.array of np.array): The array of array to infer the
+                data for.
+
+        Returns:
+            np.array: A copy of the new typed array.
+        """
+        copied_array = []
+        for sub_array in parameter_array:
+            copied_array.append(np.array(self.infer_type(sub_array)))
+        return np.array(copied_array)
 
     def _append_fitness(self, new_fitness):
         """Appends new parameters to the history of previously evaluated
@@ -665,7 +706,8 @@ class BBOptimizer:
             ):
                 parameters = self._choose_next_parameters()
                 cntr += 1
-        return parameters
+        # Return the selected parameters and cast the type
+        return self.infer_type(parameters)
 
     def optimize(self, callbacks=[lambda x: x]):
         """Performs the optimization process and saves the optimization results
@@ -760,7 +802,6 @@ class BBOptimizer:
             estimator (function): A function to compute the aggregation,
                 that can be vectorized
         """
-        # = list()
         fitness_array = np.array(self.history["fitness"])
         parameters_array = np.array(self.history["parameters"])
         # Get the index of the unique parametrization
@@ -810,7 +851,7 @@ class BBOptimizer:
         """Computes the standard error associated with each parametrization."""
         noise_measurement = list()
         fitness_array = np.array(self.history["fitness"])
-        parameters_array = np.array(self.history["parameters"])
+        parameters_array = np.array(self.history["parameters"]).astype(str)
         # If the length is at least one
         if len(fitness_array) > 1:
             # Get the index of the unique parametrization
@@ -923,7 +964,7 @@ class BBOptimizer:
         for arr in self.parameter_space:
             space_size = space_size * len(arr)
         # Compute the number of unique parameters
-        parameters_array = self.history["parameters"]
+        parameters_array = self.history["parameters"].astype(str)
         unique_parameters = np.unique(parameters_array, axis=0)
         # Compute the number of different visited coordinates
         percentage_explored_space = len(unique_parameters) / space_size * 100

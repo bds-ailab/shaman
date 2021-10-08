@@ -3,11 +3,11 @@
 To use SHAMan, you must first **register a component** to be optimized, by specifying how it is used conjointely with an application, its different parameters and their possible values.
 
 !!! warning
-    There is no component registered by default with SHAMan, and **the application cannot run without a registered component**. An error message will be displayed in the Web UI if there is no registered component.
+There is no component registered by default with SHAMan, and **the application cannot run without a registered component**. An error message will be displayed in the Web UI if there is no registered component.
 
 ## What is a component ?
 
-A component is defined in SHAMan as **an entity**, that **can be launched through a sbatch**,  with **parameters that can be optimized**. Examples of such components are I/O accelerators (see the cookbook on [auto-tuning of I/O accelerators](../cookbooks/ioaccelerators.md)) and Message Passing Interface.
+A component is defined in SHAMan as **an entity**, that **can be launched through a sbatch**, with **parameters that can be optimized**. Examples of such components are I/O accelerators (see the cookbook on [auto-tuning of I/O accelerators](../cookbooks/ioaccelerators.md)) and Message Passing Interface.
 
 ## Configuration file
 
@@ -15,19 +15,17 @@ To register a component, you must write a YAML file describing the component and
 
 The basic structure of the YAML file is a series of dictionaries describing the different available components. There is no limit on the possible number of components.
 
-``` yaml
+```yaml
 components:
-  component_1:
-    ...
-  component_2:
-    ...
+  component_1: ...
+  component_2: ...
 ```
 
 Within the description of each component, the configuration file is separated into two distinct parts.
 
 ### Specifying how to launch the component
 
-``` yaml hl_lines="3 4 5 6"
+```yaml hl_lines="3 4 5 6"
 components:
   component_1:
     plugin: example_1
@@ -43,14 +41,14 @@ components:
 
 Several ways can be (non-exclusively) used by SHAMan to launch the component:
 
-* `plugin`: added as an argument of the submission command line.
-In the example above, the following command is used ```sbatch --example_1 my_sbatch```
+- `plugin`: added as an argument of the submission command line.
+  In the example above, the following command is used `sbatch --example_1 my_sbatch`
 
-* `command`: added on top of the sbatch file.
-In the example above, the top of the program is appended by adding `example_cmd` as well as the `cmd_var` argument (see next section).
+- `command`: added on top of the sbatch file.
+  In the example above, the top of the program is appended by adding `example_cmd` as well as the `cmd_var` argument (see next section).
 
-* `ld_preload`: positions the variable as value for `LD_PRELOAD`.
-In the example above, the top of the program is appended by adding `LD_PRELOAD=ld_preload` on top of the sbatch file. 
+- `ld_preload`: positions the variable as value for `LD_PRELOAD`.
+  In the example above, the top of the program is appended by adding `LD_PRELOAD=ld_preload` on top of the sbatch file.
 
 An additional parameter is the `header`, which specifies a command to be run between each optimization run. An example can be a system call to clean the cache, to ensure independence between runs.
 
@@ -64,9 +62,9 @@ The second part of the component configuration file deals with the description o
 - A variable appended to the command line variable (`cmd_var=True`) with an optional flag and suffix
 - A variable passed on the job's command line (`cli_var=True`) with an optional flag and suffix
 
-Each parameter must have a `default` value, as well as a `type` (:warning: for now, only integer values are supported).
+Each parameter must have a `default` value, as well as a `type` (:warning: for now, only integer and string values are supported. Whenever a string value is used, the variable is treated as **categorical**).
 
-``` yaml hl_lines="7 8 9 10 11 12 13 14 15 16 17 18 19 20"
+```yaml hl_lines="7 8 9 10 11 12 13 14 15 16 17 18 19 20"
 components:
   component_1:
     cli_command: example_1
@@ -96,7 +94,7 @@ components:
 
 If we consider the configuration file describing `component_1`:
 
-``` yaml
+```yaml
 components:
   component_1:
     cli_command: example_1
@@ -122,7 +120,7 @@ components:
 
 and the application described by the sbatch file `my_sbatch.sbatch`
 
-``` shell
+```shell
 #!/bin/bash
 #SBATCH --job-name=TestJob
 #SBATCH --ntasks=3
@@ -131,7 +129,7 @@ hostname
 
 SHAMan will optimize the application by calling repeatedly the script (here with default parameters):
 
-``` shell
+```shell
 #!/bin/bash
 #SBATCH --job-name=TestJob
 #SBATCH --ntasks=3
@@ -143,22 +141,21 @@ hostname
 
 through the launch command line `sbatch --component_1 param_3=1 my_sbatch.sbatch` and with the environment variable `param_1=1`.
 
-
 For a concrete example of a configuration file, refer to the examples presented in the [cookbook](../cookbooks/ioaccelerators.md)
 
 ## Install command
 
 !!! tip
-    If you are running the application entirely containerized, the install command must be run either in the API docker container. Else, the command must be run either in the API docker or directly on the login node where the Python library is installed.
-
+If you are running the application entirely containerized, the install command must be run either in the API docker container. Else, the command must be run either in the API docker or directly on the login node where the Python library is installed.
 
 The component can be registered once the configuration file has been written, by calling the command:
-``` shell
+
+```shell
 shaman-install configuration.yaml
 ```
 
 !!! Warning
-    Running the command **erases** the current data.
+Running the command **erases** the current data.
 
 ## Example
 

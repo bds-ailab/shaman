@@ -73,7 +73,7 @@
               type="area"
               height="100"
               :series="[data]"
-              :options="chartOptionsParameters"
+              :options="data.graphParameters"
             ></apexchart>
           </div>
         </div>
@@ -166,30 +166,92 @@ export default {
           break
       }
       return icon
-    }
-  },
-  computed: {
-    chartOptionsParameters() {
+    },
+    getIntHash(value) {
+      let hash = 0
+      const len = value.length
+      for (let i = 0; i < len; i++) {
+        hash = (hash << 5) - hash + value.charCodeAt(i)
+        hash |= 0 // to 32bit integer
+      }
+      return hash
+    },
+    getArrayHash(strArray) {
+      const hashedStrArray = []
+      strArray.forEach((str, i) => hashedStrArray.push(this.getIntHash(str)))
+      return hashedStrArray
+    },
+    chartOptionsParameters(categoricalLabels) {
+      const group =
+        this.experimentStatus === 'finished' || categoricalLabels == null
+          ? 'performance'
+          : categoricalLabels
       return {
         chart: {
           height: 350,
           type: 'area',
-          group: 'performance',
+          group,
           id: 'time'
         },
+        tooltip: {
+          shared: true,
+          custom: (series) => {
+            const name = series.w.config.series[series.seriesIndex].name
+
+            if (categoricalLabels) {
+              return (
+                '<div class="arrow_box">' +
+                '<span>' +
+                '<b> Parameter &#32;' +
+                name +
+                '&#32;: </b>' +
+                categoricalLabels[series.dataPointIndex] +
+                '</span>' +
+                '</div>'
+              )
+            } else {
+              return (
+                '<div class="arrow_box">' +
+                '<span>' +
+                '<b> Parameter &#32;' +
+                name +
+                '&#32;: </b>' +
+                series.series[series.seriesIndex][series.dataPointIndex] +
+                '</span>' +
+                '</div>'
+              )
+            }
+          }
+        },
         dataLabels: {
-          enabled: false
+          enabled: categoricalLabels !== null,
+          formatter: (val, context) => {
+            if (categoricalLabels) {
+              return categoricalLabels[context.dataPointIndex]
+            } else {
+              return val
+            }
+          }
         },
         yaxis: {
           labels: {
-            minWidth: 40
+            minWidth: 40,
+            formatter: (val, context) => {
+              if (categoricalLabels) {
+                return ''
+              } else {
+                return val
+              }
+            }
           }
         },
         stroke: {
           curve: 'smooth'
         }
       }
-    },
+    }
+  },
+  computed: {
     chartOptionsTimes() {
       return {
         chart: {
@@ -208,7 +270,7 @@ export default {
           }
         },
         tooltip: {
-          shared: true,
+          // shared: true,
           custom: (series) => {
             let resampledNbr = 1
             let truncatedNbr = 0
@@ -219,7 +281,7 @@ export default {
             return (
               '<div class="arrow_box">' +
               '<span>' +
-              '<b>Elapsed time:   </b>' +
+              '<b>Performance value:   </b>' +
               series.series[series.seriesIndex][series.dataPointIndex] +
               '<span> <br/>' +
               '<b>Number of resamples:  </b>' +
@@ -266,9 +328,9 @@ export default {
     },
     averageNoise() {
       if (this.experiment.average_noise) {
-        return this.experiment.average_noise.toFixed(2) + ' s'
+        return this.experiment.average_noise.toFixed(2)
       } else {
-        return '0' + ' s'
+        return '0'
       }
     },
     step() {
@@ -351,6 +413,7 @@ export default {
       const parameterObj = {}
       // Contains the data for the graphs
       const serieData = []
+
       if (this.experiment.parameters) {
         this.testedParameters.forEach(function(parameters, index) {
           for (const [key, value] of Object.entries(parameters)) {
@@ -362,9 +425,25 @@ export default {
           }
         })
       }
-
       for (const [key, value] of Object.entries(parameterObj)) {
-        serieData.push({ name: key, data: value })
+        // Check if value can be converted to a float
+        if (parseFloat(value[0])) {
+          console.log(value)
+          serieData.push({
+            name: key,
+            data: value,
+            labels: null,
+            graphParameters: this.chartOptionsParameters(null)
+          })
+        } else {
+          console.log(value)
+          serieData.push({
+            name: key,
+            data: this.getArrayHash(value),
+            labels: value,
+            graphParameters: this.chartOptionsParameters(value)
+          })
+        }
       }
       return serieData
     },

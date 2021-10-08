@@ -2,11 +2,11 @@
 
 An optimization experiment is defined by the combination of:
 
-* **A component** (see section [registering a component](registering.md)) and its parametric space (the possible values taken by the optimizer)
+- **A component** (see section [registering a component](registering.md)) and its parametric space (the possible values taken by the optimizer)
 
-* **An application**: defined as a file that can be launched through Slurm
+- **An application**: defined as a file that can be launched through Slurm
 
-* **An optimization heuristic**: an optimization algorithm, a number of exploration and exploitation step, a possible pruning strategy, a possible noise reduction strategy. More details on black-box optimization are available [here](../bbo/heuristics.md).
+- **An optimization heuristic**: an optimization algorithm, a number of exploration and exploitation step, a possible pruning strategy, a possible noise reduction strategy. More details on black-box optimization are available [here](../bbo/heuristics.md).
 
 ## Launching an experiment through the Web interface
 
@@ -14,11 +14,11 @@ The preferred way of launching an optimization experiment is through the Web int
 
 ### Experiment arguments
 
-* **The component and its parametric space**: the component to optimize, among the registered ones, as well as the parametric space, defined through a min, max and a step value.
+- **The component and its parametric space**: the component to optimize, among the registered ones, as well as the parametric space, defined through a min, max and a step value.
 
-* **The application**: the application to optimize is written as a shell file, directly through the Web interface.
+- **The application**: the application to optimize is written as a shell file, directly through the Web interface.
 
-* **Number of iterations**: the number of exploration iteration must be specified as an integer value.
+- **Number of iterations**: the number of exploration iteration must be specified as an integer value.
 
 ### Setting up the optimizer
 
@@ -26,7 +26,7 @@ The preferred way of launching an optimization experiment is through the Web int
 
 - **Noise reduction strategies**: this option resamples parametrization a certain number of times to smooth out possible noise. The resampling can be **static** (i.e. fixed number of resamples) or **dynamic** (i.e. the parametrization is repeated until the 95% confidence interval is below a fixed threshold). The fitness aggregation function is the transformation applied to target metric corresponding to the same parametrization (it can be either the **mean** or **median**).
 
-- **Initialization steps**: this field specifies the number of parametrization sampled using a *Latin Hypercube Design* before starting the optimization heuristic. 
+- **Initialization steps**: this field specifies the number of parametrization sampled using a _Latin Hypercube Design_ before starting the optimization heuristic.
 
 - **Optimization heuristic**: three possible heuristics (surrogate models, genetic algorithms and simulated annealing) can be chosen, as well as their different hyperparameters. For a detailed overview of the available heuristics and their hyperparametrization, refer to this section [here](../bbo/heuristics.md).
 
@@ -35,14 +35,14 @@ The preferred way of launching an optimization experiment is through the Web int
 ### The shaman-optimize command
 
 !!! tip
-    Launching an experiment through the command line interface gives access to more options to tune the optimizer, but it is also riskier because there is no configuration check before running the experiment. Beware !
+Launching an experiment through the command line interface gives access to more options to tune the optimizer, but it is also riskier because there is no configuration check before running the experiment. Beware !
 
 !!! warning
-    Before running the `shaman-optimize` command, you must source the environment file written during the [installation step](install.md).
+Before running the `shaman-optimize` command, you must source the environment file written during the [installation step](install.md).
 
 Launching an optimization experiment can also be done through the command line interface `shaman-optimize`.
 
-``` shell
+```shell
 shaman-optimize --help
 
 Usage: shaman-optimize [OPTIONS]
@@ -65,42 +65,44 @@ Options:
 
 It requires:
 
-* **The application to optimize**: a file that can be submitted with the *sbatch* command.
+- **The application to optimize**: a file that can be submitted with the _sbatch_ command.
 
-* **The number of iterations**: the allocated number of iterations for the experiment.
+- **The number of iterations**: the allocated number of iterations for the experiment.
 
-* **Experiment name**: the name of the experiment for re-identification in the Web interface
+- **Experiment name**: the name of the experiment for re-identification in the Web interface
 
-* **Configuration file**: the configuration file of the experiment, see next section.
+- **Configuration file**: the configuration file of the experiment, see next section.
 
-* **Directory to store the sbatch**: an optional argument to indicate where the sbatch generated by shaman must be stored. 
+- **Directory to store the sbatch**: an optional argument to indicate where the sbatch generated by shaman must be stored.
 
-* **Directory to store the slurm outputs**: an optional argument to indicate where to store the slurm outputs.
+- **Directory to store the slurm outputs**: an optional argument to indicate where to store the slurm outputs.
 
 ### Writing a configuration file
 
 SHAMan's configuration file comes with five sections and is written using a `yaml` format:
 
 - `experiment`: contains information about the experiment.
-  *Possible options*: 
-    - `default_first`: set to True if the first parameter tested by the optimizer
+  _Possible options_:
 
-- `bbo`: parametrizes the optimizer. The possible options are the **different arguments taken by the optimizer**. All the arguments described in the file will be passed as *kwargs* of the `BBOptimizer` class (see section [stand-alone optimization](..\bbo\introduction.md) of the documentation).
+  - `default_first`: set to True if the first parameter tested by the optimizer
 
-- `noise_reduction`: parametrizes the noise reduction features of the optimizer. The possible arguments are the different noise reduction strategies available in `bbo`, as well as their specific *kwargs*. For more details on how to use noise reduction with `bbo`, see [section](..\bbo\noise-reduction.md).
+- `bbo`: parametrizes the optimizer. The possible options are the **different arguments taken by the optimizer**. All the arguments described in the file will be passed as _kwargs_ of the `BBOptimizer` class (see section [stand-alone optimization](..\bbo\introduction.md) of the documentation).
+
+- `noise_reduction`: parametrizes the noise reduction features of the optimizer. The possible arguments are the different noise reduction strategies available in `bbo`, as well as their specific _kwargs_. For more details on how to use noise reduction with `bbo`, see [section](..\bbo\noise-reduction.md).
 
 - `pruning`: parametrizes the pruning strategy features of the optimizer (see [section](..\bbo\pruning-strategies.md) for more details).
-  *Possible options*:
-    - `max_step_duration`: the maximum elapsed time before stopping the parametrization. Can either be:
-        - A numpy estimator (for example, `numpy.median`, `numpy.mean`, *etc*). Runs that go above the value of the estimator computed on the already tested execution times are interrupted.
-        - A float value (for example, 5), which corresponds to an elapsed time in seconds
-        - The `default` string, which corresponds to stopping runs that take longer than the default value. The option **default_first** in the `experiment` section must be set to `True`.
+  _Possible options_:
 
-- `components`: the selected component and the defined parametric grid, using the `min`, `max` and `step` format. If the value is set to `multiplicative` the step option is used as multiplicatively.
+  - `max_step_duration`: the maximum elapsed time before stopping the parametrization. Can either be:
+    - A numpy estimator (for example, `numpy.median`, `numpy.mean`, _etc_). Runs that go above the value of the estimator computed on the already tested execution times are interrupted.
+    - A float value (for example, 5), which corresponds to an elapsed time in seconds
+    - The `default` string, which corresponds to stopping runs that take longer than the default value. The option **default_first** in the `experiment` section must be set to `True`.
 
-An example of a configuration file is written below: 
+- `components`: the selected component and either its defined parametric grid, using the `min`, `max` and `step` format, or a list of the possible taken values. In the case of a parametric grid, if the value is set to `multiplicative` the step option is used as multiplicatively.
 
-``` yaml
+An example of a configuration file is written below:
+
+```yaml
 experiment:
   default_first: True
 
@@ -123,17 +125,20 @@ components:
       max: 20
       step: 1
     param_2:
-      min: 1
-      max: 15
-      step: 3
+      min: 2
+      max: 16
+      step: 2
+      step_type: multiplicative
+    param_3:
+      - value_1
+      - value_3
 ```
 
 This example configuration file launches an experiment which:
 
-* Runs the default parametrization first
-* Uses Bayesian Optimization with expected improvement as acquisition function
-* Uses `component_1` and `param_1` can take any value from 1 to 20, while `param_2` can take any value from 1 to 15 but with an interval of 3 between each value.
-
+- Runs the default parametrization first
+- Uses Bayesian Optimization with expected improvement as acquisition function
+- Uses `component_1` and `param_1` can take any value from 1 to 20, `param_2` can take any value from 2 to 16 with a power of 2, and the `param_3` value either 'value_1' or 'value_2'.
 
 ## Vizualizing an experiment
 
