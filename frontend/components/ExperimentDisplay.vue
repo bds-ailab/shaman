@@ -328,9 +328,9 @@ export default {
     },
     averageNoise() {
       if (this.experiment.average_noise) {
-        return this.experiment.average_noise.toFixed(2) + ' s'
+        return this.experiment.average_noise.toFixed(2)
       } else {
-        return '0' + ' s'
+        return '0'
       }
     },
     step() {
