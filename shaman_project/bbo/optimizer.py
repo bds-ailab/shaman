@@ -347,9 +347,7 @@ class BBOptimizer:
                 [self.history["parameters"], typed_new_parameters]
             )
             self.history["parameters"] = self.infer_type_parameters(
-                appended_parameters)
-            print(self.history["parameters"])
-        # Else
+                appended_parameters)        # Else
         else:
             self.history["parameters"] = new_parameters
 
@@ -365,7 +363,7 @@ class BBOptimizer:
         Returns:
             np.array: A copy of the new typed array.
         """
-        copied_array = np.zeros(shape=array.shape, dtype=object)
+        copied_array = np.zeros(shape=len(array), dtype=object)
         for ix, value in enumerate(array):
             try:
                 converted_value = float(value)
@@ -388,10 +386,10 @@ class BBOptimizer:
         Returns:
             np.array: A copy of the new typed array.
         """
-        copied_array = np.zeros(shape=parameter_array.shape, dtype=object)
+        copied_array = []
         for ix, sub_array in enumerate(parameter_array):
-            copied_array[ix] = self.infer_type(sub_array)
-        return copied_array
+            copied_array.append(np.array(self.infer_type(sub_array)))
+        return np.array(copied_array)
 
     def _append_fitness(self, new_fitness):
         """Appends new parameters to the history of previously evaluated

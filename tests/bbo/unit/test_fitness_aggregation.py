@@ -49,7 +49,9 @@ class TestSimpleFitnessTransformation(unittest.TestCase):
         np.testing.assert_array_equal(
             transformed_history["fitness"], [2.5, 2.5])
         np.testing.assert_array_equal(
-            transformed_history["parameters"], np.array([[1, 2], [3, 4]])
+            transformed_history["parameters"], np.array([np.array([1, 2], dtype=object),
+                                                        np.array([3, 4], dtype=object)],
+                                                        dtype=object).reshape(2, 2)
         )
 
     def test_simple_fitness_transformation_median(self):
@@ -68,8 +70,10 @@ class TestSimpleFitnessTransformation(unittest.TestCase):
         transformed_history = sft.transform(history)
         np.testing.assert_array_equal(
             transformed_history["fitness"], [0.5, 1.5])
-        np.testing.assert_array_equal(
-            transformed_history["parameters"], np.array([[1, 2], [3, 4]])
+        np.testing.assert_equal(
+            transformed_history["parameters"],
+            [np.array([1, 2], dtype=object),
+             np.array([3, 4], dtype=object)]
         )
 
 

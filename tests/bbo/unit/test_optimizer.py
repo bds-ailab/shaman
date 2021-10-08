@@ -670,7 +670,8 @@ class TestOptimizer(unittest.TestCase):
         )
         bb_obj.optimize()
         self.assertEqual(
-            np.unique(bb_obj.history["parameters"], axis=0).shape[0],
+            np.unique(bb_obj.history["parameters"].astype(
+                str), axis=0).shape[0],
             7,
             "Some parameter values have been evaluated several times",
         )
