@@ -6,16 +6,22 @@
   -->
   <div>
     <div
-      class="flex w-full bg-blue-600 text-white h-20 m-auto text-2xl items-center justify-center"
+      class="flex flex-wrap w-full bg-blue-600 text-white h-20 m-auto text-2xl items-center justify-center"
     >
-      Experiment
-      <b
-        ><pre> {{ experimentName }} </pre></b
-      >
-      with component
-      <b
-        ><pre> {{ componentName }} </pre></b
-      >
+      <div class="flex w-full justify-center">
+        Experiment
+        <b
+          ><pre> {{ experimentName }} </pre>
+        </b>
+        with component
+        <b
+          ><pre> {{ componentName }} </pre></b
+        >
+      </div>
+      <div class="flex justify-left">
+        Id:
+        <pre> {{ experimentId }} </pre>
+      </div>
     </div>
     <div>
       <!-- Start of execution results row.
@@ -361,6 +367,9 @@ export default {
     },
     experimentStart() {
       return this.experiment.experiment_start
+    },
+    experimentId() {
+      return this.experiment._id
     },
     experimentName() {
       return this.experiment.experiment_name
