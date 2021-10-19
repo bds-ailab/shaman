@@ -140,12 +140,14 @@ export default {
       currentPage: 1,
       currentPageSidebar: 5,
       default_fields: [
+        { key: '_id', sortable: true },
         { key: 'experiment_name', sortable: true },
         { key: 'experiment_start', sortable: true, sortDirection: 'asc' },
         { key: 'component', sortable: true },
         { key: 'status', sortable: false }
       ],
       reduced_fields: [
+        { key: '_id', sortable: true },
         { key: 'experiment_name', sortable: true },
         { key: 'status', sortable: false }
       ],
