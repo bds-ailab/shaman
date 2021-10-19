@@ -44,10 +44,30 @@
             type="checkbox"
             id="rawDataCheckbox"
             v-model="rawData"
+            @change="
+              () =>
+                normalizedData
+                  ? (normalizedData = !normalizedData)
+                  : (normalizedData = normalizedData)
+            "
             class="form-checkbox h-6 w-6 text-pink-600 border-gray-900"
           />
           <label class="text-xl font-semibold pt-3" for="checkbox"
             >Plot raw data</label
+          >
+        </div>
+        <div>
+          <input
+            type="checkbox"
+            id="normalizedDataCheckbox"
+            v-model="normalizedData"
+            @change="
+              () => (!rawData ? (rawData = !rawData) : (rawData = rawData))
+            "
+            class="form-checkbox h-6 w-6 text-pink-600 border-gray-900"
+          />
+          <label class="text-xl font-semibold pt-3" for="checkbox"
+            >Normalize data</label
           >
         </div>
         <div class="text-xl font-semibold pt-3">
@@ -142,7 +162,8 @@ export default {
   data() {
     return {
       experiment: {},
-      rawData: true
+      rawData: true,
+      normalizedData: false
     }
   },
   methods: {
@@ -428,7 +449,6 @@ export default {
       for (const [key, value] of Object.entries(parameterObj)) {
         // Check if value can be converted to a float
         if (parseFloat(value[0])) {
-          console.log(value)
           serieData.push({
             name: key,
             data: value,
@@ -468,9 +488,18 @@ export default {
           }
         ]
       } else {
+        let normalizedExperiment = []
+        if (this.normalizedData) {
+          const ratio = Math.min(...this.experiment.fitness)
+          normalizedExperiment = this.experiment.fitness.map(function(item) {
+            return item / ratio
+          })
+        } else {
+          normalizedExperiment = this.experiment.fitness
+        }
         return [
           {
-            data: this.experiment.fitness,
+            data: normalizedExperiment,
             name: 'Execution time'
           }
         ]
