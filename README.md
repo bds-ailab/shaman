@@ -127,3 +127,8 @@ More details about this project are accessible [here](https://shaman-app.readthe
 # Maintainers
 
 If you have any questions regarding this project, please contact [Sophie Robert](mailto:sophie.robert@atos.net). UI and logo are designed by [Sébastien Bakirci](http://www.sebastienbakirci.myportfolio.com).
+
+## Sponsor 
+
+This project was partially funded by <img src="/logos/feder.jpg" height="60" alt="Feder"> <img alt="Région Auvergne Rhône-Alpes" src="/logos/ara-region.jpg" height="60"> <img alt="European Union" src="/logos/UE.png" height="60">
+
